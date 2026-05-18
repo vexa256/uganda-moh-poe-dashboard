@@ -242,8 +242,8 @@
                             <div><p class="text-[10px] uppercase tracking-wider text-muted-foreground">POE</p><p class="font-mono text-[11.5px]" x-text="drill.data?.alert?.poe_code || '—'"></p></div>
                             <div><p class="text-[10px] uppercase tracking-wider text-muted-foreground">Created</p><p x-text="drill.data?.alert?.created_at ? new Date(drill.data.alert.created_at).toLocaleString() : '—'"></p></div>
                             <div><p class="text-[10px] uppercase tracking-wider text-muted-foreground">Acknowledged</p><p x-text="drill.data?.alert?.acknowledged_at ? new Date(drill.data.alert.acknowledged_at).toLocaleString() : '—'"></p></div>
-                            <div><p class="text-[10px] uppercase tracking-wider text-muted-foreground">Hours Open</p><p class="font-mono" x-text="drill.data?.alert?.hours_open"></p></div>
-                            <div><p class="text-[10px] uppercase tracking-wider text-muted-foreground">SLA</p><p><span class="badge" :class="drill.data?.alert?.sla_breached ? 'badge-danger' : 'badge-success'" x-text="(drill.data?.alert?.sla_hours || '—') + 'h'"></span></p></div>
+                            <div><p class="text-[10px] uppercase tracking-wider text-muted-foreground">Open For</p><p class="font-mono" x-text="formatDuration(drill.data?.alert?.minutes_open ?? (drill.data?.alert?.hours_open * 60))"></p></div>
+                            <div><p class="text-[10px] uppercase tracking-wider text-muted-foreground">SLA</p><p><span class="badge" :class="drill.data?.alert?.sla_breached ? 'badge-danger' : 'badge-success'" x-text="(drill.data?.alert?.sla_hours || '—') + 'h target'"></span></p></div>
                         </div>
                     </details>
 
@@ -501,7 +501,7 @@ function rptNationalDashboard() {
                 case 1: return `${a.risk_level} alert "${a.title || a.code}" at ${a.poe_code || 'unknown POE'} — ${a.status}.`;
                 case 2: return `Triggered ${a.created_at ? new Date(a.created_at).toLocaleString() : 'recently'}.`;
                 case 3: return `Routed to ${a.routed_to_level || '—'}; ${a.acknowledged_at ? 'acknowledged ' + new Date(a.acknowledged_at).toLocaleString() : 'not yet acknowledged'}.`;
-                case 4: return a.sla_breached ? `SLA breached — ${a.hours_open}h open against ${a.sla_hours}h target.` : `Within SLA — ${a.hours_open}h of ${a.sla_hours}h.`;
+                case 4: { const open = this.formatDuration(a.minutes_open ?? a.hours_open * 60); return a.sla_breached ? `SLA breached — ${open} open against ${a.sla_hours}h target.` : `Within SLA — ${open} of ${a.sla_hours}h target.`; }
                 case 5: return `${(this.drill.data?.diseases?.length || 0)} suspected disease(s); traveller risk ${this.drill.data?.traveller?.risk_level || '—'}.`;
                 case 6: const fa = this.drill.data?.followup_agg || {}; return `${fa.completed || 0} of ${fa.total || 0} followups completed.`;
                 case 7: return a.status === 'CLOSED' ? `Closed: ${a.close_category || '—'}.` : `Not yet resolved — ${a.status}.`;
@@ -514,7 +514,7 @@ function rptNationalDashboard() {
                 case 1: return `This alert opened ${a.created_at ? new Date(a.created_at).toLocaleString() : '—'} at ${a.poe_code || 'an unrecorded POE'}. Current status is ${a.status}; routed to ${a.routed_to_level || '—'}.`;
                 case 2: return t ? `The traveller is ${t.gender || '—'}, age ${t.age || '—'}, originating from ${t.origin || 'an unrecorded country'}. Triage was ${t.triage || '—'}.` : 'No secondary screening linked — alert was raised against primary tier or system event.';
                 case 3: return a.acknowledged_at ? `Acknowledged ${new Date(a.acknowledged_at).toLocaleString()}.` : 'Alert has not yet been acknowledged. The longer it sits, the more likely the SLA breach.';
-                case 4: const sla = a.sla_hours; return `Risk level ${a.risk_level} carries a ${sla}h SLA. Hours open: ${a.hours_open}. ${a.sla_breached ? 'Breach is recorded — escalate.' : 'Still inside the window.'}`;
+                case 4: { const sla = a.sla_hours; const open = this.formatDuration(a.minutes_open ?? a.hours_open * 60); return `Risk level ${a.risk_level} carries a ${sla}h SLA. Currently open for ${open}. ${a.sla_breached ? 'Breach is recorded — escalate.' : 'Still inside the window.'}`; }
                 case 5: const ds = (this.drill.data?.diseases || []).slice(0, 3).map(d => d.display_name || d.disease_code).join(', '); return ds ? `Top suspected: ${ds}.` : 'No suspected diseases recorded yet.';
                 case 6: const fa2 = this.drill.data?.followup_agg || {}; return `Pending: ${fa2.pending || 0}, Blocked: ${fa2.blocked || 0}. ${(fa2.blocking || 0) > 0 ? 'There are blockers preventing closure.' : 'No closure-blockers recorded.'}`;
                 case 7: return o ? `Classification: ${o.classification || '—'}. Lab status: ${o.lab_status || '—'}. IHR notified: ${o.ihr_notified ? 'yes' : 'no'}.` : 'No outcome row recorded yet — case is still open.';
@@ -531,6 +531,23 @@ function rptNationalDashboard() {
         },
 
         badgeForRisk(r) { return { LOW: 'badge-low', MEDIUM: 'badge-medium', HIGH: 'badge-high', CRITICAL: 'badge-critical' }[r] || 'badge-secondary'; },
+
+        /**
+         * Render a duration in minutes as a short, readable string:
+         *   < 60   → "8 min"
+         *   < 24 h → "4h 12m"   (drops 'm' on exact hours)
+         *   ≥ 24 h → "2d 5h"    (drops 'h' on exact days)
+         * Accepts minutes OR a legacy hours value (auto-detects by argument
+         * name). null / undefined → "—".
+         */
+        formatDuration(value, isMinutes = true) {
+            if (value === null || value === undefined || isNaN(value)) return '—';
+            const minutes = isMinutes ? Math.round(value) : Math.round(value * 60);
+            if (minutes < 60)    return minutes + ' min';
+            if (minutes < 1440)  { const h = Math.floor(minutes / 60), m = minutes % 60; return m ? `${h}h ${m}m` : `${h}h`; }
+            const d = Math.floor(minutes / 1440), h = Math.floor((minutes % 1440) / 60);
+            return h ? `${d}d ${h}h` : `${d}d`;
+        },
     };
 }
 </script>

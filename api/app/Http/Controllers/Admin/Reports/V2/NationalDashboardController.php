@@ -346,7 +346,8 @@ final class NationalDashboardController extends BaseReportController
 
         $created = Carbon::parse((string) $a->created_at);
         $end     = $a->closed_at ? Carbon::parse((string) $a->closed_at) : Carbon::now();
-        $hoursOpen = $created->diffInHours($end);
+        $minutesOpen = (int) round($created->diffInMinutes($end));
+        $hoursOpen   = intdiv($minutesOpen, 60);
         $sla = match ((string) $a->risk_level) { 'CRITICAL' => 4, 'HIGH' => 24, default => 48 };
 
         $travellerRow = $sec ? [
@@ -389,6 +390,7 @@ final class NationalDashboardController extends BaseReportController
                 'close_category'  => $a->close_category,
                 'close_note'      => $a->close_note,
                 'reopen_count'    => $a->reopen_count ?? 0,
+                'minutes_open'    => $minutesOpen,
                 'hours_open'      => $hoursOpen,
                 'sla_hours'       => $sla,
                 'sla_breached'    => $hoursOpen > $sla,

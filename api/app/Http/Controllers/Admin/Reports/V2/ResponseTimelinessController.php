@@ -280,9 +280,10 @@ final class ResponseTimelinessController extends BaseReportController
         $ackAt   = $a->acknowledged_at ? Carbon::parse((string) $a->acknowledged_at) : null;
         $closeAt = $a->closed_at ? Carbon::parse((string) $a->closed_at) : null;
 
-        $hoursOpen = $closeAt ? $created->diffInHours($closeAt) : $created->diffInHours($now);
-        $ackMinutes = $ackAt ? $created->diffInMinutes($ackAt) : null;
-        $resMinutes = $closeAt ? $created->diffInMinutes($closeAt) : null;
+        $minutesOpen = (int) round($closeAt ? $created->diffInMinutes($closeAt) : $created->diffInMinutes($now));
+        $hoursOpen   = intdiv($minutesOpen, 60);
+        $ackMinutes  = $ackAt   ? (int) round($created->diffInMinutes($ackAt))   : null;
+        $resMinutes  = $closeAt ? (int) round($created->diffInMinutes($closeAt)) : null;
 
         return $this->ok([
             'alert' => [
@@ -299,6 +300,7 @@ final class ResponseTimelinessController extends BaseReportController
                 'reopen_count'    => $a->reopen_count,
                 'ack_minutes'     => $ackMinutes,
                 'res_minutes'     => $resMinutes,
+                'minutes_open'    => $minutesOpen,
                 'hours_open'      => $hoursOpen,
                 'sla_hours'       => $sla,
                 'sla_breached'    => $hoursOpen > $sla,

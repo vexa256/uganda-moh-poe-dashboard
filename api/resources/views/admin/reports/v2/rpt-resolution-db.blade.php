@@ -161,7 +161,7 @@
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                         <div class="rpt-tile p-3" :class="'rpt-tile-' + riskTone(drill.data?.alert?.risk_level)"><p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Risk</p><p class="text-xl font-bold mt-0.5" x-text="drill.data?.alert?.risk_level"></p></div>
                         <div class="rpt-tile p-3" :class="drill.data?.alert?.close_category === 'FALSE_POSITIVE' ? 'rpt-tile-info' : 'rpt-tile-success'"><p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Closure</p><p class="text-xl font-bold mt-0.5" x-text="drill.data?.alert?.close_category || '—'"></p></div>
-                        <div class="rpt-tile p-3" :class="drill.data?.alert?.sla_breached ? 'rpt-tile-critical' : 'rpt-tile-success'"><p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">SLA</p><p class="text-xl font-bold mt-0.5" x-text="(drill.data?.alert?.hours_open ?? 0) + 'h / ' + (drill.data?.alert?.sla_hours ?? '?') + 'h'"></p></div>
+                        <div class="rpt-tile p-3" :class="drill.data?.alert?.sla_breached ? 'rpt-tile-critical' : 'rpt-tile-success'"><p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">SLA</p><p class="text-xl font-bold mt-0.5" x-text="formatDuration(drill.data?.alert?.minutes_open ?? (drill.data?.alert?.hours_open * 60)) + ' / ' + (drill.data?.alert?.sla_hours ?? '?') + 'h'"></p></div>
                         <div class="rpt-tile rpt-tile-neutral p-3"><p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Reopens</p><p class="text-xl font-bold mt-0.5" x-text="drill.data?.alert?.reopen_count ?? 0"></p></div>
                     </div>
 
@@ -366,17 +366,27 @@ function rptResolutionDb() {
             ];
         },
         _fmtDate(d) { return d ? new Date(d).toLocaleString() : 'not yet recorded'; },
+
+        /** Minutes → "8 min" / "4h 12m" / "2d 5h". Accepts null/undef → "—". */
+        formatDuration(value) {
+            if (value === null || value === undefined || isNaN(value)) return '—';
+            const minutes = Math.round(value);
+            if (minutes < 60)    return minutes + ' min';
+            if (minutes < 1440)  { const h = Math.floor(minutes / 60), m = minutes % 60; return m ? `${h}h ${m}m` : `${h}h`; }
+            const d = Math.floor(minutes / 1440), h = Math.floor((minutes % 1440) / 60);
+            return h ? `${d}d ${h}h` : `${d}d`;
+        },
         _fmtMin(m)  { if (m === null || m === undefined) return '—'; if (m < 60) return Math.round(m) + ' min'; if (m < 1440) return Math.round((m / 60) * 10) / 10 + ' h'; return Math.round((m / 1440) * 10) / 10 + ' d'; },
 
         wSnapshot() {
             const a = this.drill.data?.alert || {};
             return {
-                headline: `Alert ${a.code || ('#' + a.id)} closed${a.close_category ? ' as ' + a.close_category : ''} after ${a.hours_open ?? '?'}h.`,
+                headline: `Alert ${a.code || ('#' + a.id)} closed${a.close_category ? ' as ' + a.close_category : ''} after ${this.formatDuration(a.minutes_open ?? a.hours_open * 60)}.`,
                 narrative: `Opened on ${this._fmtDate(a.created_at)} at POE “${a.poe_code || 'unknown'}” at ${a.risk_level || 'UNRATED'} risk; closed on ${this._fmtDate(a.closed_at)}. ${a.sla_breached ? 'It breached its ' + a.sla_hours + 'h SLA.' : 'It closed within its ' + a.sla_hours + 'h SLA.'} ${a.reopen_count > 0 ? 'It was re-opened ' + a.reopen_count + ' time(s).' : ''}`,
                 highlights: [
                     { label: 'Risk',    value: a.risk_level || '—', tone: this.riskTone(a.risk_level) === 'critical' ? 'critical' : 'info' },
                     { label: 'Closure', value: a.close_category || 'Unspecified', tone: a.close_category === 'FALSE_POSITIVE' ? 'info' : 'success' },
-                    { label: 'SLA',     value: a.hours_open + 'h / ' + a.sla_hours + 'h', tone: a.sla_breached ? 'critical' : 'success' },
+                    { label: 'SLA',     value: this.formatDuration(a.minutes_open ?? a.hours_open * 60) + ' / ' + a.sla_hours + 'h', tone: a.sla_breached ? 'critical' : 'success' },
                 ],
             };
         },
@@ -413,7 +423,7 @@ function rptResolutionDb() {
             const pct = a.sla_hours ? Math.round((a.hours_open / a.sla_hours) * 100) : 0;
             return {
                 headline: `${pct}% of the SLA window was used.`,
-                narrative: `Risk ${a.risk_level || 'UNRATED'} carries a ${a.sla_hours}h SLA. Total time open: ${a.hours_open}h. ${a.sla_breached ? 'The SLA was breached — review the timeline to understand the delay.' : 'SLA was met.'}`,
+                narrative: `Risk ${a.risk_level || 'UNRATED'} carries a ${a.sla_hours}h SLA. Total time open: ${this.formatDuration(a.minutes_open ?? a.hours_open * 60)}. ${a.sla_breached ? 'The SLA was breached — review the timeline to understand the delay.' : 'SLA was met.'}`,
                 highlights: [{ label: 'SLA Used', value: pct + '%', tone: a.sla_breached ? 'critical' : 'success' }],
             };
         },
