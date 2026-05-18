@@ -50,7 +50,7 @@
             {{-- Alert-centric: 5 sibling-report jumps + full case file --}}
             <template x-if="drill.data?.alert?.id">
                 <a class="rpt-related-link"
-                   :href="'{{ url('/admin/reports/rpt-case-files') }}/' + drill.data.alert.id"
+                   :href="'{{ url('/admin/alerts') }}/' + drill.data.alert.id + '/case-file'"
                    target="_blank" rel="noopener">
                     <span>📄 Full Case File</span>
                     <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
