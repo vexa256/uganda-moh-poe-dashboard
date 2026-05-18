@@ -81,6 +81,7 @@ return [
         ],
 
         RequestTerminated::class => [
+            \App\Listeners\Octane\LogRequestMemory::class,
             // FlushUploadedFiles::class,
         ],
 
