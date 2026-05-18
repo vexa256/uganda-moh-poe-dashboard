@@ -405,10 +405,15 @@ final class SecondaryScreeningController extends Controller
                     ]);
                 }
 
-                // IDEMPOTENCY 2: existing case for this notification
+                // IDEMPOTENCY 2: existing case for this notification.
+                // lockForUpdate() so two simultaneous POSTs for the same
+                // notification can't both pass this check and both insert.
+                // The DB-level UNIQUE INDEX on notification_id_active is the
+                // final backstop — see catch block below.
                 $existingByNotif = DB::table('secondary_screenings')
                     ->where('notification_id', $notifId)
                     ->whereNull('deleted_at')
+                    ->lockForUpdate()
                     ->first();
 
                 if ($existingByNotif) {
@@ -442,7 +447,8 @@ final class SecondaryScreeningController extends Controller
                 $openedTz       = $data['opened_timezone'] ?? null;
                 $travelerGender = $data['traveler_gender'] ?? $primaryScreening->gender ?? 'UNKNOWN';
 
-                $caseId = DB::table('secondary_screenings')->insertGetId([
+                try {
+                    $caseId = DB::table('secondary_screenings')->insertGetId([
                     'client_uuid'                       => $clientUuid,
                     'idempotency_key'                   => null,
                     'reference_data_version'            => $data['reference_data_version'],
@@ -516,7 +522,41 @@ final class SecondaryScreeningController extends Controller
                     'last_sync_error'                   => null,
                     'created_at'                        => $now,
                     'updated_at'                        => $now,
-                ]);
+                    ]);
+                } catch (\Illuminate\Database\QueryException $qe) {
+                    // DB-level unique-key collision on (notification_id_active)
+                    // OR (client_uuid). Either way, a row already exists for
+                    // this notification — re-select and return it idempotently
+                    // so the mobile gets a usable server_id rather than a 500.
+                    // SQLSTATE 23000 = integrity constraint violation.
+                    if ($qe->getCode() !== '23000') {
+                        throw $qe;
+                    }
+                    $row = DB::table('secondary_screenings')
+                        ->where('notification_id', $notifId)
+                        ->whereNull('deleted_at')
+                        ->first();
+                    if (! $row) {
+                        // Collision on client_uuid but the matching live row was
+                        // already soft-deleted between our check and our insert.
+                        $row = DB::table('secondary_screenings')
+                            ->where('client_uuid', $clientUuid)
+                            ->first();
+                    }
+                    if (! $row) {
+                        throw $qe; // genuinely unexpected — let the outer catch surface it.
+                    }
+                    Log::info('[SecondaryScreening][store] Idempotent recovery from unique-key collision', [
+                        'notification_id' => $notifId,
+                        'server_id'       => $row->id,
+                        'sqlstate'        => $qe->getCode(),
+                    ]);
+                    return $this->ok(
+                        $this->formatCase($row),
+                        'A secondary case already exists for this referral notification. Returning existing case.',
+                        ['idempotent' => true, 'server_id' => $row->id, 'notification_id' => $notifId, 'recovered_from' => 'unique_key_collision']
+                    );
+                }
 
                 // TRANSITION NOTIFICATION OPEN → IN_PROGRESS
                 DB::table('notifications')
