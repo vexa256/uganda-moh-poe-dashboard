@@ -90,7 +90,7 @@ use Illuminate\Support\Facades\Route;
 | app contract and the cron schedule keep running.
 */
 
-Route::get('/', fn () => auth()->check() ? redirect('/admin/dashboard') : redirect('/login'));
+Route::get('/', fn () => auth()->check() ? redirect('/admin/reports/rpt-national-dashboard') : redirect('/login'));
 
 /*--------------------------------------------------------------------------
  | Public auth — login / logout (no auth middleware on the GET form)
@@ -140,7 +140,11 @@ Route::prefix('admin')->name('admin.')
     ->middleware(['web', 'auth', 'scope'])
     ->group(function () {
 
-    Route::get('/dashboard',          [AdminDashboardController::class, 'index'])   ->name('dashboard');
+    // Phase 7 (ported from rw-poe 2026-05-18): /admin/dashboard now lands on
+    // the Wave-3 V2 National Dashboard instead of the legacy PHEOC cockpit.
+    // The legacy AdminDashboardController is kept for /admin/dashboard/snapshot
+    // (live-refresh JSON) so any in-browser Alpine page loops keep working.
+    Route::get('/dashboard',          [\App\Http\Controllers\Admin\Reports\V2\NationalDashboardController::class, 'index'])->name('dashboard');
     // Situation Room live-refresh snapshot — JSON, hit by the Alpine page
     // loop every 15 s. Read-only; same scope rules as the index render.
     Route::get('/dashboard/snapshot', [AdminDashboardController::class, 'snapshot'])->name('dashboard.snapshot');
