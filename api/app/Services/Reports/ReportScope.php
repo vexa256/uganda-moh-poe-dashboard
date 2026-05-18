@@ -61,6 +61,7 @@ final class ReportScope
         'rpt-user-activity',         // R8
         'rpt-country-travel',        // R10
         'rpt-national-dashboard',    // National Dashboard (Phase 5 stub → Phase 7 real)
+        'rpt-poe-operations',        // R14 — PoE Operations (was missing → 403 for everyone)
     ];
 
     public function __construct(protected PheocScope $pheoc)

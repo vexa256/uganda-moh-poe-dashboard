@@ -125,7 +125,7 @@ final class RetentionController extends BaseGovernanceController
                     ->whereNull('deleted_at')
                     ->whereNotNull($natCol)
                     ->selectRaw("{$natCol} AS country_code, COUNT(*) AS n")
-                    ->groupBy('country_code')
+                    ->groupBy($natCol)
                     ->orderByDesc('n')->limit(10)->get()
                     ->map(fn ($r) => ['country_code' => (string) $r->country_code, 'n' => (int) $r->n])
                     ->all();
