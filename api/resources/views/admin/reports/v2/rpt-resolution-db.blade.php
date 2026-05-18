@@ -221,6 +221,8 @@
                         <template x-for="(t, i) in (drill.data?.timeline ?? [])" :key="i"><div class="border-l-2 pl-3" :class="t.severity === 'CRITICAL' ? 'border-critical' : (t.severity === 'WARN' ? 'border-warning' : 'border-brand/40')"><p class="text-[12px] font-semibold" x-text="t.event_code"></p><p class="text-[11.5px] text-muted-foreground" x-text="t.summary || '—'"></p><p class="text-[10.5px] text-muted-foreground/80" x-text="(t.actor_name || 'system') + ' · ' + new Date(t.created_at).toLocaleString()"></p></div></template>
                         <p x-show="!(drill.data?.timeline?.length)" class="text-center text-muted-foreground py-3 text-[13px]">No timeline events.</p>
                     </div></details>
+
+                    @include('admin.reports.v2._related_views', ['type' => 'alert'])
                 </div>
             </div>
         </div>

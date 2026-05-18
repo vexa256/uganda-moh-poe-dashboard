@@ -931,6 +931,10 @@ Route::prefix('admin')->name('admin.')
             Route::get('/chart/{chart}/csv', [$c, 'chartCsv'])    ->name('chart.csv');
             Route::get('/records',           [$c, 'records'])     ->name('records');
             Route::get('/records/{id}',      [$c, 'recordDetail'])->whereNumber('id')->name('records.detail');
+            // Full-page case file (replaces the cramped 460px side-sheet for
+            // deep links from other reports). Registers AFTER the literal
+            // /records routes so /records/{id} keeps returning JSON.
+            Route::get('/{id}',              [$c, 'show'])        ->whereNumber('id')->name('show');
         });
         Route::prefix('rpt-poe-performance')->name('rpt-poe-performance.')->group(function () {
             $c = \App\Http\Controllers\Admin\Reports\V2\PoePerformanceController::class;

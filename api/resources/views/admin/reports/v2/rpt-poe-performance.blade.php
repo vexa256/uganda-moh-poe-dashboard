@@ -346,6 +346,8 @@
                             <p x-show="!(drill.data?.recent_alerts?.length)" class="text-center text-muted-foreground py-3 text-[13px]">No alerts originated at this POE.</p>
                         </div>
                     </details>
+
+                    @include('admin.reports.v2._related_views', ['type' => 'poe'])
                 </div>
             </div>
         </div>

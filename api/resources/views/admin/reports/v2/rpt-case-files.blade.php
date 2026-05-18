@@ -306,6 +306,8 @@
                         <div class="rpt-field" x-show="drill.data?.outcome"><p class="rpt-field-label">Lab Status</p><p x-text="drill.data?.outcome?.lab_status || '—'"></p></div>
                         <div class="rpt-field" x-show="drill.data?.outcome"><p class="rpt-field-label">IHR</p><p x-text="drill.data?.outcome?.ihr_notified ? 'Notified — ' + (drill.data.outcome.ihr_reference || '—') : 'Not notified'"></p></div>
                     </div></details>
+
+                    @include('admin.reports.v2._related_views', ['type' => 'alert'])
                 </div>
             </div>
         </div>

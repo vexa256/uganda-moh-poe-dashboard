@@ -365,6 +365,8 @@
                             </template>
                         </div>
                     </details>
+
+                    @include('admin.reports.v2._related_views', ['type' => 'officer'])
                 </div>
             </div>
         </div>

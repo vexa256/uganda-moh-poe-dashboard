@@ -249,6 +249,8 @@
                             </table>
                         </div>
                     </details>
+
+                    @include('admin.reports.v2._related_views', ['type' => 'poe'])
                 </div>
             </div>
         </div>

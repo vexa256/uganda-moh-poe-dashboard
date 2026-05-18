@@ -331,6 +331,8 @@
                             <p x-show="!(drill.data?.top_poes?.length)" class="text-center text-muted-foreground py-3 text-[13px]">No POE arrivals recorded.</p>
                         </div>
                     </details>
+
+                    @include('admin.reports.v2._related_views', ['type' => 'country'])
                 </div>
             </div>
         </div>

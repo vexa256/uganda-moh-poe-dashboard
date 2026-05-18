@@ -229,7 +229,36 @@ final class CaseFileRegistryController extends BaseReportController
     public function recordDetail(Request $request, int $id): JsonResponse
     {
         $scope = $this->ensureAccess($request);
+        return $this->ok($this->buildRecordDetail($scope, $id));
+    }
 
+    /**
+     * Full-page rendering of the same case-file payload that recordDetail()
+     * returns as JSON. Routed at GET /admin/reports/rpt-case-files/{id} so
+     * deep links from Alert Intel / Resolution DB / etc. can land directly
+     * on the full case file instead of the cramped 460px drill side-sheet.
+     */
+    public function show(Request $request, int $id): \Illuminate\Contracts\View\View
+    {
+        $scope = $this->ensureAccess($request);
+        $data  = $this->buildRecordDetail($scope, $id);
+
+        return view('admin.reports.v2.rpt-case-files-show', [
+            'data'        => $data,
+            'caseId'      => $id,
+            'reportKey'   => $this->reportKey,
+            'reportTitle' => 'Case File · #' . $id,
+            'scope'       => $scope,
+        ]);
+    }
+
+    /**
+     * Pulls the full case-file payload (identity, travel, clinical, symptoms,
+     * exposures, suspected diseases, actions, samples, linked alert + outcome)
+     * for the given secondary_screenings row. Honors PII masking per scope.
+     */
+    private function buildRecordDetail(array $scope, int $id): array
+    {
         $s = DB::table('secondary_screenings')->where('id', $id)->whereNull('deleted_at')->first();
         abort_if(! $s, 404, 'Case not found.');
 
@@ -292,7 +321,7 @@ final class CaseFileRegistryController extends BaseReportController
         $cardRaw = (array) $s;
         $card    = $this->access->maskPii($cardRaw, $scope);
 
-        return $this->ok([
+        return [
             'case' => [
                 'id'                  => $card['id'],
                 'opened_at'           => $card['opened_at'],
@@ -381,7 +410,7 @@ final class CaseFileRegistryController extends BaseReportController
                 'ihr_notified'     => (bool) $outcome->ihr_notified,
                 'ihr_reference'    => $outcome->ihr_reference,
             ] : null,
-        ]);
+        ];
     }
 
     /* ───── chart builders ───── */
