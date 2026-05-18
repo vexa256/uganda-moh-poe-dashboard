@@ -277,6 +277,21 @@ Route::prefix('admin')->name('admin.')
      *-----------------------------------------------------------------*/
     Route::prefix('alerts')->name('alerts.')->group(function () {
 
+        // Convenience deep-link: /admin/alerts/{id}/case-file → resolves the
+        // alert's secondary_screening_id and 302s to the canonical full-page
+        // case file at /admin/reports/rpt-case-files/{screening_id}. Used by
+        // the alerts hub "view case file" affordance and by external systems
+        // that only know the alert id.
+        Route::get('/{id}/case-file', function (int $id) {
+            $alert = \Illuminate\Support\Facades\DB::table('alerts')
+                ->where('id', $id)->whereNull('deleted_at')->first(['id', 'secondary_screening_id']);
+            abort_if(! $alert, 404, 'Alert not found.');
+            if (! $alert->secondary_screening_id) {
+                abort(404, 'This alert has no secondary screening (case file) linked.');
+            }
+            return redirect('/admin/reports/rpt-case-files/' . (int) $alert->secondary_screening_id, 302);
+        })->whereNumber('id')->name('case-file');
+
         // Master list (alert-hub)
         Route::get ('/',                 [AdminAlertsController::class, 'index']) ->name('index');
         Route::get ('/data',             [AdminAlertsController::class, 'data'])  ->name('data');

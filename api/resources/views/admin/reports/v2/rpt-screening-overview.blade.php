@@ -430,7 +430,12 @@ function rptScreeningOverview() {
             },
         },
 
-        async boot() { await this.loadMeta(); await this.apply(); },
+        async boot() {
+            await this.loadMeta();
+            await this.apply();
+            const poe = new URLSearchParams(location.search).get('poe');
+            if (poe) this.$nextTick(() => this.openDrill(poe));
+        },
         async loadMeta() { const r = await fetch('{{ url('/admin/reports/rpt-screening-overview/meta') }}'); const j = await r.json(); this.meta = j.data || {}; },
         async apply() { this.loading = true; await Promise.all([this.loadKpis(), this.loadChart('volume_over_time', 'volume'), this.loadChart('top_poes', 'topPoes'), this.loadRecords(1)]); this.loading = false; },
         resetFilters() { this.filters = { poe: '', start_date: '', end_date: '' }; this.search = ''; this.apply(); },

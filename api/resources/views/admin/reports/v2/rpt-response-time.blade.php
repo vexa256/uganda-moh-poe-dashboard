@@ -449,7 +449,12 @@ function rptResponseTime() {
             },
         },
 
-        async boot() { await this.loadMeta(); await this.apply(); },
+        async boot() {
+            await this.loadMeta();
+            await this.apply();
+            const alertId = new URLSearchParams(location.search).get('alert_id');
+            if (alertId) this.$nextTick(() => this.openDrill(parseInt(alertId, 10)));
+        },
         async loadMeta() { const r = await fetch('{{ url('/admin/reports/rpt-response-time/meta') }}'); const j = await r.json(); this.meta = j.data || {}; },
         async apply() { this.loading = true; await Promise.all([this.loadKpis(), this.loadChart('ack_time_distribution', 'ack'), this.loadChart('median_resolution_by_poe', 'median'), this.loadRecords(1)]); this.loading = false; },
         resetFilters() { this.filters = { poe: '', start_date: '', end_date: '' }; this.search = ''; this.cat = 'all'; this.apply(); },

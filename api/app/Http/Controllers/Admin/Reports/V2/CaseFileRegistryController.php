@@ -238,10 +238,26 @@ final class CaseFileRegistryController extends BaseReportController
      * deep links from Alert Intel / Resolution DB / etc. can land directly
      * on the full case file instead of the cramped 460px drill side-sheet.
      */
-    public function show(Request $request, int $id): \Illuminate\Contracts\View\View
+    public function show(Request $request, int $id): \Symfony\Component\HttpFoundation\Response
     {
         $scope = $this->ensureAccess($request);
-        $data  = $this->buildRecordDetail($scope, $id);
+
+        // The {id} segment may be either a secondary_screenings.id (preferred,
+        // canonical case-file id) OR an alerts.id (the form most drill modals
+        // currently emit in their Related-Views links, because the alert is
+        // what the user was just looking at). Resolve in that order. If we
+        // get an alert id, 302 to the canonical /{screening_id} URL so refresh
+        // and bookmarks settle on the right shape.
+        $screening = DB::table('secondary_screenings')->where('id', $id)->whereNull('deleted_at')->first();
+        if (! $screening) {
+            $alert = DB::table('alerts')->where('id', $id)->whereNull('deleted_at')->first();
+            if ($alert && $alert->secondary_screening_id) {
+                return redirect('/admin/reports/rpt-case-files/' . (int) $alert->secondary_screening_id, 302);
+            }
+            abort(404, 'No case file or alert with id ' . $id . '.');
+        }
+
+        $data = $this->buildRecordDetail($scope, $id);
 
         return view('admin.reports.v2.rpt-case-files-show', [
             'data'        => $data,

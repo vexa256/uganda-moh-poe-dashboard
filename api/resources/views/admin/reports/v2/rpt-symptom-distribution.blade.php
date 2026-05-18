@@ -71,7 +71,7 @@
                         <h2 class="text-[17px] font-bold tracking-tight truncate" x-text="drill.data?.symptom?.display_name || drill.data?.symptom?.symptom_code || '—'"></h2>
                         <p class="text-[12px] text-muted-foreground mt-0.5">
                             <span x-text="drill.data?.symptom?.symptom_code || '—'" class="font-mono"></span>
-                            <span x-show="drill.data?.symptom?.category" class="ml-2">· <span x-text="drill.data.symptom.category"></span></span>
+                            <span x-show="drill.data?.symptom?.category" class="ml-2">· <span x-text="drill.data?.symptom?.category ?? ''"></span></span>
                             <span x-show="drill.data?.symptom?.is_red_flag" class="ml-2 px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[10.5px] font-semibold">🚩 Red flag</span>
                             <span x-show="drill.data?.symptom?.is_hallmark" class="ml-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10.5px] font-semibold">⭐ Hallmark</span>
                         </p>

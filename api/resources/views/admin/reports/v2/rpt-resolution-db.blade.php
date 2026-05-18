@@ -283,7 +283,13 @@ function rptResolutionDb() {
             },
         },
 
-        async boot() { await this.loadMeta(); await this.apply(); },
+        async boot() {
+            await this.loadMeta();
+            await this.apply();
+            // Cross-report deep-link: ?alert_id=X auto-opens that alert's drill.
+            const alertId = new URLSearchParams(location.search).get('alert_id');
+            if (alertId) this.$nextTick(() => this.openDrill(parseInt(alertId, 10)));
+        },
         async loadMeta() { const r = await fetch('{{ url('/admin/reports/rpt-resolution-db/meta') }}'); const j = await r.json(); this.meta = j.data || {}; },
         async apply() { this.loading = true; await Promise.all([this.loadKpis(), this.loadChart('resolutions_by_reason', 'reason'), this.loadChart('top_resolvers', 'resolvers'), this.loadRecords(1)]); this.loading = false; },
         resetFilters() { this.filters = { poe: '', start_date: '', end_date: '' }; this.search = ''; this.cat = 'all'; this.apply(); },
