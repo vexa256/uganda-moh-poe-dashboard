@@ -264,7 +264,7 @@
                         </div>
                         <div class="rpt-tile p-3" :class="'rpt-tile-' + (drill.data?.alert?.sla_breached ? 'critical' : 'success')">
                             <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">SLA</p>
-                            <p class="text-xl font-bold mt-0.5" x-text="(drill.data?.alert?.hours_open ?? 0) + 'h / ' + (drill.data?.alert?.sla_hours ?? '?') + 'h'"></p>
+                            <p class="text-xl font-bold mt-0.5" x-text="formatMinutes(drill.data?.alert?.minutes_open ?? (drill.data?.alert?.hours_open * 60)) + ' / ' + (drill.data?.alert?.sla_hours ?? '?') + 'h'"></p>
                             <p class="text-[10.5px] mt-0.5" x-text="drill.data?.alert?.sla_breached ? 'Breached' : 'Within SLA'"></p>
                         </div>
                         <div class="rpt-tile p-3" :class="'rpt-tile-' + riskTone(drill.data?.alert?.risk_level)">
@@ -278,7 +278,7 @@
                             <summary class="rpt-section-head"><span>SLA Progress</span><svg class="h-4 w-4 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg></summary>
                             <div class="rpt-section-body space-y-3">
                                 <div class="rpt-sla-bar"><div class="rpt-sla-fill" :class="drill.data?.alert?.sla_breached ? 'bg-critical' : 'bg-warning'" :style="'width:' + Math.min(100, ((drill.data?.alert?.hours_open ?? 0) / Math.max(1, drill.data?.alert?.sla_hours ?? 24)) * 100) + '%'"></div></div>
-                                <p class="text-[12px] text-muted-foreground"><span class="font-mono" x-text="drill.data?.alert?.hours_open ?? 0"></span> hours of <span class="font-mono" x-text="drill.data?.alert?.sla_hours ?? '?'"></span> hours.</p>
+                                <p class="text-[12px] text-muted-foreground"><span class="font-mono" x-text="formatMinutes(drill.data?.alert?.minutes_open ?? (drill.data?.alert?.hours_open * 60))"></span> of the <span class="font-mono" x-text="(drill.data?.alert?.sla_hours ?? '?') + 'h'"></span> SLA window.</p>
                                 <p class="text-[11px] text-muted-foreground">SLA tiers: CRITICAL 4h · HIGH 24h · MEDIUM/LOW 48h.</p>
                             </div>
                         </details>

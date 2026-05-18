@@ -266,7 +266,7 @@
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                         <div class="rpt-tile p-3" :class="'rpt-tile-' + riskTone(drill.data?.alert?.risk_level)"><p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Risk</p><p class="text-xl font-bold mt-0.5" x-text="drill.data?.alert?.risk_level"></p></div>
                         <div class="rpt-tile p-3" :class="'rpt-tile-' + statusTone(drill.data?.alert?.status)"><p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Status</p><p class="text-xl font-bold mt-0.5" x-text="drill.data?.alert?.status"></p></div>
-                        <div class="rpt-tile p-3" :class="drill.data?.alert?.sla_breached ? 'rpt-tile-critical' : 'rpt-tile-success'"><p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">SLA</p><p class="text-xl font-bold mt-0.5" x-text="(drill.data?.alert?.hours_open ?? 0) + 'h / ' + (drill.data?.alert?.sla_hours ?? '?') + 'h'"></p><p class="text-[10.5px] mt-0.5" x-text="drill.data?.alert?.sla_breached ? 'Breached' : 'Within SLA'"></p></div>
+                        <div class="rpt-tile p-3" :class="drill.data?.alert?.sla_breached ? 'rpt-tile-critical' : 'rpt-tile-success'"><p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">SLA</p><p class="text-xl font-bold mt-0.5" x-text="formatDuration(drill.data?.alert?.minutes_open ?? (drill.data?.alert?.hours_open * 60)) + ' / ' + (drill.data?.alert?.sla_hours ?? '?') + 'h'"></p><p class="text-[10.5px] mt-0.5" x-text="drill.data?.alert?.sla_breached ? 'Breached' : 'Within SLA'"></p></div>
                         <div class="rpt-tile rpt-tile-neutral p-3"><p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Reopens</p><p class="text-xl font-bold mt-0.5" x-text="drill.data?.alert?.reopen_count ?? 0"></p></div>
                     </div>
 
@@ -275,7 +275,7 @@
                             <summary class="rpt-section-head"><span>SLA Progress</span><svg class="h-4 w-4 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg></summary>
                             <div class="rpt-section-body space-y-3">
                                 <div class="rpt-sla-bar"><div class="rpt-sla-fill" :class="drill.data?.alert?.sla_breached ? 'bg-critical' : 'bg-warning'" :style="'width:' + Math.min(100, ((drill.data?.alert?.hours_open ?? 0) / Math.max(1, drill.data?.alert?.sla_hours ?? 24)) * 100) + '%'"></div></div>
-                                <p class="text-[12px] text-muted-foreground"><span class="font-mono" x-text="drill.data?.alert?.hours_open ?? 0"></span> hours of <span class="font-mono" x-text="drill.data?.alert?.sla_hours ?? '?'"></span> hours.</p>
+                                <p class="text-[12px] text-muted-foreground"><span class="font-mono" x-text="formatDuration(drill.data?.alert?.minutes_open ?? (drill.data?.alert?.hours_open * 60))"></span> of the <span class="font-mono" x-text="(drill.data?.alert?.sla_hours ?? '?') + 'h'"></span> SLA window.</p>
                                 <p class="text-[11px] text-muted-foreground">SLA tiers: CRITICAL 4h · HIGH 24h · MEDIUM/LOW 48h.</p>
                             </div>
                         </details>
@@ -557,6 +557,14 @@ function rptAlertIntel() {
         },
         _fmtDate(d) { return d ? new Date(d).toLocaleString() : 'not yet recorded'; },
         _fmtMin(m)  { if (m === null || m === undefined) return '—'; if (m < 60) return Math.round(m) + ' min'; if (m < 1440) return Math.round((m / 60) * 10) / 10 + ' h'; return Math.round((m / 1440) * 10) / 10 + ' d'; },
+        formatDuration(value) {
+            if (value === null || value === undefined || isNaN(value)) return '—';
+            const m = Math.round(value);
+            if (m < 60)   return m + ' min';
+            if (m < 1440) { const h = Math.floor(m / 60), r = m % 60; return r ? `${h}h ${r}m` : `${h}h`; }
+            const d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60);
+            return h ? `${d}d ${h}h` : `${d}d`;
+        },
 
         wizardSnapshot() {
             const a = this.drill.data?.alert || {};
@@ -565,15 +573,15 @@ function rptAlertIntel() {
             const status = a.status || 'UNKNOWN';
             const created = this._fmtDate(a.created_at);
             const sla = a.sla_hours ?? '?';
-            const open = a.hours_open ?? 0;
+            const openFmt = this.formatDuration(a.minutes_open ?? (a.hours_open ?? 0) * 60);
             const breach = a.sla_breached ? 'and is currently outside its SLA window' : 'and is still within its SLA window';
             return {
                 headline: `Alert ${code} was opened on ${created} at POE “${a.poe_code || 'unknown'}” at ${risk} risk.`,
-                narrative: `It is currently ${status.toLowerCase()}. ${open}h have elapsed against a ${sla}h SLA target ${breach}. ${a.reopen_count > 0 ? 'This alert has been re-opened ' + a.reopen_count + ' time(s) — that warrants a closer look.' : 'It has not been re-opened.'} ${a.pheic_declared_at ? 'A PHEIC has been declared on this alert — IHR engagement is active.' : ''}`,
+                narrative: `It is currently ${status.toLowerCase()}. ${openFmt} have elapsed against a ${sla}h SLA target ${breach}. ${a.reopen_count > 0 ? 'This alert has been re-opened ' + a.reopen_count + ' time(s) — that warrants a closer look.' : 'It has not been re-opened.'} ${a.pheic_declared_at ? 'A PHEIC has been declared on this alert — IHR engagement is active.' : ''}`,
                 highlights: [
                     { label: 'Risk',    value: risk,   tone: this.riskTone(risk) === 'critical' ? 'critical' : (this.riskTone(risk) === 'danger' ? 'critical' : (this.riskTone(risk) === 'warning' ? 'warning' : 'info')) },
                     { label: 'Status',  value: status, tone: status === 'CLOSED' ? 'success' : 'warning' },
-                    { label: 'SLA',     value: open + 'h / ' + sla + 'h', tone: a.sla_breached ? 'critical' : 'success' },
+                    { label: 'SLA',     value: openFmt + ' / ' + sla + 'h', tone: a.sla_breached ? 'critical' : 'success' },
                     { label: 'Reopens', value: a.reopen_count ?? 0, tone: (a.reopen_count > 0) ? 'warning' : 'info' },
                 ],
             };
@@ -620,14 +628,15 @@ function rptAlertIntel() {
             const a = this.drill.data?.alert || {};
             const sla = a.sla_hours ?? '?';
             const open = a.hours_open ?? 0;
+            const openFmt = this.formatDuration(a.minutes_open ?? open * 60);
             const pct = a.sla_hours ? Math.round((open / a.sla_hours) * 100) : 0;
             const verdict = a.sla_breached ? 'SLA has been breached.' : (pct >= 75 ? 'SLA is close to breach — push for closure.' : 'SLA is comfortably within target.');
             return {
                 headline: `${pct}% of the SLA window has been consumed.`,
-                narrative: `Risk tier ${a.risk_level || 'UNRATED'} carries a ${sla}h SLA. ${open}h have elapsed since this alert opened. ${verdict} ${a.closed_at ? 'It was closed on ' + this._fmtDate(a.closed_at) + '.' : 'It is still open.'}`,
+                narrative: `Risk tier ${a.risk_level || 'UNRATED'} carries a ${sla}h SLA. ${openFmt} have elapsed since this alert opened. ${verdict} ${a.closed_at ? 'It was closed on ' + this._fmtDate(a.closed_at) + '.' : 'It is still open.'}`,
                 highlights: [
                     { label: 'SLA Window', value: sla + 'h', tone: 'info' },
-                    { label: 'Used',       value: open + 'h (' + pct + '%)', tone: a.sla_breached ? 'critical' : (pct >= 75 ? 'warning' : 'success') },
+                    { label: 'Used',       value: openFmt + ' (' + pct + '%)', tone: a.sla_breached ? 'critical' : (pct >= 75 ? 'warning' : 'success') },
                     { label: 'Closed',     value: a.closed_at ? this._fmtDate(a.closed_at) : 'not yet', tone: a.closed_at ? 'success' : 'warning' },
                 ],
             };

@@ -209,8 +209,8 @@
                             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                                 <div class="rpt-tile p-3" :class="'rpt-tile-' + (drill.data?.alert?.sla_breached ? 'critical' : 'warning')">
                                     <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Open For</p>
-                                    <p class="text-xl font-bold mt-0.5" x-text="(drill.data?.alert?.hours_open ?? 0) + 'h'"></p>
-                                    <p class="text-[10.5px] mt-1" :class="drill.data?.alert?.sla_breached ? 'text-critical font-semibold' : 'text-muted-foreground'" x-text="'SLA ' + (drill.data?.alert?.sla_hours ?? '?') + 'h ' + (drill.data?.alert?.sla_breached ? '· breached' : '')"></p>
+                                    <p class="text-xl font-bold mt-0.5" x-text="formatDuration(drill.data?.alert?.minutes_open ?? (drill.data?.alert?.hours_open * 60))"></p>
+                                    <p class="text-[10.5px] mt-1" :class="drill.data?.alert?.sla_breached ? 'text-critical font-semibold' : 'text-muted-foreground'" x-text="'SLA target ' + (drill.data?.alert?.sla_hours ?? '?') + 'h' + (drill.data?.alert?.sla_breached ? ' · breached' : '')"></p>
                                 </div>
                                 <div class="rpt-tile rpt-tile-info p-3"><p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Status</p><p class="text-xl font-bold mt-0.5" x-text="drill.data?.alert?.status"></p></div>
                                 <div class="rpt-tile p-3" :class="'rpt-tile-' + riskTone(drill.data?.alert?.risk_level)"><p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Risk</p><p class="text-xl font-bold mt-0.5" x-text="drill.data?.alert?.risk_level"></p></div>
@@ -223,7 +223,7 @@
                                     <summary class="rpt-section-head"><span>SLA Progress</span><svg class="h-4 w-4 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg></summary>
                                     <div class="rpt-section-body space-y-3">
                                         <div class="rpt-sla-bar"><div class="rpt-sla-fill" :class="drill.data?.alert?.sla_breached ? 'bg-critical' : 'bg-warning'" :style="'width:' + Math.min(100, ((drill.data?.alert?.hours_open ?? 0) / Math.max(1, drill.data?.alert?.sla_hours ?? 24)) * 100) + '%'"></div></div>
-                                        <p class="text-[12px] text-muted-foreground"><span class="font-mono" x-text="drill.data?.alert?.hours_open ?? 0"></span> hours of <span class="font-mono" x-text="drill.data?.alert?.sla_hours ?? 24"></span> hours used.</p>
+                                        <p class="text-[12px] text-muted-foreground"><span class="font-mono" x-text="formatDuration(drill.data?.alert?.minutes_open ?? (drill.data?.alert?.hours_open * 60))"></span> of the <span class="font-mono" x-text="(drill.data?.alert?.sla_hours ?? 24) + 'h'"></span> SLA window used.</p>
                                         <p class="text-[11px] text-muted-foreground">SLA thresholds: CRITICAL 4h · HIGH 24h · MEDIUM/LOW 48h.</p>
                                     </div>
                                 </details>
@@ -593,6 +593,14 @@ function rptOpsRisk() {
         badgeForFollowup(s) { return { COMPLETED: 'badge-success', PENDING: 'badge-warning', IN_PROGRESS: 'badge-info', BLOCKED: 'badge-critical', NOT_APPLICABLE: 'badge-secondary' }[s] || 'badge-outline'; },
         riskTone(r) { return { LOW: 'success', MEDIUM: 'warning', HIGH: 'danger', CRITICAL: 'critical' }[r] || 'neutral'; },
         drillEyebrowTone() { const t = this.drill.row?.type; return { open_alert: 'text-danger', dark_poe: 'text-warning', inactive_user: 'text-info' }[t] || 'text-muted-foreground'; },
+        formatDuration(value) {
+            if (value === null || value === undefined || isNaN(value)) return '—';
+            const m = Math.round(value);
+            if (m < 60)   return m + ' min';
+            if (m < 1440) { const h = Math.floor(m / 60), r = m % 60; return r ? `${h}h ${r}m` : `${h}h`; }
+            const d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60);
+            return h ? `${d}d ${h}h` : `${d}d`;
+        },
     };
 }
 </script>

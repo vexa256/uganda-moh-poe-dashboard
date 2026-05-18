@@ -296,9 +296,10 @@ final class AlertIntelligenceController extends BaseReportController
             ]);
         }
 
-        $hoursOpen = $a->closed_at
-            ? Carbon::parse((string) $a->created_at)->diffInHours(Carbon::parse((string) $a->closed_at))
-            : Carbon::parse((string) $a->created_at)->diffInHours(Carbon::now());
+        $minutesOpen = $a->closed_at
+            ? (int) round(Carbon::parse((string) $a->created_at)->diffInMinutes(Carbon::parse((string) $a->closed_at)))
+            : (int) round(Carbon::parse((string) $a->created_at)->diffInMinutes(Carbon::now()));
+        $hoursOpen = intdiv($minutesOpen, 60);
         $sla = match ((string) $a->risk_level) { 'CRITICAL' => 4, 'HIGH' => 24, default => 48 };
 
         return $this->ok([
@@ -318,6 +319,7 @@ final class AlertIntelligenceController extends BaseReportController
                 'close_note'      => $a->close_note,
                 'reopen_count'    => $a->reopen_count,
                 'pheic_declared_at' => $a->pheic_declared_at,
+                'minutes_open'    => $minutesOpen,
                 'hours_open'      => $hoursOpen,
                 'sla_hours'       => $sla,
                 'sla_breached'    => $hoursOpen > $sla,

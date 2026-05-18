@@ -416,7 +416,8 @@ final class OperationalRiskController extends BaseReportController
             ->limit(20)
             ->get(['event_code', 'event_category', 'actor_name', 'summary', 'created_at']);
 
-        $hoursOpen = Carbon::now()->diffInHours(Carbon::parse((string) $a->created_at));
+        $minutesOpen = (int) round(Carbon::parse((string) $a->created_at)->diffInMinutes(Carbon::now()));
+        $hoursOpen   = intdiv($minutesOpen, 60);
         $sla = match ((string) $a->risk_level) {
             'CRITICAL' => 4,
             'HIGH'     => 24,
@@ -437,6 +438,7 @@ final class OperationalRiskController extends BaseReportController
                 'acknowledged_at'   => $a->acknowledged_at,
                 'reopen_count'      => $a->reopen_count,
                 'close_category'    => $a->close_category,
+                'minutes_open'      => $minutesOpen,
                 'hours_open'        => $hoursOpen,
                 'sla_hours'         => $sla,
                 'sla_breached'      => $hoursOpen > $sla,
