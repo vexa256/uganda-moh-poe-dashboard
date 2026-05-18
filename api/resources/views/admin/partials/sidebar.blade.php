@@ -226,6 +226,10 @@
         // endpoints untouched. Admin views talk to dedicated /admin/aggregated
         // JSON endpoints so mobile stays green regardless of admin churn.
         // ══════════════════════════════════════════════════════════════════
+        // Hidden from the sidebar on user request (2026-05-19). The underlying
+        // controllers and routes remain registered; deep-links still work.
+        // Re-enable by uncommenting this block.
+        /*
         [
             'section' => 'Aggregated Reports',
             'caption' => 'Routine reporting · template library · submissions browser · upload status. Full mobile parity.',
@@ -237,6 +241,7 @@
                 $nav('agg-sync',         'Submission Status', 'Track real upload status of district submissions · waiting / uploaded / failed · attempts · last error · force-mark-uploaded with confirm',         'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15',                                                                                                                                                                                                             url('/admin/aggregated/sync'),        true),
             ],
         ],
+        */
 
 
 
