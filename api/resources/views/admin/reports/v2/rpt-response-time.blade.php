@@ -91,7 +91,13 @@
         </template>
     </section>
 
-    <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    {{-- TAB STRIP --}}
+    <div class="flex items-center gap-1 border-b border-border/60">
+        <button type="button" class="px-4 py-2 text-[13px] font-semibold border-b-2 transition-colors" :class="tab === 'charts' ? 'border-brand text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'" @click="tab = 'charts'">Charts</button>
+        <button type="button" class="px-4 py-2 text-[13px] font-semibold border-b-2 transition-colors" :class="tab === 'records' ? 'border-brand text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'" @click="tab = 'records'">Timing Log <span class="ml-1 font-mono opacity-60 text-[11px]" x-text="pagination.total ? `(${pagination.total})` : ''"></span></button>
+    </div>
+
+    <section x-show="tab === 'charts'" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         @foreach ([
             ['target' => 'ack', 'serverKey' => 'ack_time_distribution', 'title' => 'Acknowledgement Time Distribution', 'subtitle' => 'How long alerts wait before someone acknowledges them'],
             ['target' => 'median', 'serverKey' => 'median_resolution_by_poe', 'title' => 'Median Resolution by POE', 'subtitle' => 'Top 10 slowest POEs · median + mean hours to close'],
@@ -113,7 +119,7 @@
         @endforeach
     </section>
 
-    <section class="card overflow-hidden">
+    <section x-show="tab === 'records'" class="card overflow-hidden">
         <div class="flex flex-col gap-3 p-4 border-b border-border/60">
             <div class="flex items-start justify-between gap-3">
                 <div>
@@ -409,6 +415,7 @@
 <script>
 function rptResponseTime() {
     return {
+        tab: 'charts', // 'charts' | 'records'
         filters: { poe: '', start_date: '', end_date: '' },
         meta: {}, kpis: [], rows: [],
         pagination: { page: 1, per_page: 10, total: 0, total_pages: 1, from: 0, to: 0 },

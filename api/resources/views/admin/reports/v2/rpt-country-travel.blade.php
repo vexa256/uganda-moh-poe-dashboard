@@ -86,8 +86,14 @@
         </template>
     </section>
 
+    {{-- TAB STRIP --}}
+    <div class="flex items-center gap-1 border-b border-border/60">
+        <button type="button" class="px-4 py-2 text-[13px] font-semibold border-b-2 transition-colors" :class="tab === 'charts' ? 'border-brand text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'" @click="tab = 'charts'">Charts</button>
+        <button type="button" class="px-4 py-2 text-[13px] font-semibold border-b-2 transition-colors" :class="tab === 'records' ? 'border-brand text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'" @click="tab = 'records'">Country Index <span class="ml-1 font-mono opacity-60 text-[11px]" x-text="pagination.total ? `(${pagination.total})` : ''"></span></button>
+    </div>
+
     {{-- ─────── CHARTS · 2 col-6 ─────── --}}
-    <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <section x-show="tab === 'charts'" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         @foreach ([
             ['target' => 'origins', 'serverKey' => 'top_origins',      'title' => 'Top Origin Countries',           'subtitle' => 'Top 10 origin countries by traveller count, with alerts overlay.'],
             ['target' => 'flow',    'serverKey' => 'endemic_flow_30d', 'title' => 'Endemic vs Non-endemic · 30 days', 'subtitle' => 'Daily traveller count bucketed by endemic flag of origin country.'],
@@ -120,7 +126,7 @@
     </section>
 
     {{-- ─────── PREMIUM TABLE · Country Index ─────── --}}
-    <section class="card overflow-hidden">
+    <section x-show="tab === 'records'" class="card overflow-hidden">
         <div class="flex flex-col gap-3 p-4 border-b border-border/60">
             <div class="flex items-start justify-between gap-3">
                 <div>
@@ -398,6 +404,7 @@
 <script>
 function rptCountryTravel() {
     return {
+        tab: 'charts', // 'charts' | 'records'
         filters: { poe: '', start_date: '', end_date: '' },
         meta: {}, kpis: [], rows: [],
         pagination: { page: 1, per_page: 10, total: 0, total_pages: 1, from: 0, to: 0 },

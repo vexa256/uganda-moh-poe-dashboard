@@ -372,8 +372,23 @@
         </button>
     </div>
 
-    {{-- Scrollable menu · premium quiet · no badge clutter --}}
-    <div class="sidebar-scroll">
+    {{-- Scrollable menu · premium quiet · no badge clutter.
+         x-init scrolls the active item into view on every page load so
+         long sidebars (Uganda has ~80 items) don't bury "where am I". --}}
+    <div class="sidebar-scroll"
+         x-data
+         x-init="
+            $nextTick(() => {
+                const a = $el.querySelector('.nav-item-active, [aria-current=&quot;page&quot;]');
+                if (!a) return;
+                const r = a.getBoundingClientRect();
+                const c = $el.getBoundingClientRect();
+                if (r.top < c.top || r.bottom > c.bottom) {
+                    a.scrollIntoView({ block: 'center', behavior: 'instant' });
+                }
+            })
+         ">
+
         @foreach ($menuSections as $sIdx => $section)
             @php
                 // Filter items by RBAC: any item whose id is a report slug AND
