@@ -1445,8 +1445,14 @@ async function writeToIdb(serverItems) {
           // every queue item and broke any UI rule keyed off this value.
           assigned_role_key:      s.assigned_role_key    || 'POE_SECONDARY',
           assigned_user_id:       s.assigned_user_id     ?? null,
-          opened_at:              s.opened_at           || null,
-          closed_at:              s.closed_at           || null,
+          // 2026-05-19 — the /referral-queue payload uses prefixed names
+          // (notification_opened_at / notification_closed_at). Reading the
+          // bare s.opened_at / s.closed_at left both fields undefined,
+          // which meant the cross-device CLOSED status carried over but
+          // closed_at stayed null. Some downstream guards key off closed_at
+          // (e.g. "show this case as closed in the CLOSED tab list").
+          opened_at:              s.notification_opened_at ?? s.opened_at ?? null,
+          closed_at:              s.notification_closed_at ?? s.closed_at ?? null,
           device_id:              'SERVER',
           app_version:            null,
           platform:               'WEB',
@@ -1494,8 +1500,16 @@ async function writeToIdb(serverItems) {
         // (legacy controller code) or when versions happen to match.
         // We always apply: terminal status, server-reported closed_at,
         // and IN_PROGRESS as a one-way ratchet from OPEN.
+        // 2026-05-19 — the /referral-queue payload uses notification_closed_at
+        // (not closed_at). Falling back to existing.closed_at meant the
+        // ratchet would not detect "server has now closed this notification"
+        // unless versionAdvanced or serverIsTerminal also fired; under the
+        // odd server schema where status flips to CLOSED but record_version
+        // doesn't bump, this routine would have missed the closure.
+        const serverClosedAt    = s.notification_closed_at ?? s.closed_at ?? null
+        const serverOpenedAt    = s.notification_opened_at ?? s.opened_at ?? null
         const serverIsTerminal  = s.notification_status === 'CLOSED'
-        const serverHasClosedAt = !!s.closed_at && !existing.closed_at
+        const serverHasClosedAt = !!serverClosedAt && !existing.closed_at
         const serverIsInProgress = s.notification_status === 'IN_PROGRESS' && existing.status === 'OPEN'
         const versionAdvanced   = incomingVer > (existing.record_version ?? 0)
 
@@ -1507,8 +1521,8 @@ async function writeToIdb(serverItems) {
             status:             s.notification_status ?? existing.status,
             priority:           s.priority            ?? existing.priority,
             reason_text:        s.reason_text         ?? existing.reason_text,
-            opened_at:          s.opened_at           ?? existing.opened_at,
-            closed_at:          s.closed_at           ?? existing.closed_at,
+            opened_at:          serverOpenedAt        ?? existing.opened_at,
+            closed_at:          serverClosedAt        ?? existing.closed_at,
             gender:             s.gender              ?? existing.gender,
             traveler_direction: s.traveler_direction  ?? existing.traveler_direction,
             temperature_value:  s.temperature_value   ?? existing.temperature_value,
@@ -2112,11 +2126,20 @@ async function openCase(item) {
     // to ask the server canonically. If DISPOSITIONED/CLOSED, refuse.
     // Network failures here are tolerated — we already have the local
     // guard above, and offline use must continue to work.
+    //
+    // 2026-05-19: the server endpoint requires ?user_id for jurisdiction
+    // scope; without it the response was a silent 422 and Screener B could
+    // re-open a case Screener A had already closed. Pass auth.id here.
+    // Also mirror the linked notification's CLOSED status to IDB so the
+    // queue list flips immediately on the next IDB read, without waiting
+    // for the next /referral-queue poll.
     if (typeof navigator !== 'undefined' && navigator.onLine && window.SERVER_URL) {
       try {
+        const uid = auth.value?.id
         const ctrl = new AbortController()
         const tid = setTimeout(() => ctrl.abort(), 4000)
-        const r = await fetch(`${window.SERVER_URL}/secondary-screenings/by-notification/${item.notification_uuid}`, {
+        const url = `${window.SERVER_URL}/secondary-screenings/by-notification/${encodeURIComponent(item.notification_uuid)}?user_id=${encodeURIComponent(uid ?? '')}`
+        const r = await fetch(url, {
           method: 'GET', headers: { 'Accept': 'application/json' }, signal: ctrl.signal,
         })
         clearTimeout(tid)
@@ -2130,6 +2153,32 @@ async function openCase(item) {
               sync_status: SYNC.SYNCED,
               synced_at: serverIsoNow(),
             }).catch(() => {})
+            // ALSO mirror the notification's CLOSED status so the queue
+            // updates instantly. The server's auto-close transition runs
+            // server-side when case_status becomes DISPOSITIONED/CLOSED,
+            // so a closed case implies a closed notification.
+            try {
+              const closedAt = remoteCase.dispositioned_at || remoteCase.closed_at || serverIsoNow()
+              const existingNotif = await dbGet(STORE.NOTIFICATIONS, item.notification_uuid).catch(() => null)
+              if (existingNotif && existingNotif.status !== 'CLOSED') {
+                await safeDbPut(STORE.NOTIFICATIONS, {
+                  ...existingNotif,
+                  status:         'CLOSED',
+                  closed_at:      existingNotif.closed_at || closedAt,
+                  record_version: (existingNotif.record_version || 1) + 1,
+                  sync_status:    SYNC.SYNCED,
+                  synced_at:      serverIsoNow(),
+                  updated_at:     serverIsoNow(),
+                })
+              }
+              // Also flip the in-memory window so the user doesn't have to refresh.
+              const idx = allItems.value.findIndex(i => i.notification_uuid === item.notification_uuid)
+              if (idx !== -1) {
+                allItems.value[idx] = { ...allItems.value[idx], notification_status: 'CLOSED', closed_at: closedAt }
+                allItems.value = [...allItems.value]
+              }
+              refreshIdbStats().catch(() => {})
+            } catch (_) { /* mirror is best-effort */ }
             showMsg(`This case was already ${remoteCase.case_status.toLowerCase().replace('_', ' ')} on another device. Cannot resume.`, 'warning')
             openingUuid.value = null
             return

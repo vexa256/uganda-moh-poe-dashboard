@@ -24,6 +24,10 @@
 
     <!-- ── Dropdown — teleported to <body> so Ionic overflow:hidden can't clip it ── -->
     <Teleport to="body">
+      <!-- Mobile-only backdrop. Tap closes; presence stops accidental tap-through. -->
+      <Transition name="ss-fade">
+        <div v-if="open && isPhoneViewport" class="ss-backdrop" @click="close" @touchstart.passive="close" />
+      </Transition>
       <Transition name="ss-fade">
         <div
           v-if="open"
@@ -143,6 +147,13 @@ const open     = ref(false)
 const query    = ref('')
 const focusIdx = ref(-1)
 const panelStyle = ref({})
+const isPhoneViewport = ref(false)
+
+function _updateViewportFlag() {
+  if (typeof window === 'undefined') { isPhoneViewport.value = false; return }
+  const w = (window.visualViewport && window.visualViewport.width) || window.innerWidth || 0
+  isPhoneViewport.value = w > 0 && w <= 520
+}
 
 // ── Derived state ───────────────────────────────────────────────────────────
 const hasValue = computed(() => {
@@ -191,6 +202,7 @@ function calcPanelStyle() {
   if (!el) return {}
   const rect       = el.getBoundingClientRect()
   const visH       = _visibleHeight()
+  const visW       = (typeof window !== 'undefined' && window.visualViewport) ? window.visualViewport.width : (window.innerWidth || 360)
   const maxH       = 280
   const SAFE_PAD   = 12   // gap from input edge / viewport bottom
   const MIN_BELOW  = 140  // need at least this much below to bottom-place
@@ -198,10 +210,29 @@ function calcPanelStyle() {
   const spaceAbove = rect.top - SAFE_PAD
   const openAbove  = spaceBelow < MIN_BELOW && spaceAbove > spaceBelow
 
+  // 2026-05-19 — Mobile hardening. On phone-sized viewports (≤520px) the
+  // trigger button is often narrow (inside a 2-col form / chip row) and
+  // sits near a screen edge. Anchoring the panel to the button's width
+  // and left edge produced a tiny, clipped, sometimes off-screen panel —
+  // users perceived it as "search broken" because the input was barely
+  // visible. Centre the panel and make it readable instead. The panel is
+  // teleported to <body>, so this width is independent of the form layout.
+  const isPhone = visW <= 520
+  const panelWidth = isPhone ? Math.max(280, Math.min(visW - 24, 460)) : Math.max(rect.width, 280)
+  const left = isPhone
+    ? Math.max(12, Math.round((visW - panelWidth) / 2))
+    : Math.max(8, Math.min(rect.left, visW - panelWidth - 8))
+
   return {
     position: 'fixed',
-    left: rect.left + 'px',
-    width: rect.width + 'px',
+    left: left + 'px',
+    width: panelWidth + 'px',
+    // Defeat any ancestor that might create a stacking context (Ionic's
+    // ion-modal uses 20–40; ion-loading uses 30000-ish; ion-toast 60000).
+    // Max signed 32-bit int wins everywhere; !important via inline style
+    // is not possible, so we rely on the inline value being maximally
+    // specific AND on `isolation: isolate` in CSS to force a fresh
+    // stacking context for the panel itself.
     zIndex: '2147483647',
     ...(openAbove
       ? {
@@ -211,7 +242,7 @@ function calcPanelStyle() {
           maxHeight: Math.min(spaceAbove, maxH) + 'px',
         }
       : {
-          top: rect.bottom + 'px',
+          top: Math.min(rect.bottom, visH - 60) + 'px',
           maxHeight: Math.min(Math.max(spaceBelow, MIN_BELOW), maxH) + 'px',
         }
     ),
@@ -228,6 +259,7 @@ function _scheduleReposition() {
   requestAnimationFrame(() => {
     _repositionPending = false
     if (!open.value) return
+    _updateViewportFlag()
     panelStyle.value = calcPanelStyle()
   })
 }
@@ -254,6 +286,7 @@ function toggle() {
 function openDropdown() {
   query.value  = ''
   focusIdx.value = -1
+  _updateViewportFlag()
   panelStyle.value = calcPanelStyle()
   open.value = true
   nextTick(() => {
@@ -472,6 +505,31 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* 2026-05-19 — Force a fresh stacking context so the panel always paints
+     above any Ionic overlay/modal that might otherwise enclose it. `isolation`
+     is honoured by every modern WebView (iOS Safari ≥16, Android Chromium
+     ≥87). Combined with the inline `z-index: 2147483647` from calcPanelStyle,
+     this defeats Ionic's --z-index-overlay (2000), --z-index-loading (30000),
+     and even --z-index-toast (60000) variables. */
+  isolation: isolate;
+  pointer-events: auto;
+  /* Don't let any ancestor's `contain: layout` clip us — the panel is
+     teleported to <body> so contain wouldn't apply, but guard anyway. */
+  contain: none;
+}
+
+/* Mobile: pair the panel with a subtle backdrop so it reads as a centred
+   modal rather than a free-floating popover. The backdrop also blocks
+   accidental taps on form fields behind the panel — eliminating the
+   "tap dismissed my dropdown" foot-gun on Android. */
+.ss-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.32);
+  z-index: 2147483646;     /* one less than the panel */
+  isolation: isolate;
+  -webkit-tap-highlight-color: transparent;
+  pointer-events: auto;
 }
 
 /* ── Fade/scale transition ───────────────────────────────────────────────── */
