@@ -66,15 +66,31 @@ final class ScreeningOverviewController extends BaseReportController
             ->whereBetween('opened_at', [$from, $to]);
         $this->scope->apply($sq, $scope);
         $this->applyPoeFilter($sq, $f);
+        // Total rows in secondary_screenings (may be inflated by mobile-sync
+        // duplicates — same primary submitted twice).
         $secondary = (int) (clone $sq)->count();
+        // DISTINCT count: how many primaries actually triggered a secondary.
+        // This is the correct numerator for "escalation rate" — it cannot
+        // exceed the primary count.
+        $secondaryDistinct = (int) (clone $sq)
+            ->whereNotNull('primary_screening_id')
+            ->distinct()
+            ->count('primary_screening_id');
 
         $primary    = (int) ($primaryAgg->total ?? 0);
         $male       = (int) ($primaryAgg->male ?? 0);
         $female     = (int) ($primaryAgg->female ?? 0);
         $sympt      = (int) ($primaryAgg->symptomatic ?? 0);
-        $escalation = $primary > 0 ? round(($secondary / $primary) * 100, 1) : null;
+        // Escalation rate = % of primaries that triggered ≥ 1 secondary.
+        // Bounded 0–100% because the numerator is DISTINCT primary_screening_id
+        // among in-window secondaries.
+        $escalation = $primary > 0 ? round((min($secondaryDistinct, $primary) / $primary) * 100, 1) : null;
         $femalePct  = ($male + $female) > 0 ? round(($female / max(1, $male + $female)) * 100, 1) : null;
         $symptPct   = $primary > 0 ? round(($sympt / $primary) * 100, 1) : null;
+        // Mobile-sync data-quality flag: when raw secondary count > distinct
+        // primary count, the upload pipeline has duplicated records. Surface
+        // this to operators so the upstream bug can be addressed.
+        $dupSecondary = max(0, $secondary - $secondaryDistinct);
 
         return $this->ok([
             'window' => [
@@ -82,10 +98,16 @@ final class ScreeningOverviewController extends BaseReportController
                 'to'    => $to->toDateString(),
                 'label' => $from->format('d M Y') . ' – ' . $to->format('d M Y'),
             ],
+            'data_quality' => [
+                'duplicate_secondaries' => $dupSecondary,
+                'note' => $dupSecondary > 0
+                    ? "Detected {$dupSecondary} duplicate secondary screening row(s) in window — same primary_screening_id appears more than once. Investigate the mobile sync idempotency."
+                    : null,
+            ],
             'kpis' => [
-                ['key' => 'total',      'label' => 'Total Screened',  'value' => number_format($primary), 'tone' => 'brand',   'hint' => 'Primary-tier captures in window.'],
-                ['key' => 'secondary',  'label' => 'Secondary',       'value' => number_format($secondary), 'tone' => 'info',  'hint' => 'Escalated to clinical review.'],
-                ['key' => 'escalation', 'label' => 'Escalation Rate', 'value' => $escalation === null ? '—' : ($escalation . '%'), 'tone' => $escalation !== null && $escalation >= 30 ? 'warning' : 'success', 'hint' => 'Secondary ÷ Primary.'],
+                ['key' => 'total',      'label' => 'Total Screened',  'value' => number_format($primary), 'tone' => 'brand',   'hint' => 'Primary-tier captures in window (record_status=COMPLETED).'],
+                ['key' => 'secondary',  'label' => 'Secondary',       'value' => number_format($secondaryDistinct), 'tone' => 'info',  'hint' => 'Distinct primaries escalated to clinical review' . ($dupSecondary > 0 ? " · {$dupSecondary} duplicate row(s) excluded from the count" : '') . '.'],
+                ['key' => 'escalation', 'label' => 'Escalation Rate', 'value' => $escalation === null ? '—' : ($escalation . '%'), 'tone' => $escalation !== null && $escalation >= 30 ? 'warning' : 'success', 'hint' => '% of primaries that triggered a secondary (bounded 0–100%).'],
                 ['key' => 'female_pct', 'label' => 'Female Share',    'value' => $femalePct === null ? '—' : ($femalePct . '%'), 'tone' => 'neutral', 'hint' => 'Of male+female travellers.'],
                 ['key' => 'symptomatic','label' => 'Symptomatic',     'value' => $symptPct === null ? '—' : ($symptPct . '%'), 'tone' => $symptPct !== null && $symptPct >= 10 ? 'warning' : 'neutral', 'hint' => 'Reported symptoms at primary tier.'],
             ],

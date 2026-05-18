@@ -73,6 +73,14 @@
         </div>
     </section>
 
+    {{-- Data-quality banner: surfaces mobile-sync duplicate-secondary issue --}}
+    <template x-if="dataQuality?.note">
+        <div class="rounded-md border border-amber-300 bg-amber-50 px-4 py-2.5 text-[12.5px] text-amber-900 flex items-start gap-2">
+            <svg class="h-4 w-4 mt-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+            <span><strong>Data-quality notice:</strong> <span x-text="dataQuality.note"></span></span>
+        </div>
+    </template>
+
     {{-- ────────── KPI ROW (semantic colour) ────────── --}}
     <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <template x-for="k in kpis" :key="k.key">
@@ -402,7 +410,7 @@
 function rptScreeningOverview() {
     return {
         filters: { poe: '', start_date: '', end_date: '' },
-        meta: {}, kpis: [], rows: [],
+        meta: {}, kpis: [], rows: [], dataQuality: null,
         pagination: { page: 1, per_page: 10, total: 0, total_pages: 1, from: 0, to: 0 },
         controls: { sort: 'primary', dir: 'desc', q: '' },
         search: '',
@@ -440,7 +448,7 @@ function rptScreeningOverview() {
         async apply() { this.loading = true; await Promise.all([this.loadKpis(), this.loadChart('volume_over_time', 'volume'), this.loadChart('top_poes', 'topPoes'), this.loadRecords(1)]); this.loading = false; },
         resetFilters() { this.filters = { poe: '', start_date: '', end_date: '' }; this.search = ''; this.apply(); },
         qs() { const p = new URLSearchParams(); for (const [k, v] of Object.entries(this.filters)) if (v) p.append(k, v); return p.toString(); },
-        async loadKpis() { const r = await fetch('{{ url('/admin/reports/rpt-screening-overview/kpis') }}?' + this.qs()); const j = await r.json(); this.kpis = j.data?.kpis || []; this.window_label = j.data?.window?.label || ''; },
+        async loadKpis() { const r = await fetch('{{ url('/admin/reports/rpt-screening-overview/kpis') }}?' + this.qs()); const j = await r.json(); this.kpis = j.data?.kpis || []; this.window_label = j.data?.window?.label || ''; this.dataQuality = j.data?.data_quality || null; },
         async loadChart(key, target) { const r = await fetch('{{ url('/admin/reports/rpt-screening-overview/chart') }}/' + key + '?' + this.qs()); const j = await r.json(); this.renderChart(target, j.data); },
 
         renderChart(target, payload) {
