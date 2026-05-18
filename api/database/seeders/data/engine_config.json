@@ -1,0 +1,1270 @@
+[
+  {
+    "config_key": "diseases.metadata",
+    "description": "window.DISEASES.metadata from src/Diseases.js",
+    "config_value": {
+      "dataset_name": "who_poe_unified_matcher_v3",
+      "version": "3.0.0",
+      "schema_version": "3.0.0",
+      "created_utc": "2026-04-17T00:00:00Z",
+      "disease_count": 42,
+      "purpose": "Weighted, audit-friendly, WHO/IHR-aligned disease scoring engine for POE syndromic triage.",
+      "design_note": "Explainable rules engine, not a statistically calibrated diagnostic model. All weights are LR-calibrated from Mandell 9th Ed. and WHO AFRO IDSR 2021. Syndrome bonuses and outbreak bonuses applied by Diseases_intelligence.js patch.",
+      "scope_note": "Covers all IHR Annex 2 always-notifiable diseases, all WHO AFRO IDSR Priority 1 diseases, and the most clinically relevant travel-medicine differentials for East/Central Africa POE screening."
+    },
+    "version": "3.0.0",
+    "section": "metadata"
+  },
+  {
+    "config_key": "diseases.sources",
+    "description": "window.DISEASES.sources from src/Diseases.js",
+    "config_value": [
+      {
+        "id": "WHO_IHR_2005_ANNEX2",
+        "title": "International Health Regulations (2005) — Annex 2",
+        "url": "https://apps.who.int/gb/bd/pdf_files/IHR_2014-2022-2024-en.pdf"
+      },
+      {
+        "id": "WHO_AFRO_IDSR_2021",
+        "title": "WHO AFRO IDSR Technical Guidelines 2021 (3rd Ed.)",
+        "url": "https://www.afro.who.int/sites/default/files/2021-09/Final_IDSR%20Technical%20Guidelines_Final%20Version%20signed%20by%20%20Hon.%20DG%20and%20Hon.%20Minister.pdf"
+      },
+      {
+        "id": "WHO_DISEASE_FACT_SHEETS",
+        "title": "WHO Disease Fact Sheets 2024",
+        "url": "https://www.who.int/news-room/fact-sheets"
+      },
+      {
+        "id": "CDC_YELLOW_BOOK_2024",
+        "title": "CDC Yellow Book 2024 — Travelers' Health",
+        "url": "https://wwwnc.cdc.gov/travel/yellowbook/2024"
+      },
+      {
+        "id": "MANDELL_9TH_ED",
+        "title": "Mandell, Douglas, and Bennett's Principles of Infectious Diseases, 9th Edition",
+        "notes": "LR-calibrated symptom weights"
+      },
+      {
+        "id": "GEOSENTINEL_TROPNET",
+        "title": "GeoSentinel / TropNetEurop Travel Medicine Database",
+        "notes": "Prevalence calibration in symptomatic returning travellers"
+      }
+    ],
+    "version": "3.0.0",
+    "section": "reference"
+  },
+  {
+    "config_key": "diseases.engine",
+    "description": "window.DISEASES.engine from src/Diseases.js",
+    "config_value": {
+      "name": "WHO-POE Unified Explainable Matcher v3",
+      "ranking_principles": [
+        "Gate diseases by their strongest hallmark or syndrome requirement — no gate pass = hard exclusion.",
+        "Reward signature symptoms more than generic symptoms using LR-calibrated weights.",
+        "Boost scores using exposure and outbreak epidemiological context.",
+        "Penalise contradictions when clearly conflicting symptoms are confirmed absent.",
+        "Promote high-consequence IHR diseases when red-flag patterns exist, even when symptom overlap is high.",
+        "Fire triage overrides as hard rules independent of and before scoring — safety first.",
+        "Apply absent-symptom penalties only for mandatory hallmark symptoms with sensitivity >= 0.80."
+      ],
+      "formula": {
+        "description": "final_score = gate_score + symptom_score + exposure_score + syndrome_bonus + outbreak_bonus + vaccination_modifier + onset_modifier + absent_hallmark_penalty + contradiction_penalty + override_boost",
+        "gate_pass_bonus": 12,
+        "gate_soft_fail_penalty": -18,
+        "gate_hard_fail_penalty": -60,
+        "syndrome_bonus_match": 8,
+        "outbreak_bonus_default": 15,
+        "documented_valid_vaccination_reduction_default": -8,
+        "strong_documented_vaccination_reduction": -14,
+        "contradiction_penalty_default": -6,
+        "absent_mandatory_hallmark_penalty": -12,
+        "max_score_cap": 100,
+        "min_score_floor": 0,
+        "absent_penalise_only_if_sensitivity_gte": 0.8
+      },
+      "normalization": {
+        "rank_to_probability_like_percent": "prob_like = round(100 * disease_score / sum(top_5_scores)) — displayed over top candidates only when total > 0",
+        "confidence_bands": [
+          {
+            "band": "very_high",
+            "min_score": 70,
+            "color": "#DC3545",
+            "poe_action": "MANDATORY_ISOLATION_AND_IHR_NOTIFICATION"
+          },
+          {
+            "band": "high",
+            "min_score": 55,
+            "color": "#E85D04",
+            "poe_action": "SECONDARY_REFERRAL_URGENT"
+          },
+          {
+            "band": "moderate",
+            "min_score": 40,
+            "color": "#FFC107",
+            "poe_action": "SECONDARY_REFERRAL"
+          },
+          {
+            "band": "low",
+            "min_score": 25,
+            "color": "#17A2B8",
+            "poe_action": "DOCUMENT_AND_MONITOR"
+          },
+          {
+            "band": "minimal",
+            "min_score": 0,
+            "color": "#6C757D",
+            "poe_action": "STANDARD_PRECAUTIONS"
+          }
+        ],
+        "minimum_data_rule": "If fewer than 2 symptoms and no exposure selected, confidence = minimal regardless of raw score."
+      },
+      "triage_overrides": [
+        {
+          "rule_id": "override_vhf_red_flag",
+          "priority": 1,
+          "description": "Fever + any haemorrhage + any relevant exposure = VHF protocol — highest POE emergency",
+          "when_all": [
+            "fever",
+            "bleeding"
+          ],
+          "and_any": [
+            "contact_body_fluids",
+            "contact_dead_body",
+            "healthcare_exposure",
+            "rodent_exposure",
+            "travel_from_outbreak_area",
+            "funeral_or_burial_exposure"
+          ],
+          "effect": {
+            "boost_diseases": {
+              "ebola_virus_disease": 18,
+              "marburg_virus_disease": 18,
+              "lassa_fever": 12,
+              "cchf": 18,
+              "yellow_fever": 8,
+              "rift_valley_fever": 8,
+              "hantavirus": 10
+            },
+            "force_alert_level": "critical",
+            "mandatory_actions": [
+              "FULL_PPE",
+              "IMMEDIATE_ISOLATION",
+              "NOTIFY_IHR_FOCAL_POINT"
+            ]
+          }
+        },
+        {
+          "rule_id": "override_any_haemorrhage_fever_no_exposure",
+          "priority": 2,
+          "description": "Fever + any spontaneous haemorrhage even without confirmed exposure = VHF screening pathway",
+          "when_all": [
+            "fever"
+          ],
+          "and_any": [
+            "bleeding",
+            "bleeding_gums_or_nose",
+            "bloody_sputum",
+            "petechial_or_purpuric_rash"
+          ],
+          "effect": {
+            "boost_diseases": {
+              "ebola_virus_disease": 10,
+              "marburg_virus_disease": 10,
+              "cchf": 14,
+              "dengue_severe": 12,
+              "yellow_fever": 8
+            },
+            "force_alert_level": "critical"
+          }
+        },
+        {
+          "rule_id": "override_acute_flaccid_paralysis",
+          "priority": 3,
+          "description": "ANY acute flaccid paralysis = mandatory AFP/polio escalation regardless of all other findings",
+          "when_any": [
+            "paralysis_acute_flaccid"
+          ],
+          "effect": {
+            "boost_diseases": {
+              "polio": 35,
+              "west_nile_fever": 8,
+              "japanese_encephalitis": 8
+            },
+            "force_alert_level": "critical",
+            "mandatory_actions": [
+              "NOTIFY_WHO_AFP_SURVEILLANCE",
+              "STOOL_SPECIMENS_X2"
+            ]
+          }
+        },
+        {
+          "rule_id": "override_meningitis_triad",
+          "priority": 4,
+          "description": "Fever + stiff neck = bacterial meningitis/septicaemia — minutes matter",
+          "when_all": [
+            "fever",
+            "stiff_neck"
+          ],
+          "effect": {
+            "boost_diseases": {
+              "meningococcal_meningitis": 20
+            },
+            "force_alert_level": "critical",
+            "mandatory_actions": [
+              "EMERGENCY_MEDICAL_REFERRAL",
+              "IV_ANTIBIOTICS_WITHOUT_DELAY"
+            ]
+          }
+        },
+        {
+          "rule_id": "override_vesiculopustular_rash",
+          "priority": 5,
+          "description": "Vesicular/pustular rash = mpox/smallpox pathway",
+          "when_any": [
+            "rash_vesicular_pustular",
+            "mucosal_lesions"
+          ],
+          "effect": {
+            "boost_diseases": {
+              "mpox": 16,
+              "smallpox": 16
+            },
+            "penalize_diseases": {
+              "measles": 10,
+              "rubella": 10
+            },
+            "force_alert_level": "high"
+          }
+        },
+        {
+          "rule_id": "override_smallpox_pustular_centrifugal",
+          "priority": 6,
+          "description": "Pustular centrifugal rash (face/palms/soles > trunk) + fever = GLOBAL BIOLOGICAL EMERGENCY until excluded",
+          "when_all": [
+            "fever",
+            "rash_vesicular_pustular",
+            "rash_face_first"
+          ],
+          "effect": {
+            "boost_diseases": {
+              "smallpox": 30
+            },
+            "force_alert_level": "critical",
+            "mandatory_actions": [
+              "MAXIMUM_ISOLATION",
+              "IMMEDIATE_IHR_WHO_NOTIFICATION",
+              "BIOTERRORISM_PROTOCOL"
+            ]
+          }
+        },
+        {
+          "rule_id": "override_watery_diarrhea_dehydration",
+          "priority": 7,
+          "description": "Profuse watery diarrhoea OR severe dehydration = cholera protocol immediately",
+          "when_any": [
+            "watery_diarrhea",
+            "rice_water_diarrhea",
+            "severe_dehydration"
+          ],
+          "effect": {
+            "boost_diseases": {
+              "cholera": 18,
+              "awd_non_cholera": 8
+            },
+            "force_alert_level": "high",
+            "mandatory_actions": [
+              "AGGRESSIVE_REHYDRATION",
+              "ISOLATE_ENTERIC_PRECAUTIONS"
+            ]
+          }
+        },
+        {
+          "rule_id": "override_rabies_pathognomonic",
+          "priority": 8,
+          "description": "Hydrophobia OR aerophobia = rabies until excluded — virtually 100% fatal once symptomatic",
+          "when_any": [
+            "hydrophobia",
+            "aerophobia"
+          ],
+          "effect": {
+            "boost_diseases": {
+              "rabies": 50
+            },
+            "force_alert_level": "critical",
+            "mandatory_actions": [
+              "EMERGENCY_REFERRAL",
+              "ASSESS_BITE_HISTORY",
+              "PEP_EVALUATION"
+            ]
+          }
+        },
+        {
+          "rule_id": "override_skin_eschar",
+          "priority": 9,
+          "description": "Painless black necrotic skin ulcer = anthrax or rickettsia — bioterrorism consideration if cluster",
+          "when_any": [
+            "skin_eschar"
+          ],
+          "effect": {
+            "boost_diseases": {
+              "anthrax_cutaneous": 30,
+              "rickettsia_scrub_typhus": 18,
+              "tularemia": 15
+            },
+            "force_alert_level": "high",
+            "mandatory_actions": [
+              "SECONDARY_REFERRAL",
+              "BIOTERRORISM_ASSESSMENT_IF_CLUSTER"
+            ]
+          }
+        },
+        {
+          "rule_id": "override_ihr_annex2_any_match",
+          "priority": 10,
+          "description": "Any IHR Tier 1 disease in top 3 results = mandatory public health notification",
+          "applies_to_tiers": [
+            "tier_1_ihr_critical",
+            "tier_2_ihr_annex2_epidemic_prone"
+          ],
+          "effect": {
+            "force_alert_level": "critical",
+            "mandatory_actions": [
+              "NOTIFY_IHR_NATIONAL_FOCAL_POINT",
+              "DOCUMENT_IN_SURVEILLANCE_SYSTEM"
+            ]
+          }
+        }
+      ],
+      "output_sorting": [
+        "Sort descending by final_score",
+        "Break ties by higher priority tier (tier_1 > tier_2 > tier_3)",
+        "Then by greater number of matched hallmark symptoms",
+        "Then by greater number of matched exposure signals",
+        "Always pin tier_1 and tier_2_ihr_annex2 above lower tiers when scores within 8 points"
+      ]
+    },
+    "version": "3.0.0",
+    "section": "engine"
+  },
+  {
+    "config_key": "diseases.input_schema",
+    "description": "window.DISEASES.input_schema from src/Diseases.js",
+    "config_value": {
+      "selected_symptoms": "string[] — symptom ids from symptom_catalog",
+      "explicit_absent_symptoms": "optional string[] — symptom ids CONFIRMED absent (triggers absent-hallmark penalties)",
+      "selected_exposures": "optional string[] — exposure ids from exposure_catalog",
+      "outbreak_context": "optional string[] — disease ids currently active in source, destination, or transit corridor",
+      "vaccination_history": {
+        "yellow_fever": "unknown|documented_valid|documented_invalid_or_expired|not_vaccinated",
+        "measles": "unknown|documented_valid|not_vaccinated",
+        "rubella": "unknown|documented_valid|not_vaccinated",
+        "polio": "unknown|documented_valid|not_vaccinated",
+        "covid_19": "unknown|documented_valid|not_vaccinated",
+        "hepatitis_a": "unknown|documented_valid|not_vaccinated",
+        "japanese_encephalitis": "unknown|documented_valid|not_vaccinated",
+        "rabies": "unknown|documented_valid|not_vaccinated"
+      },
+      "clinical_context": {
+        "days_since_onset": "optional integer",
+        "temperature_c": "optional number",
+        "age_group": "optional child|adolescent|adult|older_adult",
+        "pregnant": "optional boolean"
+      }
+    },
+    "version": "3.0.0",
+    "section": "reference"
+  },
+  {
+    "config_key": "diseases.symptom_catalog",
+    "description": "window.DISEASES.symptom_catalog from src/Diseases.js",
+    "config_value": [
+      {
+        "id": "fever",
+        "label": "Fever (≥38.0°C)",
+        "who_priority": true
+      },
+      {
+        "id": "high_fever",
+        "label": "High fever (≥39.0°C)",
+        "who_priority": true
+      },
+      {
+        "id": "very_high_fever",
+        "label": "Very high fever (≥40.0°C)",
+        "who_priority": true
+      },
+      {
+        "id": "low_grade_fever",
+        "label": "Low-grade fever (37.5–38.0°C)",
+        "who_priority": false
+      },
+      {
+        "id": "sudden_onset_fever",
+        "label": "Sudden-onset fever — patient recalls exact hour",
+        "who_priority": false
+      },
+      {
+        "id": "gradual_onset_fever",
+        "label": "Gradual-onset fever — worsening over days",
+        "who_priority": false
+      },
+      {
+        "id": "undulant_fever",
+        "label": "Undulant fever — rises and falls cyclically",
+        "who_priority": false
+      },
+      {
+        "id": "paradoxical_bradycardia",
+        "label": "Paradoxical bradycardia (slow pulse despite fever)",
+        "who_priority": false
+      },
+      {
+        "id": "chills",
+        "label": "Chills / rigors",
+        "who_priority": false
+      },
+      {
+        "id": "night_sweats",
+        "label": "Night sweats",
+        "who_priority": false
+      },
+      {
+        "id": "cough",
+        "label": "Cough",
+        "who_priority": true
+      },
+      {
+        "id": "dry_cough",
+        "label": "Dry cough",
+        "who_priority": false
+      },
+      {
+        "id": "sore_throat",
+        "label": "Sore throat",
+        "who_priority": false
+      },
+      {
+        "id": "coryza",
+        "label": "Runny / blocked nose",
+        "who_priority": false
+      },
+      {
+        "id": "shortness_of_breath",
+        "label": "Shortness of breath",
+        "who_priority": true
+      },
+      {
+        "id": "difficulty_breathing",
+        "label": "Difficulty breathing / respiratory distress",
+        "who_priority": true
+      },
+      {
+        "id": "rapid_breathing",
+        "label": "Rapid breathing / tachypnoea",
+        "who_priority": true
+      },
+      {
+        "id": "chest_pain",
+        "label": "Chest pain",
+        "who_priority": false
+      },
+      {
+        "id": "retrosternal_pain",
+        "label": "Retrosternal / behind-sternum pain",
+        "who_priority": false
+      },
+      {
+        "id": "bloody_sputum",
+        "label": "Blood-stained sputum / haemoptysis",
+        "who_priority": true
+      },
+      {
+        "id": "nausea",
+        "label": "Nausea",
+        "who_priority": false
+      },
+      {
+        "id": "vomiting",
+        "label": "Vomiting",
+        "who_priority": false
+      },
+      {
+        "id": "persistent_vomiting",
+        "label": "Persistent or severe vomiting",
+        "who_priority": true
+      },
+      {
+        "id": "hiccups",
+        "label": "Intractable hiccups",
+        "who_priority": false
+      },
+      {
+        "id": "diarrhea",
+        "label": "Diarrhoea (general)",
+        "who_priority": false
+      },
+      {
+        "id": "watery_diarrhea",
+        "label": "Acute watery diarrhoea",
+        "who_priority": true
+      },
+      {
+        "id": "rice_water_diarrhea",
+        "label": "Rice-water / profuse watery stool",
+        "who_priority": true
+      },
+      {
+        "id": "bloody_diarrhea",
+        "label": "Bloody diarrhoea / dysentery",
+        "who_priority": true
+      },
+      {
+        "id": "severe_dehydration",
+        "label": "Severe dehydration",
+        "who_priority": true
+      },
+      {
+        "id": "abdominal_pain",
+        "label": "Abdominal pain",
+        "who_priority": false
+      },
+      {
+        "id": "abdominal_tenderness",
+        "label": "Abdominal tenderness / guarding",
+        "who_priority": false
+      },
+      {
+        "id": "jaundice",
+        "label": "Jaundice / yellow eyes or skin",
+        "who_priority": true
+      },
+      {
+        "id": "dark_urine",
+        "label": "Dark urine / cola-coloured urine",
+        "who_priority": false
+      },
+      {
+        "id": "pale_stools",
+        "label": "Pale / clay-coloured stools",
+        "who_priority": false
+      },
+      {
+        "id": "right_upper_quadrant_pain",
+        "label": "Right upper quadrant pain / liver tenderness",
+        "who_priority": false
+      },
+      {
+        "id": "bleeding",
+        "label": "Bleeding from any site",
+        "who_priority": true
+      },
+      {
+        "id": "bleeding_gums_or_nose",
+        "label": "Bleeding gums or nose",
+        "who_priority": true
+      },
+      {
+        "id": "petechial_or_purpuric_rash",
+        "label": "Petechial or purpuric rash",
+        "who_priority": true
+      },
+      {
+        "id": "bruising_or_ecchymosis",
+        "label": "Easy bruising / ecchymosis",
+        "who_priority": false
+      },
+      {
+        "id": "rash_maculopapular",
+        "label": "Maculopapular generalised rash",
+        "who_priority": true
+      },
+      {
+        "id": "rash_vesicular_pustular",
+        "label": "Vesicular or pustular rash",
+        "who_priority": true
+      },
+      {
+        "id": "painful_rash",
+        "label": "Painful rash / lesions",
+        "who_priority": false
+      },
+      {
+        "id": "rash_face_first",
+        "label": "Rash starting on face / centrifugal distribution",
+        "who_priority": true
+      },
+      {
+        "id": "rash_palms_soles",
+        "label": "Rash on palms and/or soles",
+        "who_priority": false
+      },
+      {
+        "id": "mucosal_lesions",
+        "label": "Mucosal lesions (mouth, genital)",
+        "who_priority": true
+      },
+      {
+        "id": "genital_lesions",
+        "label": "Genital lesions / ulcers",
+        "who_priority": false
+      },
+      {
+        "id": "skin_eschar",
+        "label": "Painless black necrotic skin ulcer (eschar)",
+        "who_priority": true
+      },
+      {
+        "id": "rose_spots",
+        "label": "Rose-coloured spots (rose spots) on trunk",
+        "who_priority": false
+      },
+      {
+        "id": "swollen_lymph_nodes",
+        "label": "Swollen lymph nodes",
+        "who_priority": false
+      },
+      {
+        "id": "painful_swollen_lymph_nodes",
+        "label": "Painful swollen lymph nodes / bubo",
+        "who_priority": true
+      },
+      {
+        "id": "retroauricular_lymph_nodes",
+        "label": "Swollen lymph nodes behind ears / neck",
+        "who_priority": false
+      },
+      {
+        "id": "headache",
+        "label": "Headache",
+        "who_priority": false
+      },
+      {
+        "id": "severe_headache",
+        "label": "Severe headache",
+        "who_priority": true
+      },
+      {
+        "id": "stiff_neck",
+        "label": "Stiff neck / neck rigidity",
+        "who_priority": true
+      },
+      {
+        "id": "photophobia",
+        "label": "Sensitivity to light / photophobia",
+        "who_priority": false
+      },
+      {
+        "id": "altered_consciousness",
+        "label": "Altered consciousness / confusion",
+        "who_priority": true
+      },
+      {
+        "id": "seizures",
+        "label": "Seizures / convulsions",
+        "who_priority": true
+      },
+      {
+        "id": "paralysis_acute_flaccid",
+        "label": "Acute flaccid paralysis",
+        "who_priority": true
+      },
+      {
+        "id": "hydrophobia",
+        "label": "Hydrophobia (fear of water / unable to swallow)",
+        "who_priority": true
+      },
+      {
+        "id": "aerophobia",
+        "label": "Aerophobia (fear of air currents)",
+        "who_priority": true
+      },
+      {
+        "id": "encephalitis_signs",
+        "label": "Encephalitis / brain inflammation signs",
+        "who_priority": true
+      },
+      {
+        "id": "fatigue",
+        "label": "Fatigue",
+        "who_priority": false
+      },
+      {
+        "id": "severe_fatigue",
+        "label": "Severe fatigue / prostration",
+        "who_priority": true
+      },
+      {
+        "id": "malaise",
+        "label": "Malaise / generally unwell",
+        "who_priority": false
+      },
+      {
+        "id": "weakness",
+        "label": "Weakness",
+        "who_priority": false
+      },
+      {
+        "id": "anorexia",
+        "label": "Loss of appetite / anorexia",
+        "who_priority": false
+      },
+      {
+        "id": "muscle_pain",
+        "label": "Muscle pain / myalgia",
+        "who_priority": false
+      },
+      {
+        "id": "calf_muscle_pain",
+        "label": "Severe calf muscle pain / tenderness",
+        "who_priority": false
+      },
+      {
+        "id": "joint_pain",
+        "label": "Joint pain / arthralgia",
+        "who_priority": false
+      },
+      {
+        "id": "severe_joint_pain",
+        "label": "Severe / debilitating joint pain",
+        "who_priority": false
+      },
+      {
+        "id": "back_pain",
+        "label": "Back pain",
+        "who_priority": false
+      },
+      {
+        "id": "limb_pain",
+        "label": "Pain in limbs",
+        "who_priority": false
+      },
+      {
+        "id": "chest_tightness",
+        "label": "Chest tightness",
+        "who_priority": false
+      },
+      {
+        "id": "conjunctivitis",
+        "label": "Conjunctivitis / red eyes",
+        "who_priority": false
+      },
+      {
+        "id": "pain_behind_eyes",
+        "label": "Pain behind the eyes",
+        "who_priority": false
+      },
+      {
+        "id": "facial_swelling",
+        "label": "Facial swelling",
+        "who_priority": false
+      },
+      {
+        "id": "hearing_loss",
+        "label": "Hearing loss",
+        "who_priority": false
+      },
+      {
+        "id": "loss_of_taste_smell",
+        "label": "Loss or change of taste/smell",
+        "who_priority": false
+      },
+      {
+        "id": "splenomegaly",
+        "label": "Enlarged spleen / splenomegaly",
+        "who_priority": false
+      },
+      {
+        "id": "hepatomegaly",
+        "label": "Enlarged liver / hepatomegaly",
+        "who_priority": false
+      },
+      {
+        "id": "cold_pale_skin",
+        "label": "Pale or cold skin / shock signs",
+        "who_priority": false
+      },
+      {
+        "id": "dizziness",
+        "label": "Dizziness / vertigo",
+        "who_priority": false
+      },
+      {
+        "id": "low_energy",
+        "label": "Low energy",
+        "who_priority": false
+      },
+      {
+        "id": "weight_loss",
+        "label": "Unexplained weight loss",
+        "who_priority": false
+      }
+    ],
+    "version": "3.0.0",
+    "section": "reference"
+  },
+  {
+    "config_key": "diseases.exposure_catalog",
+    "description": "window.DISEASES.exposure_catalog from src/Diseases.js",
+    "config_value": [
+      {
+        "id": "close_contact_case",
+        "label": "Close contact with symptomatic case"
+      },
+      {
+        "id": "contact_body_fluids",
+        "label": "Direct contact with body fluids"
+      },
+      {
+        "id": "contact_dead_body",
+        "label": "Contact with dead body / funeral exposure"
+      },
+      {
+        "id": "funeral_or_burial_exposure",
+        "label": "Funeral or burial participation"
+      },
+      {
+        "id": "healthcare_exposure",
+        "label": "Healthcare or caregiving exposure"
+      },
+      {
+        "id": "travel_from_outbreak_area",
+        "label": "Travel from outbreak/affected area"
+      },
+      {
+        "id": "residence_in_outbreak_area",
+        "label": "Residence in outbreak/affected area"
+      },
+      {
+        "id": "unsafe_water",
+        "label": "Unsafe water / poor sanitation"
+      },
+      {
+        "id": "contaminated_food_or_water",
+        "label": "Likely contaminated food or water"
+      },
+      {
+        "id": "poultry_or_live_bird_exposure",
+        "label": "Poultry / live bird / bird market exposure"
+      },
+      {
+        "id": "camel_exposure_or_mideast_healthcare",
+        "label": "Camel exposure or recent healthcare in Middle East"
+      },
+      {
+        "id": "rodent_exposure",
+        "label": "Rodent exposure / rodent-contaminated surfaces"
+      },
+      {
+        "id": "mosquito_exposure",
+        "label": "Mosquito exposure in endemic area"
+      },
+      {
+        "id": "flood_livestock_exposure",
+        "label": "Livestock, raw animal tissues, or flood/agricultural outbreak"
+      },
+      {
+        "id": "contact_with_rash_case",
+        "label": "Contact with person with rash illness"
+      },
+      {
+        "id": "unvaccinated_or_unknown_vaccination",
+        "label": "Unvaccinated or vaccination status unknown"
+      },
+      {
+        "id": "contact_with_paralysis_case",
+        "label": "Contact with acute flaccid paralysis case"
+      },
+      {
+        "id": "flea_or_rodent_exposure",
+        "label": "Flea bite / rodent exposure"
+      },
+      {
+        "id": "animal_bite_or_wildlife_contact",
+        "label": "Animal bite, scratch, or wildlife carcass contact"
+      },
+      {
+        "id": "sexual_contact",
+        "label": "Recent sexual contact with symptomatic person"
+      },
+      {
+        "id": "laboratory_exposure",
+        "label": "Laboratory exposure (biosafety incident)"
+      },
+      {
+        "id": "affected_healthcare_facility_exposure",
+        "label": "Exposure to affected healthcare facility or cluster"
+      },
+      {
+        "id": "crowded_closed_setting",
+        "label": "Crowded enclosed setting / respiratory spread risk"
+      },
+      {
+        "id": "tick_bite",
+        "label": "Tick bite or exposure in tick-endemic area"
+      },
+      {
+        "id": "raw_meat_or_unpasteurised_dairy",
+        "label": "Raw meat, blood, or unpasteurised dairy consumption"
+      },
+      {
+        "id": "fresh_water_contact",
+        "label": "Fresh water contact (rivers, flooding, wading)"
+      }
+    ],
+    "version": "3.0.0",
+    "section": "reference"
+  },
+  {
+    "config_key": "diseases.priority_tiers",
+    "description": "window.DISEASES.priority_tiers from src/Diseases.js",
+    "config_value": {
+      "tier_1_ihr_critical": "IHR Tier 1 — Always Notifiable (PHEIC by definition regardless of score)",
+      "tier_2_ihr_annex2": "IHR Tier 2 — Annex 2 epidemic-prone disease (four-question decision instrument)",
+      "tier_2_ihr_equivalent": "IHR-equivalent WHO AFRO Priority 1 disease",
+      "tier_3_who_notifiable": "WHO notifiable / national reporting required",
+      "tier_4_syndromic": "Important travel-medicine and syndromic differential"
+    },
+    "version": "3.0.0",
+    "section": "reference"
+  },
+  {
+    "config_key": "diseases.syndrome_rules",
+    "description": "window.DISEASES.syndrome_rules from src/Diseases.js",
+    "config_value": [
+      {
+        "syndrome": "VHF",
+        "priority": 1,
+        "confidence": "HIGH",
+        "any": [
+          "bleeding",
+          "bleeding_gums_or_nose",
+          "bloody_sputum",
+          "petechial_or_purpuric_rash",
+          "bruising_or_ecchymosis",
+          "hematuria",
+          "blood_in_vomit"
+        ],
+        "reasoning": "Hemorrhagic manifestation detected. VHF protocol must be activated."
+      },
+      {
+        "syndrome": "MENINGITIS",
+        "priority": 2,
+        "confidence": "HIGH",
+        "requires": [
+          "stiff_neck"
+        ],
+        "any": [
+          "fever",
+          "high_fever",
+          "sudden_onset_fever",
+          "very_high_fever"
+        ],
+        "reasoning": "Fever with nuchal rigidity fulfills WHO meningitis syndrome case definition."
+      },
+      {
+        "syndrome": "MENINGITIS",
+        "priority": 3,
+        "confidence": "MEDIUM",
+        "any": [
+          "fever",
+          "high_fever"
+        ],
+        "requires_any_extra": [
+          "altered_consciousness",
+          "photophobia",
+          "seizures",
+          "bulging_fontanelle"
+        ],
+        "reasoning": "Fever with neurological signs — meningitis/encephalitis must be excluded."
+      },
+      {
+        "syndrome": "NEUROLOGICAL",
+        "priority": 4,
+        "confidence": "HIGH",
+        "any": [
+          "hydrophobia",
+          "aerophobia"
+        ],
+        "reasoning": "Hydrophobia or aerophobia — pathognomonic for rabies. EMERGENCY protocol."
+      },
+      {
+        "syndrome": "NEUROLOGICAL",
+        "priority": 5,
+        "confidence": "HIGH",
+        "any": [
+          "paralysis_acute_flaccid"
+        ],
+        "reasoning": "Acute flaccid paralysis — AFP protocol required (polio exclusion mandatory)."
+      },
+      {
+        "syndrome": "NEUROLOGICAL",
+        "priority": 6,
+        "confidence": "MEDIUM",
+        "any": [
+          "altered_consciousness",
+          "seizures",
+          "encephalitis_signs"
+        ],
+        "reasoning": "Altered consciousness or seizures indicate neurological involvement."
+      },
+      {
+        "syndrome": "BLOODY_DIARRHEA",
+        "priority": 7,
+        "confidence": "HIGH",
+        "any": [
+          "bloody_diarrhea"
+        ],
+        "reasoning": "Bloody diarrhoea meets WHO Bloody Diarrhoea syndrome definition."
+      },
+      {
+        "syndrome": "SARI",
+        "priority": 8,
+        "confidence": "HIGH",
+        "any": [
+          "fever",
+          "high_fever",
+          "very_high_fever",
+          "sudden_onset_fever"
+        ],
+        "requires_any2": [
+          "shortness_of_breath",
+          "difficulty_breathing",
+          "rapid_breathing",
+          "oxygen_saturation_low",
+          "respiratory_failure_signs"
+        ],
+        "reasoning": "Fever with respiratory distress meets WHO SARI case definition."
+      },
+      {
+        "syndrome": "JAUNDICE",
+        "priority": 9,
+        "confidence": "HIGH",
+        "any": [
+          "jaundice"
+        ],
+        "reasoning": "Clinical jaundice (yellow sclera/skin) — acute jaundice syndrome."
+      },
+      {
+        "syndrome": "JAUNDICE",
+        "priority": 10,
+        "confidence": "MEDIUM",
+        "any": [
+          "dark_urine",
+          "hepatomegaly"
+        ],
+        "reasoning": "Dark urine or hepatomegaly may indicate hepatic involvement."
+      },
+      {
+        "syndrome": "RASH_FEVER",
+        "priority": 11,
+        "confidence": "HIGH",
+        "any": [
+          "fever",
+          "high_fever",
+          "very_high_fever"
+        ],
+        "requires_any2": [
+          "rash_maculopapular",
+          "rash_vesicular_pustular",
+          "rash_face_first",
+          "painful_rash",
+          "skin_eschar",
+          "mucosal_lesions",
+          "genital_lesions"
+        ],
+        "reasoning": "Fever with rash meets WHO Febrile Rash Illness syndrome criteria."
+      },
+      {
+        "syndrome": "AWD",
+        "priority": 12,
+        "confidence": "HIGH",
+        "any": [
+          "rice_water_diarrhea",
+          "watery_diarrhea"
+        ],
+        "reasoning": "Profuse watery diarrhoea — Acute Watery Diarrhoea syndrome. Exclude cholera."
+      },
+      {
+        "syndrome": "AWD",
+        "priority": 13,
+        "confidence": "MEDIUM",
+        "requires": [
+          "severe_dehydration"
+        ],
+        "any": [
+          "diarrhea",
+          "vomiting"
+        ],
+        "reasoning": "Diarrhoea with severe dehydration — treat as AWD until proven otherwise."
+      },
+      {
+        "syndrome": "ILI",
+        "priority": 14,
+        "confidence": "HIGH",
+        "any": [
+          "fever",
+          "high_fever",
+          "low_grade_fever",
+          "sudden_onset_fever"
+        ],
+        "requires_any2": [
+          "cough",
+          "dry_cough",
+          "sore_throat",
+          "coryza",
+          "runny_nose"
+        ],
+        "reasoning": "Fever with respiratory symptoms — Influenza-Like Illness syndrome."
+      },
+      {
+        "syndrome": "OTHER",
+        "priority": 15,
+        "confidence": "LOW",
+        "any": [
+          "fever",
+          "high_fever",
+          "sudden_onset_fever",
+          "very_high_fever"
+        ],
+        "reasoning": "Undifferentiated febrile illness — needs further clinical workup."
+      }
+    ],
+    "version": "3.0.0",
+    "section": "reference"
+  },
+  {
+    "config_key": "diseases.ihr_escalation_rules",
+    "description": "window.DISEASES.ihr_escalation_rules from src/Diseases.js",
+    "config_value": [
+      {
+        "id": "TIER1_ALWAYS_CRITICAL",
+        "description": "Any IHR Tier 1 disease (always notifiable) in top 3 results at score ≥20",
+        "risk_level": "CRITICAL",
+        "routing": "NATIONAL",
+        "reasoning": "IHR Article 6: disease that always constitutes PHEIC requires immediate notification."
+      },
+      {
+        "id": "VHF_HIGH_CONFIDENCE",
+        "description": "VHF syndrome with high-confidence diagnosis in top 2",
+        "risk_level": "CRITICAL",
+        "routing": "NATIONAL",
+        "reasoning": "High-confidence VHF — IHR Annex 2 mandatory notification pathway."
+      },
+      {
+        "id": "VHF_POSSIBLE",
+        "description": "Any VHF in top 5 with score ≥20",
+        "risk_level": "HIGH",
+        "routing": "PHEOC",
+        "reasoning": "Possible VHF — IHR precautionary isolation pending laboratory confirmation."
+      },
+      {
+        "id": "SARI_SPO2_CRITICAL",
+        "description": "SARI with SpO2 <90%",
+        "risk_level": "CRITICAL",
+        "routing": "PHEOC",
+        "reasoning": "SARI with severe hypoxia — potential PHEIC pathogen; immediate respiratory isolation."
+      },
+      {
+        "id": "FEVER_HEMORRHAGE_EMERGENCY",
+        "description": "Emergency signs + hemorrhage",
+        "risk_level": "CRITICAL",
+        "routing": "NATIONAL",
+        "reasoning": "Hemorrhagic fever protocol activated — IHR Annex 2 immediate notification."
+      },
+      {
+        "id": "BIOTERRORISM_SUSPICION",
+        "description": "Bioterrorism protocol flags (smallpox, anthrax, tularemia cluster)",
+        "risk_level": "CRITICAL",
+        "routing": "NATIONAL",
+        "reasoning": "Bioterrorism indicator — national security protocols apply."
+      },
+      {
+        "id": "TIER2_HIGH_CONFIDENCE",
+        "description": "IHR Tier 2 Annex 2 disease at score ≥40 in top 1",
+        "risk_level": "HIGH",
+        "routing": "PHEOC",
+        "reasoning": "High-confidence IHR Annex 2 disease — PHEOC notification required."
+      },
+      {
+        "id": "CRITICAL_VITALS",
+        "description": "Life-threatening vital signs regardless of diagnosis",
+        "risk_level": "HIGH",
+        "routing": "DISTRICT",
+        "reasoning": "Critical vital signs — immediate medical management required regardless of diagnosis."
+      },
+      {
+        "id": "AFP_POLIO_RISK",
+        "description": "Acute flaccid paralysis = polio exclusion required",
+        "risk_level": "HIGH",
+        "routing": "PHEOC",
+        "reasoning": "AFP detected — IHR Tier 1 (polio) exclusion mandatory. Stool sample collection required."
+      }
+    ],
+    "version": "3.0.0",
+    "section": "reference"
+  },
+  {
+    "config_key": "diseases.engine_to_who_syndrome",
+    "description": "window.DISEASES.engine_to_who_syndrome from src/Diseases.js",
+    "config_value": {
+      "vhf": "VHF",
+      "gastrointestinal_hemorrhagic": "VHF",
+      "jaundice_hemorrhagic": "VHF",
+      "meningitis": "MENINGITIS",
+      "encephalitis": "NEUROLOGICAL",
+      "neurologic": "NEUROLOGICAL",
+      "acute_flaccid_paralysis": "NEUROLOGICAL",
+      "encephalitic": "NEUROLOGICAL",
+      "influenza_like_illness": "ILI",
+      "severe_respiratory": "SARI",
+      "acute_respiratory": "ILI",
+      "respiratory_rash": "RASH_FEVER",
+      "febrile_rash": "RASH_FEVER",
+      "vesiculopustular_rash": "RASH_FEVER",
+      "high_consequence_rash": "RASH_FEVER",
+      "mild_febrile_rash": "RASH_FEVER",
+      "mild_rash_illness": "RASH_FEVER",
+      "acute_watery_diarrhea": "AWD",
+      "dehydrating_diarrhea": "AWD",
+      "bloody_diarrhea_syndrome": "BLOODY_DIARRHEA",
+      "jaundice_syndrome": "JAUNDICE",
+      "jaundice_renal": "JAUNDICE",
+      "acute_febrile": "OTHER",
+      "arboviral": "OTHER",
+      "vector_borne": "OTHER",
+      "travel_fever": "OTHER",
+      "zoonotic": "OTHER",
+      "chronic_febrile_zoonotic": "OTHER",
+      "systemic_viral": "OTHER",
+      "lymphadenitic_febrile": "OTHER",
+      "shock_syndrome": "OTHER",
+      "renal_failure": "OTHER",
+      "gastrointestinal_systemic": "OTHER",
+      "respiratory_gastrointestinal_mixed": "SARI",
+      "neuroinvasive_possible": "NEUROLOGICAL",
+      "plague": "OTHER",
+      "cutaneous_eschar": "OTHER",
+      "bioterrorism": "OTHER"
+    },
+    "version": "3.0.0",
+    "section": "reference"
+  },
+  {
+    "config_key": "exposures.metadata",
+    "description": "window.EXPOSURES.metadata from src/exposures.js",
+    "config_value": {
+      "version": "2.0.0",
+      "schema_version": "2.0.0",
+      "last_updated": "2026-04-01",
+      "context": "WHO IHR 2005 aligned exposure risk factors for POE secondary screening",
+      "engine_compatibility": "Diseases.js v3.0.0+",
+      "usage": [
+        "Call mapToEngineCodes(dbRecords) to translate DB responses to engine codes.",
+        "Call getEnhancedScoreResult() in Diseases_intelligence.js passing engine codes.",
+        "Never put exposure mapping logic in the Vue — all logic belongs here."
+      ]
+    },
+    "version": "2.0.0",
+    "section": "metadata"
+  }
+]

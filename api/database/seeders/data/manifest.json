@@ -1,0 +1,23 @@
+{
+  "extracted_at": "2026-04-23T08:16:27.731Z",
+  "source_files": {
+    "src/Diseases.js": 121627,
+    "src/Diseases_intelligence.js": 228459,
+    "src/exposures.js": 44770,
+    "src/POEs.js": 53561
+  },
+  "counts": {
+    "poes": 35,
+    "diseases": 42,
+    "symptoms": 89,
+    "exposures": 29,
+    "exposure_mappings": 80,
+    "engine_config": 12,
+    "endemic_countries": 1154
+  },
+  "versions": {
+    "diseases": "3.0.0",
+    "exposures": "2.0.0",
+    "poes": "3.0.0"
+  }
+}

@@ -1,0 +1,310 @@
+/**
+ * POE Sentinel — Ionic theme + global UI primitives.
+ * Additive only: sets CSS custom properties and safe, opt-in utility classes.
+ * Does NOT override any view's inline styles or component logic.
+ *
+ * Sections:
+ *   1. Ionic palette — "Command Centre Dual-Tone" (deep navy + teal)
+ *   2. Safe-area env() bindings — edge-to-edge support for Android 15+
+ *   3. Typography baseline (Material-compliant scales, 16px root)
+ *   4. Touch-target guard — ensures Google's 48dp minimum
+ *   5. Skeleton & loading utilities (OPT-IN via class names; not applied globally)
+ *   6. Focus-visible a11y ring
+ *   7. Reduced-motion + dark-mode fallbacks
+ * -----------------------------------------------------------------------
+ */
+
+/* =====================================================================
+ * 1. Ionic palette — Command Centre Dual-Tone
+ * These drive every <ion-*> component. Views that set their own colors
+ * are unaffected.
+ * ===================================================================== */
+:root {
+  /* Pin the document to light mode so Android WebView's Force-Dark auto-
+     inversion cannot flip intentionally-dark components (like the login
+     card) into black-on-black. Paired with <meta name="color-scheme"
+     content="light"> + AppTheme forceDarkAllowed=false in styles.xml. */
+  color-scheme: only light;
+
+  --ion-color-primary: #0B2545;
+  --ion-color-primary-rgb: 11, 37, 69;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #091e38;
+  --ion-color-primary-tint: #233a58;
+
+  --ion-color-secondary: #00B4A6;
+  --ion-color-secondary-rgb: 0, 180, 166;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #009e92;
+  --ion-color-secondary-tint: #1abbaf;
+
+  --ion-color-tertiary: #13315C;
+  --ion-color-tertiary-rgb: 19, 49, 92;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #102b51;
+  --ion-color-tertiary-tint: #2a466c;
+
+  --ion-color-success: #2E7D32;
+  --ion-color-success-rgb: 46, 125, 50;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #286e2c;
+  --ion-color-success-tint: #438b47;
+
+  --ion-color-warning: #ED6C02;
+  --ion-color-warning-rgb: 237, 108, 2;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0, 0, 0;
+  --ion-color-warning-shade: #d15f02;
+  --ion-color-warning-tint: #ef7b1b;
+
+  --ion-color-danger: #C62828;
+  --ion-color-danger-rgb: 198, 40, 40;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #ae2323;
+  --ion-color-danger-tint: #cc3e3e;
+
+  --ion-color-light: #F5F7FA;
+  --ion-color-light-rgb: 245, 247, 250;
+  --ion-color-light-contrast: #0B2545;
+  --ion-color-light-contrast-rgb: 11, 37, 69;
+  --ion-color-light-shade: #d8dade;
+  --ion-color-light-tint: #f6f8fb;
+
+  --ion-color-medium: #64748B;
+  --ion-color-medium-rgb: 100, 116, 139;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #58667a;
+  --ion-color-medium-tint: #748297;
+
+  --ion-color-dark: #0F172A;
+  --ion-color-dark-rgb: 15, 23, 42;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-shade: #0d1425;
+  --ion-color-dark-tint: #272e3f;
+
+  --ion-background-color: #F5F7FA;
+  --ion-background-color-rgb: 245, 247, 250;
+  --ion-text-color: #0F172A;
+  --ion-text-color-rgb: 15, 23, 42;
+  --ion-card-background: #ffffff;
+  --ion-toolbar-background: #0B2545;
+  --ion-toolbar-color: #ffffff;
+  --ion-item-background: #ffffff;
+
+  --ion-font-family:
+    -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+}
+
+/* =====================================================================
+ * 2. Safe-area env() — edge-to-edge (Android 15+ / targetSdk 35+)
+ * ===================================================================== */
+:root {
+  --sa-top: env(safe-area-inset-top, 0px);
+  --sa-right: env(safe-area-inset-right, 0px);
+  --sa-bottom: env(safe-area-inset-bottom, 0px);
+  --sa-left: env(safe-area-inset-left, 0px);
+}
+
+.safe-area-all {
+  padding-top: var(--sa-top);
+  padding-right: var(--sa-right);
+  padding-bottom: var(--sa-bottom);
+  padding-left: var(--sa-left);
+}
+.safe-area-top    { padding-top: var(--sa-top); }
+.safe-area-bottom { padding-bottom: var(--sa-bottom); }
+
+/* ---------------------------------------------------------------------
+ * Edge-to-edge safe-area compensation for ion-header / ion-toolbar.
+ *
+ * Android 15+ (targetSdk 35+) forces edge-to-edge rendering: the WebView
+ * always draws beneath the status bar regardless of the StatusBar plugin
+ * `overlaysWebView` setting or `android:statusBarColor` in styles.xml.
+ * Without compensation, toolbar titles + buttons collide with the clock,
+ * signal, and battery icons.
+ *
+ * Fix: pad the FIRST toolbar inside every ion-header by the reported
+ * safe-area-inset-top, AND paint that padding strip in the toolbar's
+ * own background colour so the status bar region reads as part of the
+ * app chrome (not a stray translucent band).
+ *
+ * Keyboard slot: also reserves bottom safe-area for the navigation bar
+ * gesture pill on Android 10+ when a footer exists.
+ * ------------------------------------------------------------------- */
+ion-header ion-toolbar:first-of-type {
+  padding-top: var(--ion-safe-area-top, env(safe-area-inset-top, 0px));
+}
+
+ion-header ion-toolbar {
+  padding-left: var(--ion-safe-area-left, env(safe-area-inset-left, 0px));
+  padding-right: var(--ion-safe-area-right, env(safe-area-inset-right, 0px));
+}
+
+ion-footer ion-toolbar:last-of-type {
+  padding-bottom: var(--ion-safe-area-bottom, env(safe-area-inset-bottom, 0px));
+}
+
+/* =====================================================================
+ * 3. Typography baseline
+ * ===================================================================== */
+html {
+  font-family: var(--ion-font-family);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* =====================================================================
+ * 4. Touch-target guard — Material / Google 48dp minimum.
+ * Applies only to native <button>/[role=button] that don't already
+ * have an enforced size (Ionic buttons are already ≥48dp).
+ * ===================================================================== */
+button:not([class*='ion-']),
+[role='button']:not([class*='ion-']) {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* =====================================================================
+ * 5. Skeleton + loading utilities — OPT-IN.
+ *
+ * Usage:
+ *   <div class="skeleton skeleton-line"></div>
+ *   <div class="skeleton skeleton-block" style="height: 180px"></div>
+ *   <div class="ui-loading-overlay"><div class="ui-spinner"></div></div>
+ * ===================================================================== */
+@keyframes ui-skeleton-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.skeleton {
+  display: block;
+  border-radius: 8px;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(15, 23, 42, 0.06) 0%,
+      rgba(15, 23, 42, 0.12) 50%,
+      rgba(15, 23, 42, 0.06) 100%
+    );
+  background-size: 200% 100%;
+  animation: ui-skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+.skeleton-line  { height: 14px; margin: 8px 0; }
+.skeleton-line.lg { height: 20px; }
+.skeleton-line.sm { height: 10px; }
+.skeleton-block { width: 100%; min-height: 120px; }
+.skeleton-circle { width: 48px; height: 48px; border-radius: 50%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; opacity: 0.65; }
+}
+
+.ui-loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 37, 69, 0.42);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+.ui-loading-overlay[hidden] { display: none !important; }
+
+.ui-spinner {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: 4px solid rgba(255,255,255,0.2);
+  border-top-color: #00B4A6;
+  animation: ui-spinner-rotate 0.9s linear infinite;
+}
+@keyframes ui-spinner-rotate {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-spinner { animation-duration: 2.4s; }
+}
+
+.ui-empty-state {
+  padding: 48px 24px;
+  text-align: center;
+  color: #64748B;
+}
+.ui-empty-state .icon {
+  font-size: 56px;
+  opacity: 0.55;
+  margin-bottom: 12px;
+}
+.ui-empty-state .title {
+  font-size: 18px; font-weight: 600; color: #0F172A; margin-bottom: 6px;
+}
+
+/* =====================================================================
+ * 6. Focus-visible ring — keyboard a11y
+ * ===================================================================== */
+:focus-visible {
+  outline: 2px solid #00B4A6;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+ion-button:focus-visible,
+ion-item:focus-visible,
+ion-input:focus-visible {
+  outline: none;
+}
+
+/* =====================================================================
+ * 7. Reduced motion — respect OS-level a11y pref
+ * ===================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =====================================================================
+ * 8. PERFORMANCE GUARD — global animation/transition kill switch
+ * ---------------------------------------------------------------------
+ * Side menu was stuttering on lower-end Android because dozens of
+ * components run shimmer / pulse / scan / slideUp animations
+ * concurrently with the menu's own slide transition. Killing every CSS
+ * animation + transition globally removes the contention so the
+ * sidebar opens / closes in one frame.
+ * ===================================================================== */
+*, *::before, *::after {
+  animation: none !important;
+  animation-name: none !important;
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+  transition: none !important;
+  transition-property: none !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+}
+
+ion-menu, ion-modal, ion-router-outlet, ion-nav, ion-tabs,
+ion-content, ion-card, ion-item, ion-button, ion-chip, ion-segment,
+ion-segment-button, ion-toolbar, ion-header, ion-page, .ion-page {
+  --ion-animation-duration: 0ms !important;
+  --transition-duration: 0ms !important;
+}

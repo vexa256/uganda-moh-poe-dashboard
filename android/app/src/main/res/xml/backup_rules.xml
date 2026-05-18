@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Auto-backup rules (pre Android 12 / API ≤ 30).
+  PoE Sentinel stores patient screening data in IndexedDB (Dexie) and
+  Capacitor Preferences. Both can contain PII covered by national health
+  regulations, so we EXCLUDE everything from cloud backup by default and
+  only allow non-sensitive preferences.
+-->
+<full-backup-content>
+    <exclude domain="database" />
+    <exclude domain="sharedpref" path="CapacitorStorage.xml" />
+    <exclude domain="file" path="app_webview/" />
+    <exclude domain="file" path="databases/" />
+    <exclude domain="external" />
+    <exclude domain="root" />
+</full-backup-content>

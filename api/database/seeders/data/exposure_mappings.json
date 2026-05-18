@@ -1,0 +1,402 @@
+[
+  {
+    "exposure_code": "TRAVEL_OUTBREAK_AREA",
+    "engine_code": "travel_from_outbreak_area",
+    "priority": 0
+  },
+  {
+    "exposure_code": "TRAVEL_OUTBREAK_AREA",
+    "engine_code": "residence_in_outbreak_area",
+    "priority": 0
+  },
+  {
+    "exposure_code": "RESIDENCE_OUTBREAK_AREA",
+    "engine_code": "residence_in_outbreak_area",
+    "priority": 0
+  },
+  {
+    "exposure_code": "RESIDENCE_OUTBREAK_AREA",
+    "engine_code": "travel_from_outbreak_area",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CONTACT_SICK_PERSON",
+    "engine_code": "close_contact_case",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CONTACT_SICK_PERSON",
+    "engine_code": "contact_body_fluids",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CONTACT_CONFIRMED_CASE",
+    "engine_code": "close_contact_case",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CONTACT_CONFIRMED_CASE",
+    "engine_code": "contact_body_fluids",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CONTACT_CONFIRMED_CASE",
+    "engine_code": "affected_healthcare_facility_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CONTACT_RASH_CASE",
+    "engine_code": "contact_with_rash_case",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CONTACT_RASH_CASE",
+    "engine_code": "close_contact_case",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CONTACT_RASH_CASE",
+    "engine_code": "sexual_contact",
+    "priority": 0
+  },
+  {
+    "exposure_code": "SEXUAL_CONTACT",
+    "engine_code": "sexual_contact",
+    "priority": 0
+  },
+  {
+    "exposure_code": "SEXUAL_CONTACT",
+    "engine_code": "close_contact_case",
+    "priority": 0
+  },
+  {
+    "exposure_code": "SEXUAL_CONTACT",
+    "engine_code": "contact_with_rash_case",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CONTACT_BODY_FLUIDS",
+    "engine_code": "contact_body_fluids",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CONTACT_BODY_FLUIDS",
+    "engine_code": "close_contact_case",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CONTACT_BODY_FLUIDS",
+    "engine_code": "funeral_or_burial_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CONTACT_BODY_FLUIDS",
+    "engine_code": "healthcare_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CONTACT_DEAD_BODY",
+    "engine_code": "contact_dead_body",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CONTACT_DEAD_BODY",
+    "engine_code": "funeral_or_burial_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CONTACT_DEAD_BODY",
+    "engine_code": "contact_body_fluids",
+    "priority": 0
+  },
+  {
+    "exposure_code": "HEALTHCARE_EXPOSURE",
+    "engine_code": "healthcare_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "HEALTHCARE_EXPOSURE",
+    "engine_code": "affected_healthcare_facility_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "HEALTHCARE_EXPOSURE",
+    "engine_code": "close_contact_case",
+    "priority": 0
+  },
+  {
+    "exposure_code": "LABORATORY_EXPOSURE",
+    "engine_code": "laboratory_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "LABORATORY_EXPOSURE",
+    "engine_code": "contact_body_fluids",
+    "priority": 0
+  },
+  {
+    "exposure_code": "LABORATORY_EXPOSURE",
+    "engine_code": "healthcare_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "ANIMAL_EXPOSURE_LIVESTOCK",
+    "engine_code": "livestock_raw_dairy_abattoir",
+    "priority": 0
+  },
+  {
+    "exposure_code": "ANIMAL_EXPOSURE_LIVESTOCK",
+    "engine_code": "animal_bite_or_wildlife_contact",
+    "priority": 0
+  },
+  {
+    "exposure_code": "ANIMAL_EXPOSURE_LIVESTOCK",
+    "engine_code": "flood_livestock_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "ANIMAL_EXPOSURE_LIVESTOCK",
+    "engine_code": "camel_exposure_or_mideast_healthcare",
+    "priority": 0
+  },
+  {
+    "exposure_code": "ANIMAL_EXPOSURE_WILDLIFE",
+    "engine_code": "animal_bite_or_wildlife_contact",
+    "priority": 0
+  },
+  {
+    "exposure_code": "ANIMAL_EXPOSURE_WILDLIFE",
+    "engine_code": "bat_cave_mine_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "ANIMAL_EXPOSURE_WILDLIFE",
+    "engine_code": "rodent_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "ANIMAL_EXPOSURE_WILDLIFE",
+    "engine_code": "flea_or_rodent_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "ANIMAL_BITE_SCRATCH",
+    "engine_code": "dog_bat_animal_bite",
+    "priority": 0
+  },
+  {
+    "exposure_code": "ANIMAL_BITE_SCRATCH",
+    "engine_code": "animal_bite_or_wildlife_contact",
+    "priority": 0
+  },
+  {
+    "exposure_code": "ANIMAL_BITE_SCRATCH",
+    "engine_code": "bat_cave_mine_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "POULTRY_BIRD_EXPOSURE",
+    "engine_code": "poultry_or_live_bird_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "POULTRY_BIRD_EXPOSURE",
+    "engine_code": "animal_bite_or_wildlife_contact",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CAMEL_EXPOSURE",
+    "engine_code": "camel_exposure_or_mideast_healthcare",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CAMEL_EXPOSURE",
+    "engine_code": "livestock_raw_dairy_abattoir",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CAMEL_EXPOSURE",
+    "engine_code": "animal_bite_or_wildlife_contact",
+    "priority": 0
+  },
+  {
+    "exposure_code": "RODENT_EXPOSURE",
+    "engine_code": "rodent_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "RODENT_EXPOSURE",
+    "engine_code": "flea_or_rodent_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "RODENT_EXPOSURE",
+    "engine_code": "flood_livestock_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "UNSAFE_FOOD_WATER",
+    "engine_code": "unsafe_water",
+    "priority": 0
+  },
+  {
+    "exposure_code": "UNSAFE_FOOD_WATER",
+    "engine_code": "contaminated_food_or_water",
+    "priority": 0
+  },
+  {
+    "exposure_code": "RAW_MEAT_BLOOD",
+    "engine_code": "livestock_raw_dairy_abattoir",
+    "priority": 0
+  },
+  {
+    "exposure_code": "RAW_MEAT_BLOOD",
+    "engine_code": "contaminated_food_or_water",
+    "priority": 0
+  },
+  {
+    "exposure_code": "RAW_MEAT_BLOOD",
+    "engine_code": "animal_bite_or_wildlife_contact",
+    "priority": 0
+  },
+  {
+    "exposure_code": "DATE_PALM_SAP",
+    "engine_code": "pig_farm_date_palm_sap",
+    "priority": 0
+  },
+  {
+    "exposure_code": "DATE_PALM_SAP",
+    "engine_code": "bat_cave_mine_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "DATE_PALM_SAP",
+    "engine_code": "contaminated_food_or_water",
+    "priority": 0
+  },
+  {
+    "exposure_code": "VECTOR_MOSQUITO",
+    "engine_code": "mosquito_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "VECTOR_TICK",
+    "engine_code": "tick_bite_endemic",
+    "priority": 0
+  },
+  {
+    "exposure_code": "VECTOR_TICK",
+    "engine_code": "flea_or_rodent_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "VECTOR_FLEA",
+    "engine_code": "flea_or_rodent_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "VECTOR_FLEA",
+    "engine_code": "rodent_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "ABATTOIR_FARM_WORK",
+    "engine_code": "livestock_raw_dairy_abattoir",
+    "priority": 0
+  },
+  {
+    "exposure_code": "ABATTOIR_FARM_WORK",
+    "engine_code": "contact_body_fluids",
+    "priority": 0
+  },
+  {
+    "exposure_code": "ABATTOIR_FARM_WORK",
+    "engine_code": "tick_bite_endemic",
+    "priority": 0
+  },
+  {
+    "exposure_code": "FIELD_FLOOD_AGRICULTURE",
+    "engine_code": "flood_livestock_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "FIELD_FLOOD_AGRICULTURE",
+    "engine_code": "unsafe_water",
+    "priority": 0
+  },
+  {
+    "exposure_code": "FIELD_FLOOD_AGRICULTURE",
+    "engine_code": "contaminated_food_or_water",
+    "priority": 0
+  },
+  {
+    "exposure_code": "MASS_GATHERING",
+    "engine_code": "crowded_closed_setting",
+    "priority": 0
+  },
+  {
+    "exposure_code": "MASS_GATHERING",
+    "engine_code": "mass_gathering_hajj_umrah",
+    "priority": 0
+  },
+  {
+    "exposure_code": "MASS_GATHERING",
+    "engine_code": "close_contact_case",
+    "priority": 0
+  },
+  {
+    "exposure_code": "HAJJ_UMRAH_PILGRIMAGE",
+    "engine_code": "mass_gathering_hajj_umrah",
+    "priority": 0
+  },
+  {
+    "exposure_code": "HAJJ_UMRAH_PILGRIMAGE",
+    "engine_code": "crowded_closed_setting",
+    "priority": 0
+  },
+  {
+    "exposure_code": "HAJJ_UMRAH_PILGRIMAGE",
+    "engine_code": "camel_exposure_or_mideast_healthcare",
+    "priority": 0
+  },
+  {
+    "exposure_code": "HAJJ_UMRAH_PILGRIMAGE",
+    "engine_code": "close_contact_case",
+    "priority": 0
+  },
+  {
+    "exposure_code": "SOIL_DUST_AEROSOL",
+    "engine_code": "livestock_raw_dairy_abattoir",
+    "priority": 0
+  },
+  {
+    "exposure_code": "SOIL_DUST_AEROSOL",
+    "engine_code": "rodent_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "SOIL_DUST_AEROSOL",
+    "engine_code": "flea_or_rodent_exposure",
+    "priority": 0
+  },
+  {
+    "exposure_code": "UNVACCINATED",
+    "engine_code": "unvaccinated_or_unknown_vaccination",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CONTACT_PARALYSIS_CASE",
+    "engine_code": "contact_with_paralysis_case",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CONTACT_PARALYSIS_CASE",
+    "engine_code": "close_contact_case",
+    "priority": 0
+  },
+  {
+    "exposure_code": "CONTACT_PARALYSIS_CASE",
+    "engine_code": "unvaccinated_or_unknown_vaccination",
+    "priority": 0
+  }
+]

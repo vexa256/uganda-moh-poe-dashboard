@@ -1,0 +1,489 @@
+{
+  "baseUrl": "http://127.0.0.1:4173",
+  "startedAt": "2026-04-22T20:53:33.374Z",
+  "totalRoutes": 33,
+  "passed": 13,
+  "failed": 0,
+  "warned": 20,
+  "routes": [
+    {
+      "name": "home",
+      "path": "/",
+      "url": "http://127.0.0.1:4173/#/",
+      "status": "warn",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 2799,
+      "screenshot": "screenshots/home.png"
+    },
+    {
+      "name": "dashboard-redirect",
+      "path": "/dashboard",
+      "url": "http://127.0.0.1:4173/#/dashboard",
+      "status": "warn",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 2027,
+      "screenshot": "screenshots/dashboard-redirect.png"
+    },
+    {
+      "name": "home-explicit",
+      "path": "/home",
+      "url": "http://127.0.0.1:4173/#/home",
+      "status": "warn",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 1918,
+      "screenshot": "screenshots/home-explicit.png"
+    },
+    {
+      "name": "disease-intelligence",
+      "path": "/DiseaseInteligence",
+      "url": "http://127.0.0.1:4173/#/DiseaseInteligence",
+      "status": "pass",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 2447,
+      "screenshot": "screenshots/disease-intelligence.png"
+    },
+    {
+      "name": "primary-screening",
+      "path": "/PrimaryScreening",
+      "url": "http://127.0.0.1:4173/#/PrimaryScreening",
+      "status": "pass",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": -614,
+      "screenshot": "screenshots/primary-screening.png"
+    },
+    {
+      "name": "screening-dashboard",
+      "path": "/screening-dashboard",
+      "url": "http://127.0.0.1:4173/#/screening-dashboard",
+      "status": "warn",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 3132,
+      "screenshot": "screenshots/screening-dashboard.png"
+    },
+    {
+      "name": "primary-screening-dashboard-legacy",
+      "path": "/primary-screening/dashboard",
+      "url": "http://127.0.0.1:4173/#/primary-screening/dashboard",
+      "status": "warn",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 3133,
+      "screenshot": "screenshots/primary-screening-dashboard-legacy.png"
+    },
+    {
+      "name": "primary-screening-records",
+      "path": "/primary-screening/records",
+      "url": "http://127.0.0.1:4173/#/primary-screening/records",
+      "status": "warn",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 1980,
+      "screenshot": "screenshots/primary-screening-records.png"
+    },
+    {
+      "name": "notifications-center",
+      "path": "/NotificationsCenter",
+      "url": "http://127.0.0.1:4173/#/NotificationsCenter",
+      "status": "warn",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+        "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 1988,
+      "screenshot": "screenshots/notifications-center.png"
+    },
+    {
+      "name": "secondary-records",
+      "path": "/secondary-screening/records",
+      "url": "http://127.0.0.1:4173/#/secondary-screening/records",
+      "status": "warn",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 2022,
+      "screenshot": "screenshots/secondary-records.png"
+    },
+    {
+      "name": "secondary-screening-one",
+      "path": "/secondary-screening/nonexistent-uuid",
+      "url": "http://127.0.0.1:4173/#/secondary-screening/nonexistent-uuid",
+      "status": "warn",
+      "consoleErrors": [
+        "%c[SS][20:53:58.413] ✖ [routeParamWatch] NOTIFICATION NOT FOUND in IDB for uuid=\"nonexistent-uuid\" color:#C62828;font-weight:700 [object Object]",
+        "%c[SS][20:53:58.417] ✖ [onIonViewDidEnter] NOTIFICATION NOT FOUND in IDB for uuid=\"nonexistent-uuid\" color:#C62828;font-weight:700 [object Object]",
+        "%c[SS][20:53:58.419] ✖ [onMounted] NOTIFICATION NOT FOUND in IDB for uuid=\"nonexistent-uuid\" color:#C62828;font-weight:700 [object Object]"
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 1895,
+      "screenshot": "screenshots/secondary-screening-one.png"
+    },
+    {
+      "name": "alerts-history",
+      "path": "/alerts/history",
+      "url": "http://127.0.0.1:4173/#/alerts/history",
+      "status": "warn",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 1891,
+      "screenshot": "screenshots/alerts-history.png"
+    },
+    {
+      "name": "alerts-intelligence",
+      "path": "/alerts/intelligence",
+      "url": "http://127.0.0.1:4173/#/alerts/intelligence",
+      "status": "warn",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 1891,
+      "screenshot": "screenshots/alerts-intelligence.png"
+    },
+    {
+      "name": "alerts-matrix",
+      "path": "/alerts/matrix",
+      "url": "http://127.0.0.1:4173/#/alerts/matrix",
+      "status": "pass",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 1892,
+      "screenshot": "screenshots/alerts-matrix.png"
+    },
+    {
+      "name": "alerts",
+      "path": "/alerts",
+      "url": "http://127.0.0.1:4173/#/alerts",
+      "status": "warn",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 1889,
+      "screenshot": "screenshots/alerts.png"
+    },
+    {
+      "name": "admin-aggregated-templates",
+      "path": "/admin/aggregated-templates",
+      "url": "http://127.0.0.1:4173/#/admin/aggregated-templates",
+      "status": "warn",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+        "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 1895,
+      "screenshot": "screenshots/admin-aggregated-templates.png"
+    },
+    {
+      "name": "admin-aggregated-wizard",
+      "path": "/admin/aggregated-wizard",
+      "url": "http://127.0.0.1:4173/#/admin/aggregated-wizard",
+      "status": "pass",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 1900,
+      "screenshot": "screenshots/admin-aggregated-wizard.png"
+    },
+    {
+      "name": "admin-poe-contacts",
+      "path": "/admin/poe-contacts",
+      "url": "http://127.0.0.1:4173/#/admin/poe-contacts",
+      "status": "warn",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+        "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 1890,
+      "screenshot": "screenshots/admin-poe-contacts.png"
+    },
+    {
+      "name": "aggregated-data",
+      "path": "/aggregated-data",
+      "url": "http://127.0.0.1:4173/#/aggregated-data",
+      "status": "warn",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+        "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": -463,
+      "screenshot": "screenshots/aggregated-data.png"
+    },
+    {
+      "name": "aggregated-history",
+      "path": "/aggregated-data/history",
+      "url": "http://127.0.0.1:4173/#/aggregated-data/history",
+      "status": "warn",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 1938,
+      "screenshot": "screenshots/aggregated-history.png"
+    },
+    {
+      "name": "aggregated-new",
+      "path": "/aggregated-data/new/1",
+      "url": "http://127.0.0.1:4173/#/aggregated-data/new/1",
+      "status": "warn",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+        "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 2050,
+      "screenshot": "screenshots/aggregated-new.png"
+    },
+    {
+      "name": "aggregated-new-noid",
+      "path": "/aggregated-data/new",
+      "url": "http://127.0.0.1:4173/#/aggregated-data/new",
+      "status": "warn",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+        "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 3705,
+      "screenshot": "screenshots/aggregated-new-noid.png"
+    },
+    {
+      "name": "aggregated-legacy",
+      "path": "/aggregated",
+      "url": "http://127.0.0.1:4173/#/aggregated",
+      "status": "warn",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+        "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 1896,
+      "screenshot": "screenshots/aggregated-legacy.png"
+    },
+    {
+      "name": "sync-queue",
+      "path": "/sync/queue",
+      "url": "http://127.0.0.1:4173/#/sync/queue",
+      "status": "pass",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 1890,
+      "screenshot": "screenshots/sync-queue.png"
+    },
+    {
+      "name": "sync-history",
+      "path": "/sync/history",
+      "url": "http://127.0.0.1:4173/#/sync/history",
+      "status": "pass",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 1896,
+      "screenshot": "screenshots/sync-history.png"
+    },
+    {
+      "name": "sync-failed",
+      "path": "/sync/failed",
+      "url": "http://127.0.0.1:4173/#/sync/failed",
+      "status": "pass",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 1882,
+      "screenshot": "screenshots/sync-failed.png"
+    },
+    {
+      "name": "sync",
+      "path": "/sync",
+      "url": "http://127.0.0.1:4173/#/sync",
+      "status": "pass",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 1888,
+      "screenshot": "screenshots/sync.png"
+    },
+    {
+      "name": "admin-system-redirect",
+      "path": "/admin/system",
+      "url": "http://127.0.0.1:4173/#/admin/system",
+      "status": "pass",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 1894,
+      "screenshot": "screenshots/admin-system-redirect.png"
+    },
+    {
+      "name": "poes",
+      "path": "/POEs",
+      "url": "http://127.0.0.1:4173/#/POEs",
+      "status": "pass",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 3144,
+      "screenshot": "screenshots/poes.png"
+    },
+    {
+      "name": "users",
+      "path": "/Users",
+      "url": "http://127.0.0.1:4173/#/Users",
+      "status": "pass",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 2276,
+      "screenshot": "screenshots/users.png"
+    },
+    {
+      "name": "profile",
+      "path": "/profile",
+      "url": "http://127.0.0.1:4173/#/profile",
+      "status": "pass",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": -578,
+      "screenshot": "screenshots/profile.png"
+    },
+    {
+      "name": "settings",
+      "path": "/settings",
+      "url": "http://127.0.0.1:4173/#/settings",
+      "status": "pass",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 1892,
+      "screenshot": "screenshots/settings.png"
+    },
+    {
+      "name": "not-found-catch",
+      "path": "/some/route/that/does/not/exist",
+      "url": "http://127.0.0.1:4173/#/some/route/that/does/not/exist",
+      "status": "warn",
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "pageErrors": [],
+      "failedRequests": [],
+      "loadMs": 1908,
+      "screenshot": "screenshots/not-found-catch.png"
+    }
+  ],
+  "finishedAt": "2026-04-22T20:54:49.782Z"
+}

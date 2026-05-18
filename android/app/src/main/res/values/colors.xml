@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  POE Sentinel brand colors. Values declared here override identical
+  names coming from :capacitor-android resource merging.
+
+  Palette mirrors src/theme/variables.css (Command Centre Dual-Tone):
+    Primary          deep navy  #0B2545
+    Primary Dark     darker navy #091E38 (for status bar contrast)
+    Accent / Teal    #00B4A6
+    Splash bg        #0B2545 (matches splash drawable)
+-->
+<resources>
+    <color name="colorPrimary">#0B2545</color>
+    <color name="colorPrimaryDark">#091E38</color>
+    <color name="colorAccent">#00B4A6</color>
+
+    <!-- Used by splash + status/nav bar drawing -->
+    <color name="splash_background">#0B2545</color>
+    <color name="ic_launcher_background">#0B2545</color>
+</resources>

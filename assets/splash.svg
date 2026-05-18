@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2732 2732" width="2732" height="2732">
+  <!-- Splash: centered logo at ~38% of canvas, deep navy background. -->
+  <defs>
+    <linearGradient id="splashBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0B2545"/>
+      <stop offset="1" stop-color="#081B34"/>
+    </linearGradient>
+    <linearGradient id="sRing" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#00B4A6"/>
+      <stop offset="1" stop-color="#008F84"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="2732" height="2732" fill="url(#splashBg)"/>
+
+  <!-- centered shield scaled and translated (original design 1024x1024 → scale ~1.04x, center) -->
+  <g transform="translate(1366 1366) scale(1.04) translate(-512 -512)">
+    <path d="
+        M 512 128
+        L 832 232
+        L 832 528
+        C 832 716 688 848 512 896
+        C 336 848 192 716 192 528
+        L 192 232 Z"
+      fill="#13315C" stroke="url(#sRing)" stroke-width="14"/>
+    <circle cx="512" cy="508" r="210" fill="none" stroke="url(#sRing)" stroke-width="10" stroke-opacity="0.55"/>
+    <g fill="#FFFFFF">
+      <rect x="452" y="348" width="120" height="320" rx="18"/>
+      <rect x="352" y="448" width="320" height="120" rx="18"/>
+    </g>
+    <g font-family="Inter, Helvetica, Arial, sans-serif" font-weight="700" text-anchor="middle" fill="#FFFFFF">
+      <text x="512" y="808" font-size="88" letter-spacing="8">POE</text>
+    </g>
+  </g>
+
+  <!-- Wordmark below -->
+  <g font-family="Inter, Helvetica, Arial, sans-serif" text-anchor="middle" fill="#FFFFFF">
+    <text x="1366" y="2000" font-size="96" font-weight="700" letter-spacing="14">POE SENTINEL</text>
+    <text x="1366" y="2072" font-size="40" font-weight="400" letter-spacing="8" fill="#7BB8B0">Point of Entry · Public Health Screening</text>
+  </g>
+</svg>

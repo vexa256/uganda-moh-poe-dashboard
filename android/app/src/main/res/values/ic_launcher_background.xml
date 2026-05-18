@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Legacy file — the authoritative ic_launcher_background color is now in
+  colors.xml (#0B2545 brand navy). Keeping this file present with a
+  distinct name so nothing that ever referenced it path-wise breaks.
+-->
+<resources>
+    <color name="ic_launcher_background_legacy">#FFFFFF</color>
+</resources>

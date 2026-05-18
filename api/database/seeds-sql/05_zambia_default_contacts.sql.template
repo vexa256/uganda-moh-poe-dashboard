@@ -1,0 +1,96 @@
+-- ═══════════════════════════════════════════════════════════════════════════
+-- ZAMBIA NATIONAL NOTIFICATION ROSTER — TEMPLATE (fill in before running)
+-- ═══════════════════════════════════════════════════════════════════════════
+--
+-- ⚠  THIS IS A TEMPLATE. It intentionally contains NO real names, emails or
+--    phone numbers. The fork agent refuses to invent Zambian MoH / ZNPHI
+--    contact data. Before running this script against any production DB:
+--
+--    1. Replace every <REPLACE_ME_*> placeholder with the actual operator-
+--       provided value sourced from ZNPHI / Zambia MoH leadership.
+--    2. Add or remove priority rows as needed — the Uganda roster seeded 19;
+--       a Zambia pilot may start smaller (e.g. 3–5 contacts) and grow.
+--    3. Run from MySQL/MariaDB client, not via Laravel's migration chain.
+--       This file is a standalone operator script, not a Laravel seeder.
+--    4. File is idempotent — NOT EXISTS guards prevent duplicate rows on
+--       re-run. It never UPDATEs; to edit an existing contact, soft-delete
+--       the old row first.
+--
+-- ⚠  DO NOT run `05_uganda_default_contacts.sql` against a Zambia DB. That
+--    script contains a live Uganda MoH roster. See MIGRATION_NOTES.md §3.
+--
+-- Geographic anchor values follow Zambia's gazetted POE dataset (see
+-- src/POEs.js). `country_code` is 'ZM'; the sample district/POE below
+-- point to the National PHEOC at Kenneth Kaunda International Airport,
+-- which is the conventional NATIONAL-level anchor.
+-- ═══════════════════════════════════════════════════════════════════════════
+
+SET @country := 'ZM';
+SET @district := 'Chongwe District';
+SET @poe := 'Kenneth Kaunda International Airport';
+SET @pheoc := 'National PHEOC';
+SET @creator := (SELECT id FROM users WHERE role_key = 'NATIONAL_ADMIN' ORDER BY id LIMIT 1);
+SET @creator := COALESCE(@creator, 1);
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- PRIMARY TO: (priority_order = 1)
+-- This contact receives every alert as the primary recipient. All other
+-- contacts below are CCs.
+-- ───────────────────────────────────────────────────────────────────────────
+INSERT INTO poe_notification_contacts
+  (country_code, district_code, poe_code, level, full_name, position, organisation,
+   email, phone, priority_order, preferred_channel, is_active,
+   receives_critical, receives_high, receives_medium, receives_low,
+   receives_tier1, receives_tier2, receives_breach_alerts,
+   receives_followup_reminders, receives_daily_report, receives_weekly_report,
+   notes, created_by_user_id, created_at, updated_at)
+SELECT @country, @district, @poe, 'NATIONAL',
+  '<REPLACE_ME_PRIMARY_FULL_NAME>',                      -- e.g. 'Dr. A. Zulu'
+  '<REPLACE_ME_PRIMARY_POSITION>',                       -- e.g. 'National IHR Focal Point'
+  '<REPLACE_ME_PRIMARY_ORGANISATION>',                   -- e.g. 'ZNPHI · Ministry of Health'
+  '<REPLACE_ME_PRIMARY_EMAIL>',                          -- e.g. 'ihr.focalpoint@znphi.co.zm'
+  NULL,                                                  -- phone (optional)
+  1, 'EMAIL', 1,
+  1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+  'Primary TO: for all automated alerts (Zambia national roster).',
+  @creator, NOW(), NOW()
+WHERE NOT EXISTS (
+  SELECT 1 FROM poe_notification_contacts
+  WHERE email = '<REPLACE_ME_PRIMARY_EMAIL>'
+    AND deleted_at IS NULL
+);
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- CC RECIPIENTS (priority_order = 2..N)
+-- Add or remove rows below to match the actual Zambia national roster.
+-- Each row grants the same full national subscription profile.
+-- ───────────────────────────────────────────────────────────────────────────
+INSERT INTO poe_notification_contacts
+  (country_code, district_code, poe_code, level, full_name, position, organisation,
+   email, priority_order, preferred_channel, is_active,
+   receives_critical, receives_high, receives_medium, receives_low,
+   receives_tier1, receives_tier2, receives_breach_alerts,
+   receives_followup_reminders, receives_daily_report, receives_weekly_report,
+   notes, created_by_user_id, created_at, updated_at)
+SELECT @country, @district, @poe, 'NATIONAL', s.full_name, s.position, s.organisation,
+  s.email, s.priority_order, 'EMAIL', 1,
+  1, 1, 0, 0, 1, 1, 1, 1, 1, 1,
+  'Zambia national roster (CC).', @creator, NOW(), NOW()
+FROM (
+  -- Replace every <REPLACE_ME_*> below. Add more UNION ALL rows as needed.
+  SELECT '<REPLACE_ME_CC2_FULL_NAME>' AS full_name, '<REPLACE_ME_CC2_POSITION>' AS position, '<REPLACE_ME_CC2_ORGANISATION>' AS organisation, '<REPLACE_ME_CC2_EMAIL>' AS email,  2 AS priority_order UNION ALL
+  SELECT '<REPLACE_ME_CC3_FULL_NAME>',                '<REPLACE_ME_CC3_POSITION>',                '<REPLACE_ME_CC3_ORGANISATION>',                '<REPLACE_ME_CC3_EMAIL>',                 3 UNION ALL
+  SELECT '<REPLACE_ME_CC4_FULL_NAME>',                '<REPLACE_ME_CC4_POSITION>',                '<REPLACE_ME_CC4_ORGANISATION>',                '<REPLACE_ME_CC4_EMAIL>',                 4 UNION ALL
+  SELECT '<REPLACE_ME_CC5_FULL_NAME>',                '<REPLACE_ME_CC5_POSITION>',                '<REPLACE_ME_CC5_ORGANISATION>',                '<REPLACE_ME_CC5_EMAIL>',                 5
+) s
+WHERE NOT EXISTS (
+  SELECT 1 FROM poe_notification_contacts
+  WHERE email = s.email
+    AND deleted_at IS NULL
+);
+
+-- Quick read-back for verification after seeding
+SELECT priority_order, full_name, email, level
+FROM poe_notification_contacts
+WHERE country_code = 'ZM' AND deleted_at IS NULL
+ORDER BY priority_order, id;

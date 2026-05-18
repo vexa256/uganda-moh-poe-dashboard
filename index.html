@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Uganda POE Screening</title>
+    <base href="/" />
+    <meta name="color-scheme" content="light" />
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <link rel="shortcut icon" type="image/png" href="/favicon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Uganda POE Screening" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png" />
+    <meta name="theme-color" content="#0B2545" />
+    <meta http-equiv="content-language" content="en" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         GOOGLE TRANSLATE — MINIMAL, DETERMINISTIC (v8, 2026-05-06)
+
+         v7 had a MutationObserver + setInterval combo that deadlocked Vue
+         (page never loaded). v8 strips all of that. We rely on:
+
+           • CSS to hide every visible Google UI element.
+           • Widget off-screen (NOT display:none — that breaks the widget).
+           • Cookie + reload to switch language. Reload is the ONLY thing
+             that triggers full-page translation (no observers needed —
+             Google's own observer takes over once the cookie is set and
+             element.js runs at boot).
+           • A tiny one-shot wipe on v8's first run to scrub any stale
+             state from v6/v7 attempts.
+
+         ══════════════════════════════════════════════════════════════════ -->
+    <style>
+      /* ──────────────────────────────────────────────────────────────────
+         GOOGLE TRANSLATE — 100% CSS-ONLY HIDING (v8.1)
+         Every known Google Translate UI surface is suppressed by an
+         exact selector. CSS only — no JS observers (those deadlocked
+         Vue in v7).  All selectors use `!important` to override Google's
+         runtime style application.
+
+         Coverage:
+           • iframe.goog-te-banner-frame      (top banner iframe)
+           • iframe.goog-te-menu-frame        (language picker iframe)
+           • iframe.skiptranslate (body level — Google's RPC frames)
+           • .goog-te-banner-frame            (banner div)
+           • .goog-te-balloon-frame           (popup balloon)
+           • .goog-te-spinner-pos             (loading spinner)
+           • .goog-te-spinner-animation
+           • #goog-gt-tt + .goog-tooltip      (hover original-text tooltip)
+           • .goog-text-highlight             (yellow highlight on hover)
+           • .goog-logo-link / .goog-te-gadget-icon  (branding inside widget)
+           • body { top: Npx } / { position: relative }   (banner make-room hack)
+           • Newer VIpgJd-* classes Google has been rolling out
+         ────────────────────────────────────────────────────────────── */
+
+      /* (1) Off-screen widget host. NOT display:none — that breaks the
+         widget's internal scan/translate logic. */
+      #google_translate_element {
+        position: fixed !important;
+        left: -10000px !important;
+        top: -10000px !important;
+        width: 320px !important;
+        height: 60px !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        z-index: -1 !important;
+      }
+
+      /* (2) Hide every visible Google iframe at body level — kills the
+         banner, the picker, and any RPC frames. We DON'T target
+         `.skiptranslate` globally (the widget itself uses it); only
+         iframes (which Google uses for banners, never for the widget). */
+      body > iframe.skiptranslate,
+      body > iframe.goog-te-banner-frame,
+      body > iframe.goog-te-menu-frame,
+      body > iframe[src*="translate.google"],
+      body > iframe[src*="translate.googleusercontent"],
+      body > iframe[name*="translate"],
+      iframe.goog-te-banner-frame,
+      iframe.goog-te-menu-frame,
+      iframe[src*="translate.google.com/translate_a"],
+      iframe[src*="translate.googleusercontent.com"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        width: 0 !important;
+        max-height: 0 !important;
+        max-width: 0 !important;
+        position: fixed !important;
+        top: -10000px !important;
+        left: -10000px !important;
+        pointer-events: none !important;
+        z-index: -9999 !important;
+        border: 0 !important;
+      }
+
+      /* (3) Hide every other Google UI div / span by class — exhaustive
+         list including the older .goog-* family and the newer
+         VIpgJd-* family Google introduced in 2024. */
+      .goog-te-banner,
+      .goog-te-banner-frame,
+      .goog-te-balloon-frame,
+      .goog-te-spinner-pos,
+      .goog-te-spinner-animation,
+      .goog-tooltip,
+      .goog-tooltip:hover,
+      .goog-tooltip *,
+      #goog-gt-tt,
+      #goog-gt-tt:hover,
+      .VIpgJd-ZVi9od-l4eHX-hSRGPd,
+      .VIpgJd-ZVi9od-ORHb-OEVmcd,
+      .VIpgJd-ZVi9od-aZ2wEe-wOHMyf,
+      .VIpgJd-ZVi9od-l4eHX-hSRGPd-OEVmcd,
+      [class^="VIpgJd-ZVi9od"][class*="banner"],
+      [class*="goog-te-banner"],
+      [class*="goog-te-spinner"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        width: 0 !important;
+        max-height: 0 !important;
+        pointer-events: none !important;
+      }
+
+      /* (4) Hide Google branding inside our widget host (it's already
+         off-screen, but kill it anyway in case CSS leaks). */
+      #google_translate_element a.goog-logo-link,
+      #google_translate_element .goog-logo-link,
+      #google_translate_element .goog-te-gadget-icon,
+      #google_translate_element img,
+      #google_translate_element .goog-te-gadget > span:first-child,
+      #google_translate_element .goog-te-gadget > span > a {
+        display: none !important;
+        visibility: hidden !important;
+      }
+
+      /* (5) Strip yellow highlight that Google adds to translated text
+         on hover. */
+      .goog-text-highlight,
+      .goog-text-highlight:hover,
+      font.goog-text-highlight {
+        background: transparent !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+        cursor: inherit !important;
+        position: static !important;
+      }
+
+      /* (6) Body / html — Google sets `body { top: 40px; position: relative }`
+         to make room for its banner. Banner is hidden, so clamp body
+         back to its natural position. !important overrides inline style.*/
+      body {
+        top: 0 !important;
+        position: static !important;
+        min-height: 100vh !important;
+      }
+      html {
+        margin-top: 0 !important;
+      }
+
+      /* (7) Catch-all: any `<font>` element Google inserts to wrap
+         translated text — let it pass through normally (don't hide!),
+         but neutralise any inline style Google added. */
+      font[style*="vertical-align"] {
+        vertical-align: baseline !important;
+      }
+    </style>
+
+    <script>
+      // Google Translate init callback. Called by element.js once it loads.
+      function googleTranslateElementInit() {
+        try {
+          new google.translate.TranslateElement({
+            pageLanguage: 'en',
+            includedLanguages: 'en,fr,sw,rw,ar,pt,es,zh-CN,de,nl,it,am,ha,yo,zu',
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+            autoDisplay: false,
+          }, 'google_translate_element');
+          window.__POE_GT_READY = true;
+        } catch (e) {
+          console.debug('[gt] init failed:', e && e.message);
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="app"></div>
+    <div id="google_translate_element" aria-hidden="true"></div>
+
+    <script type="module" src="/src/main.ts"></script>
+
+    <!-- ═══ Translate plumbing — minimal vanilla JS ═══ -->
+    <script>
+      (function () {
+        'use strict';
+
+        // ── Cookie helpers ────────────────────────────────────────────
+        // Set on every plausible (path, domain) combo so the cookie
+        // lands regardless of host (Capacitor / localhost / prod).
+        function setCookie(name, value) {
+          var expires = value
+            ? 'expires=Fri, 31 Dec 9999 23:59:59 GMT'
+            : 'expires=Thu, 01 Jan 1970 00:00:00 GMT';
+          var combos = [
+            'path=/',
+            'path=/; domain=' + location.hostname,
+            'path=/; domain=.' + location.hostname,
+          ];
+          for (var i = 0; i < combos.length; i++) {
+            try { document.cookie = name + '=' + value + '; ' + expires + '; ' + combos[i]; }
+            catch (e) {}
+          }
+        }
+        function readCookie(name) {
+          var m = document.cookie.match(new RegExp('(?:^|; *)' + name + '=([^;]*)'));
+          return m ? decodeURIComponent(m[1]) : null;
+        }
+        function readGoogTrans() {
+          var raw = readCookie('googtrans');
+          if (!raw) return 'en';
+          var m = raw.match(/\/[^/]+\/([^;\s]+)/);
+          return m ? m[1] : 'en';
+        }
+
+        // ── ONE-TIME RESET ────────────────────────────────────────────
+        // v6/v7 may have left stale state. The first time v8 boots on
+        // any client, wipe everything translate-related so we start
+        // clean. Subsequent loads skip this.
+        try {
+          if (!localStorage.getItem('poe_translate_v8_clean')) {
+            setCookie('googtrans', '');
+            // Also kill any vue-i18n stale lang. v8 starts everyone
+            // at English; user can pick a language fresh.
+            try { localStorage.setItem('rw_poe_lang_v1', 'en'); } catch (e) {}
+            localStorage.setItem('poe_translate_v8_clean', '1');
+          }
+        } catch (e) {}
+
+        // ── Map app codes → Google's BCP-47 codes ─────────────────────
+        var GT = {
+          en: 'en', rw: 'rw', fr: 'fr', pt: 'pt', sw: 'sw', ar: 'ar',
+          es: 'es', zh: 'zh-CN', 'zh-CN': 'zh-CN', de: 'de', nl: 'nl',
+          it: 'it', am: 'am', ha: 'ha', yo: 'yo', zu: 'zu',
+        };
+
+        // ── Public helpers ────────────────────────────────────────────
+        // Sidebar LangSwitcher calls these. ONE responsibility each.
+
+        window.__POE_TRANSLATE_TO__ = function (appLang) {
+          var gt = GT[appLang] || appLang;
+          if (!gt || gt === 'en') return window.__POE_RESET_TRANSLATE__();
+          setCookie('googtrans', '/en/' + gt);
+          try { localStorage.setItem('rw_poe_lang_v1', appLang); } catch (e) {}
+          location.reload();
+        };
+
+        window.__POE_RESET_TRANSLATE__ = function () {
+          setCookie('googtrans', '');
+          try { localStorage.setItem('rw_poe_lang_v1', 'en'); } catch (e) {}
+          // Wipe URL hash if Google injected one.
+          try {
+            if (location.hash && location.hash.indexOf('googtrans') >= 0) {
+              history.replaceState(null, '', location.pathname + location.search);
+            }
+          } catch (e) {}
+          location.reload();
+        };
+
+        window.__POE_GET_CURRENT_LANG__ = readGoogTrans;
+      })();
+    </script>
+
+    <!-- Google Translate CDN — async, non-blocking. -->
+    <script async src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  </body>
+</html>

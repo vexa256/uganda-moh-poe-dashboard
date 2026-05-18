@@ -1,0 +1,6 @@
+src/services/__tests__/passportOcr.test.js
+src/services/__tests__/plugins-aggressive.test.js
+src/services/__tests__/sentinel-gates.test.js
+tests/unit/alert-lifecycle-hostile.spec.ts
+tests/unit/review-hostile.spec.ts
+tests/unit/scoring.calibration.spec.ts

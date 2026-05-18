@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+      Base application theme.
+      AppCompat.Light.DarkActionBar retained for compatibility with
+      capacitor-android + splash screen AARs. Status and navigation bar
+      colors are pinned to the POE Sentinel navy so the system chrome
+      matches app chrome (Google UX guideline).
+    -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:statusBarColor">@color/colorPrimary</item>
+        <item name="android:navigationBarColor">@color/colorPrimary</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:forceDarkAllowed">false</item>
+        <!-- Android 15+ (SDK 35+) enforces edge-to-edge for apps targeting
+             SDK 35+, which makes the WebView span over status + navigation
+             bars. Without this opt-out the StatusBar plugin's
+             overlaysWebView:false flag is silently ignored and content sits
+             behind the system clock + 3-button nav. Will be removed when we
+             migrate to a proper WindowInsetsCompat handler. -->
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+    </style>
+
+    <!-- Pinned to Light (was DayNight). DayNight lets Android WebView
+         apply Force Dark auto-inversion in system dark mode, which blacks
+         out the login + form fields. forceDarkAllowed=false is the belt-
+         and-suspenders guard in case an OEM WebView ignores the parent. -->
+    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:background">@null</item>
+        <item name="android:statusBarColor">@color/colorPrimary</item>
+        <item name="android:navigationBarColor">@color/colorPrimary</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:forceDarkAllowed">false</item>
+        <!-- Same edge-to-edge opt-out for the running activity theme. -->
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+    </style>
+
+    <!--
+      Launch / splash theme (Android 12+ SplashScreen API).
+      postSplashScreenTheme ensures clean transfer to the in-app theme
+      after the OS splash dismisses — prevents the "white flash" bug.
+    -->
+    <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash</item>
+        <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
+        <item name="android:background">@drawable/splash</item>
+    </style>
+</resources>

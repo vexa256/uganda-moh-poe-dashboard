@@ -1,0 +1,21 @@
+{
+  "name": "Uganda POE Screening",
+  "short_name": "POE Screening",
+  "description": "Uganda Points of Entry — health screening + IDSR surveillance",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#000000",
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/uganda-flag.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

@@ -1,0 +1,3891 @@
+[
+  {
+    "id": "v001",
+    "label": "VHF: classic Ebola travel",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "bleeding",
+      "severe_fatigue"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "travel_from_outbreak_area",
+      "contact_body_fluids"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "CD",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 39.2,
+      "oxygen_saturation": 96
+    }
+  },
+  {
+    "id": "v002",
+    "label": "VHF: classic Ebola travel",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "bleeding",
+      "severe_fatigue"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "travel_from_outbreak_area",
+      "contact_body_fluids"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "CD",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 39.300000000000004,
+      "oxygen_saturation": 96
+    }
+  },
+  {
+    "id": "v003",
+    "label": "VHF: classic Ebola travel",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "bleeding",
+      "severe_fatigue"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "travel_from_outbreak_area",
+      "contact_body_fluids"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "CD",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 39.400000000000006,
+      "oxygen_saturation": 96
+    }
+  },
+  {
+    "id": "v004",
+    "label": "VHF: classic Ebola travel",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "bleeding",
+      "severe_fatigue"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "travel_from_outbreak_area",
+      "contact_body_fluids"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "CD",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 39.5,
+      "oxygen_saturation": 96
+    }
+  },
+  {
+    "id": "v005",
+    "label": "VHF: classic Ebola travel",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "bleeding",
+      "severe_fatigue"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "travel_from_outbreak_area",
+      "contact_body_fluids"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "CD",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 39.6,
+      "oxygen_saturation": 96
+    }
+  },
+  {
+    "id": "v006",
+    "label": "VHF: Marburg cave / bat exposure",
+    "present_symptoms": [
+      "fever",
+      "severe_fatigue",
+      "bleeding_gums_or_nose",
+      "muscle_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "bat_cave_mine_exposure",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "UG",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 39.5,
+      "oxygen_saturation": 95
+    }
+  },
+  {
+    "id": "v007",
+    "label": "VHF: Marburg cave / bat exposure",
+    "present_symptoms": [
+      "fever",
+      "severe_fatigue",
+      "bleeding_gums_or_nose",
+      "muscle_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "bat_cave_mine_exposure",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "UG",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 39.5,
+      "oxygen_saturation": 95
+    }
+  },
+  {
+    "id": "v008",
+    "label": "VHF: Marburg cave / bat exposure",
+    "present_symptoms": [
+      "fever",
+      "severe_fatigue",
+      "bleeding_gums_or_nose",
+      "muscle_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "bat_cave_mine_exposure",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "UG",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 39.5,
+      "oxygen_saturation": 95
+    }
+  },
+  {
+    "id": "v009",
+    "label": "VHF: Marburg cave / bat exposure",
+    "present_symptoms": [
+      "fever",
+      "severe_fatigue",
+      "bleeding_gums_or_nose",
+      "muscle_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "bat_cave_mine_exposure",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "UG",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 39.5,
+      "oxygen_saturation": 95
+    }
+  },
+  {
+    "id": "v010",
+    "label": "VHF: Marburg cave / bat exposure",
+    "present_symptoms": [
+      "fever",
+      "severe_fatigue",
+      "bleeding_gums_or_nose",
+      "muscle_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "bat_cave_mine_exposure",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "UG",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 39.5,
+      "oxygen_saturation": 95
+    }
+  },
+  {
+    "id": "v011",
+    "label": "VHF: Lassa rodent exposure",
+    "present_symptoms": [
+      "fever",
+      "sore_throat",
+      "bleeding",
+      "vomiting"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "rodent_exposure",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "NG",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.9,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v012",
+    "label": "VHF: Lassa rodent exposure",
+    "present_symptoms": [
+      "fever",
+      "sore_throat",
+      "bleeding",
+      "vomiting"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "rodent_exposure",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "NG",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.9,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v013",
+    "label": "VHF: Lassa rodent exposure",
+    "present_symptoms": [
+      "fever",
+      "sore_throat",
+      "bleeding",
+      "vomiting"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "rodent_exposure",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "NG",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.9,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v014",
+    "label": "VHF: Lassa rodent exposure",
+    "present_symptoms": [
+      "fever",
+      "sore_throat",
+      "bleeding",
+      "vomiting"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "rodent_exposure",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "NG",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.9,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v015",
+    "label": "VHF: Lassa rodent exposure",
+    "present_symptoms": [
+      "fever",
+      "sore_throat",
+      "bleeding",
+      "vomiting"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "rodent_exposure",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "NG",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.9,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v016",
+    "label": "VHF: CCHF tick + livestock",
+    "present_symptoms": [
+      "fever",
+      "bleeding",
+      "muscle_pain",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "tick_bite_endemic",
+      "livestock_raw_dairy_abattoir"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 96
+    }
+  },
+  {
+    "id": "v017",
+    "label": "VHF: CCHF tick + livestock",
+    "present_symptoms": [
+      "fever",
+      "bleeding",
+      "muscle_pain",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "tick_bite_endemic",
+      "livestock_raw_dairy_abattoir"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 96
+    }
+  },
+  {
+    "id": "v018",
+    "label": "VHF: CCHF tick + livestock",
+    "present_symptoms": [
+      "fever",
+      "bleeding",
+      "muscle_pain",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "tick_bite_endemic",
+      "livestock_raw_dairy_abattoir"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 96
+    }
+  },
+  {
+    "id": "v019",
+    "label": "VHF: CCHF tick + livestock",
+    "present_symptoms": [
+      "fever",
+      "bleeding",
+      "muscle_pain",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "tick_bite_endemic",
+      "livestock_raw_dairy_abattoir"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 96
+    }
+  },
+  {
+    "id": "v020",
+    "label": "VHF: CCHF tick + livestock",
+    "present_symptoms": [
+      "fever",
+      "bleeding",
+      "muscle_pain",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "tick_bite_endemic",
+      "livestock_raw_dairy_abattoir"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 96
+    }
+  },
+  {
+    "id": "v021",
+    "label": "VHF: funeral exposure no travel",
+    "present_symptoms": [
+      "fever",
+      "bleeding",
+      "malaise"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "funeral_or_burial_exposure",
+      "contact_dead_body"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.7,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v022",
+    "label": "VHF: funeral exposure no travel",
+    "present_symptoms": [
+      "fever",
+      "bleeding",
+      "malaise"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "funeral_or_burial_exposure",
+      "contact_dead_body"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.7,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v023",
+    "label": "VHF: funeral exposure no travel",
+    "present_symptoms": [
+      "fever",
+      "bleeding",
+      "malaise"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "funeral_or_burial_exposure",
+      "contact_dead_body"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.7,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v024",
+    "label": "VHF: funeral exposure no travel",
+    "present_symptoms": [
+      "fever",
+      "bleeding",
+      "malaise"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "funeral_or_burial_exposure",
+      "contact_dead_body"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.7,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v025",
+    "label": "VHF: funeral exposure no travel",
+    "present_symptoms": [
+      "fever",
+      "bleeding",
+      "malaise"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "funeral_or_burial_exposure",
+      "contact_dead_body"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.7,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v026",
+    "label": "VHF: severely ill HCW exposure",
+    "present_symptoms": [
+      "fever",
+      "bleeding",
+      "severe_fatigue"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "healthcare_exposure",
+      "affected_healthcare_facility_exposure"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39.3,
+      "oxygen_saturation": 94
+    }
+  },
+  {
+    "id": "v027",
+    "label": "VHF: severely ill HCW exposure",
+    "present_symptoms": [
+      "fever",
+      "bleeding",
+      "severe_fatigue"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "healthcare_exposure",
+      "affected_healthcare_facility_exposure"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39.3,
+      "oxygen_saturation": 94
+    }
+  },
+  {
+    "id": "v028",
+    "label": "VHF: severely ill HCW exposure",
+    "present_symptoms": [
+      "fever",
+      "bleeding",
+      "severe_fatigue"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "healthcare_exposure",
+      "affected_healthcare_facility_exposure"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39.3,
+      "oxygen_saturation": 94
+    }
+  },
+  {
+    "id": "v029",
+    "label": "VHF: severely ill HCW exposure",
+    "present_symptoms": [
+      "fever",
+      "bleeding",
+      "severe_fatigue"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "healthcare_exposure",
+      "affected_healthcare_facility_exposure"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39.3,
+      "oxygen_saturation": 94
+    }
+  },
+  {
+    "id": "v030",
+    "label": "VHF: severely ill HCW exposure",
+    "present_symptoms": [
+      "fever",
+      "bleeding",
+      "severe_fatigue"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "healthcare_exposure",
+      "affected_healthcare_facility_exposure"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39.3,
+      "oxygen_saturation": 94
+    }
+  },
+  {
+    "id": "v031",
+    "label": "AWD: rice-water diarrhoea outbreak",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "rice_water_diarrhea",
+      "severe_dehydration",
+      "vomiting"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "unsafe_water",
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 37.2,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v032",
+    "label": "AWD: rice-water diarrhoea outbreak",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "rice_water_diarrhea",
+      "severe_dehydration",
+      "vomiting"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "unsafe_water",
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 37.2,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v033",
+    "label": "AWD: rice-water diarrhoea outbreak",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "rice_water_diarrhea",
+      "severe_dehydration",
+      "vomiting"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "unsafe_water",
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 37.2,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v034",
+    "label": "AWD: rice-water diarrhoea outbreak",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "rice_water_diarrhea",
+      "severe_dehydration",
+      "vomiting"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "unsafe_water",
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 37.2,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v035",
+    "label": "AWD: rice-water diarrhoea outbreak",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "rice_water_diarrhea",
+      "severe_dehydration",
+      "vomiting"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "unsafe_water",
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 37.2,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v036",
+    "label": "AWD: rice-water diarrhoea outbreak",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "rice_water_diarrhea",
+      "severe_dehydration",
+      "vomiting"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "unsafe_water",
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 37.2,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v037",
+    "label": "AWD: rice-water diarrhoea outbreak",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "rice_water_diarrhea",
+      "severe_dehydration",
+      "vomiting"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "unsafe_water",
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 37.2,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v038",
+    "label": "AWD: rice-water diarrhoea outbreak",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "rice_water_diarrhea",
+      "severe_dehydration",
+      "vomiting"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "unsafe_water",
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 37.2,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v039",
+    "label": "AWD: cholera-like w/ travel",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "severe_dehydration"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "unsafe_water",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "YE",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 37,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v040",
+    "label": "AWD: cholera-like w/ travel",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "severe_dehydration"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "unsafe_water",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "YE",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 37,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v041",
+    "label": "AWD: cholera-like w/ travel",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "severe_dehydration"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "unsafe_water",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "YE",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 37,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v042",
+    "label": "AWD: cholera-like w/ travel",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "severe_dehydration"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "unsafe_water",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "YE",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 37,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v043",
+    "label": "AWD: cholera-like w/ travel",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "severe_dehydration"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "unsafe_water",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "YE",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 37,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v044",
+    "label": "AWD: cholera-like w/ travel",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "severe_dehydration"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "unsafe_water",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "YE",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 37,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v045",
+    "label": "AWD: cholera-like w/ travel",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "severe_dehydration"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "unsafe_water",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "YE",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 37,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v046",
+    "label": "Shigellosis: bloody diarrhoea",
+    "present_symptoms": [
+      "diarrhea",
+      "bleeding",
+      "abdominal_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.4,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v047",
+    "label": "Shigellosis: bloody diarrhoea",
+    "present_symptoms": [
+      "diarrhea",
+      "bleeding",
+      "abdominal_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.4,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v048",
+    "label": "Shigellosis: bloody diarrhoea",
+    "present_symptoms": [
+      "diarrhea",
+      "bleeding",
+      "abdominal_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.4,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v049",
+    "label": "Shigellosis: bloody diarrhoea",
+    "present_symptoms": [
+      "diarrhea",
+      "bleeding",
+      "abdominal_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.4,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v050",
+    "label": "Shigellosis: bloody diarrhoea",
+    "present_symptoms": [
+      "diarrhea",
+      "bleeding",
+      "abdominal_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.4,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v051",
+    "label": "Shigellosis: bloody diarrhoea",
+    "present_symptoms": [
+      "diarrhea",
+      "bleeding",
+      "abdominal_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.4,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v052",
+    "label": "Shigellosis: bloody diarrhoea",
+    "present_symptoms": [
+      "diarrhea",
+      "bleeding",
+      "abdominal_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.4,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v053",
+    "label": "Dehydration <5: 3+ loose stools",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "severe_dehydration"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 37.6,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v054",
+    "label": "Dehydration <5: 3+ loose stools",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "severe_dehydration"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 37.6,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v055",
+    "label": "Dehydration <5: 3+ loose stools",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "severe_dehydration"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 37.6,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v056",
+    "label": "Dehydration <5: 3+ loose stools",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "severe_dehydration"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 37.6,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v057",
+    "label": "Dehydration <5: 3+ loose stools",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "severe_dehydration"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 37.6,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v058",
+    "label": "Dehydration <5: 3+ loose stools",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "severe_dehydration"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 37.6,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v059",
+    "label": "Dehydration <5: 3+ loose stools",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "severe_dehydration"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 37.6,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v060",
+    "label": "Dehydration <5: 3+ loose stools",
+    "present_symptoms": [
+      "watery_diarrhea",
+      "severe_dehydration"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 37.6,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v061",
+    "label": "Measles classic",
+    "present_symptoms": [
+      "fever",
+      "rash_maculopapular",
+      "cough",
+      "sore_throat"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.6,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v062",
+    "label": "Measles classic",
+    "present_symptoms": [
+      "fever",
+      "rash_maculopapular",
+      "cough",
+      "sore_throat"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.6,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v063",
+    "label": "Measles classic",
+    "present_symptoms": [
+      "fever",
+      "rash_maculopapular",
+      "cough",
+      "sore_throat"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.6,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v064",
+    "label": "Measles classic",
+    "present_symptoms": [
+      "fever",
+      "rash_maculopapular",
+      "cough",
+      "sore_throat"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.6,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v065",
+    "label": "Measles classic",
+    "present_symptoms": [
+      "fever",
+      "rash_maculopapular",
+      "cough",
+      "sore_throat"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.6,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v066",
+    "label": "Measles classic",
+    "present_symptoms": [
+      "fever",
+      "rash_maculopapular",
+      "cough",
+      "sore_throat"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.6,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v067",
+    "label": "Rubella",
+    "present_symptoms": [
+      "fever",
+      "rash_maculopapular"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v068",
+    "label": "Rubella",
+    "present_symptoms": [
+      "fever",
+      "rash_maculopapular"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v069",
+    "label": "Rubella",
+    "present_symptoms": [
+      "fever",
+      "rash_maculopapular"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v070",
+    "label": "Rubella",
+    "present_symptoms": [
+      "fever",
+      "rash_maculopapular"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v071",
+    "label": "Rubella",
+    "present_symptoms": [
+      "fever",
+      "rash_maculopapular"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v072",
+    "label": "Rubella",
+    "present_symptoms": [
+      "fever",
+      "rash_maculopapular"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v073",
+    "label": "Smallpox: vesicular pustular same-stage",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "rash_vesicular_pustular",
+      "rash_face_first",
+      "rash_palms_soles"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v074",
+    "label": "Smallpox: vesicular pustular same-stage",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "rash_vesicular_pustular",
+      "rash_face_first",
+      "rash_palms_soles"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v075",
+    "label": "Smallpox: vesicular pustular same-stage",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "rash_vesicular_pustular",
+      "rash_face_first",
+      "rash_palms_soles"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v076",
+    "label": "Smallpox: vesicular pustular same-stage",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "rash_vesicular_pustular",
+      "rash_face_first",
+      "rash_palms_soles"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v077",
+    "label": "Smallpox: vesicular pustular same-stage",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "rash_vesicular_pustular",
+      "rash_face_first",
+      "rash_palms_soles"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v078",
+    "label": "Smallpox: vesicular pustular same-stage",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "rash_vesicular_pustular",
+      "rash_face_first",
+      "rash_palms_soles"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v079",
+    "label": "Mpox suspect (legacy ID kept readable)",
+    "present_symptoms": [
+      "fever",
+      "rash_vesicular_pustular",
+      "mucosal_lesions"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "sexual_contact",
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v080",
+    "label": "Mpox suspect (legacy ID kept readable)",
+    "present_symptoms": [
+      "fever",
+      "rash_vesicular_pustular",
+      "mucosal_lesions"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "sexual_contact",
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v081",
+    "label": "Mpox suspect (legacy ID kept readable)",
+    "present_symptoms": [
+      "fever",
+      "rash_vesicular_pustular",
+      "mucosal_lesions"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "sexual_contact",
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v082",
+    "label": "Mpox suspect (legacy ID kept readable)",
+    "present_symptoms": [
+      "fever",
+      "rash_vesicular_pustular",
+      "mucosal_lesions"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "sexual_contact",
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v083",
+    "label": "Mpox suspect (legacy ID kept readable)",
+    "present_symptoms": [
+      "fever",
+      "rash_vesicular_pustular",
+      "mucosal_lesions"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "sexual_contact",
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v084",
+    "label": "Mpox suspect (legacy ID kept readable)",
+    "present_symptoms": [
+      "fever",
+      "rash_vesicular_pustular",
+      "mucosal_lesions"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "sexual_contact",
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v085",
+    "label": "Yellow fever: fever + jaundice",
+    "present_symptoms": [
+      "fever",
+      "jaundice",
+      "dark_urine",
+      "vomiting"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "CD",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.8,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v086",
+    "label": "Yellow fever: fever + jaundice",
+    "present_symptoms": [
+      "fever",
+      "jaundice",
+      "dark_urine",
+      "vomiting"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "CD",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.8,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v087",
+    "label": "Yellow fever: fever + jaundice",
+    "present_symptoms": [
+      "fever",
+      "jaundice",
+      "dark_urine",
+      "vomiting"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "CD",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.8,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v088",
+    "label": "Yellow fever: fever + jaundice",
+    "present_symptoms": [
+      "fever",
+      "jaundice",
+      "dark_urine",
+      "vomiting"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "CD",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.8,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v089",
+    "label": "Yellow fever: fever + jaundice",
+    "present_symptoms": [
+      "fever",
+      "jaundice",
+      "dark_urine",
+      "vomiting"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "CD",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.8,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v090",
+    "label": "Yellow fever: fever + jaundice",
+    "present_symptoms": [
+      "fever",
+      "jaundice",
+      "dark_urine",
+      "vomiting"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "CD",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.8,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v091",
+    "label": "Meningitis: fever + neck stiffness",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "stiff_neck",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "crowded_closed_setting"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v092",
+    "label": "Meningitis: fever + neck stiffness",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "stiff_neck",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "crowded_closed_setting"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v093",
+    "label": "Meningitis: fever + neck stiffness",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "stiff_neck",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "crowded_closed_setting"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v094",
+    "label": "Meningitis: fever + neck stiffness",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "stiff_neck",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "crowded_closed_setting"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v095",
+    "label": "Meningitis: fever + neck stiffness",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "stiff_neck",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "crowded_closed_setting"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v096",
+    "label": "Meningitis: fever + neck stiffness",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "stiff_neck",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "crowded_closed_setting"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v097",
+    "label": "Meningitis: fever + neck stiffness",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "stiff_neck",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "crowded_closed_setting"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v098",
+    "label": "Meningitis: fever + neck stiffness",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "stiff_neck",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "crowded_closed_setting"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v099",
+    "label": "Meningitis: belt season + mass-gathering",
+    "present_symptoms": [
+      "fever",
+      "stiff_neck",
+      "headache",
+      "malaise"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mass_gathering_hajj_umrah"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.7,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v100",
+    "label": "Meningitis: belt season + mass-gathering",
+    "present_symptoms": [
+      "fever",
+      "stiff_neck",
+      "headache",
+      "malaise"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mass_gathering_hajj_umrah"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.7,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v101",
+    "label": "Meningitis: belt season + mass-gathering",
+    "present_symptoms": [
+      "fever",
+      "stiff_neck",
+      "headache",
+      "malaise"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mass_gathering_hajj_umrah"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.7,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v102",
+    "label": "Meningitis: belt season + mass-gathering",
+    "present_symptoms": [
+      "fever",
+      "stiff_neck",
+      "headache",
+      "malaise"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mass_gathering_hajj_umrah"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.7,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v103",
+    "label": "Meningitis: belt season + mass-gathering",
+    "present_symptoms": [
+      "fever",
+      "stiff_neck",
+      "headache",
+      "malaise"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mass_gathering_hajj_umrah"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.7,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v104",
+    "label": "Meningitis: belt season + mass-gathering",
+    "present_symptoms": [
+      "fever",
+      "stiff_neck",
+      "headache",
+      "malaise"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mass_gathering_hajj_umrah"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.7,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v105",
+    "label": "Meningitis: belt season + mass-gathering",
+    "present_symptoms": [
+      "fever",
+      "stiff_neck",
+      "headache",
+      "malaise"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mass_gathering_hajj_umrah"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.7,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v106",
+    "label": "Meningitis: belt season + mass-gathering",
+    "present_symptoms": [
+      "fever",
+      "stiff_neck",
+      "headache",
+      "malaise"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mass_gathering_hajj_umrah"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.7,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v107",
+    "label": "Meningitis: AFP rule-out",
+    "present_symptoms": [
+      "fever",
+      "stiff_neck",
+      "paralysis_acute_flaccid"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v108",
+    "label": "Meningitis: AFP rule-out",
+    "present_symptoms": [
+      "fever",
+      "stiff_neck",
+      "paralysis_acute_flaccid"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v109",
+    "label": "Meningitis: AFP rule-out",
+    "present_symptoms": [
+      "fever",
+      "stiff_neck",
+      "paralysis_acute_flaccid"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v110",
+    "label": "Meningitis: AFP rule-out",
+    "present_symptoms": [
+      "fever",
+      "stiff_neck",
+      "paralysis_acute_flaccid"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v111",
+    "label": "Meningitis: AFP rule-out",
+    "present_symptoms": [
+      "fever",
+      "stiff_neck",
+      "paralysis_acute_flaccid"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v112",
+    "label": "Meningitis: AFP rule-out",
+    "present_symptoms": [
+      "fever",
+      "stiff_neck",
+      "paralysis_acute_flaccid"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v113",
+    "label": "Meningitis: AFP rule-out",
+    "present_symptoms": [
+      "fever",
+      "stiff_neck",
+      "paralysis_acute_flaccid"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v114",
+    "label": "Meningitis: AFP rule-out",
+    "present_symptoms": [
+      "fever",
+      "stiff_neck",
+      "paralysis_acute_flaccid"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v115",
+    "label": "Meningitis: AFP rule-out",
+    "present_symptoms": [
+      "fever",
+      "stiff_neck",
+      "paralysis_acute_flaccid"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v116",
+    "label": "ILI: fever + cough",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "sore_throat"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.2,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v117",
+    "label": "ILI: fever + cough",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "sore_throat"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.2,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v118",
+    "label": "ILI: fever + cough",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "sore_throat"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.2,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v119",
+    "label": "ILI: fever + cough",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "sore_throat"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.2,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v120",
+    "label": "ILI: fever + cough",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "sore_throat"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.2,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v121",
+    "label": "ILI: fever + cough",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "sore_throat"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.2,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v122",
+    "label": "ILI: fever + cough",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "sore_throat"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.2,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v123",
+    "label": "ILI: fever + cough",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "sore_throat"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.2,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v124",
+    "label": "SARI: severe respiratory + hospitalisation",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath",
+      "difficulty_breathing"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 90
+    }
+  },
+  {
+    "id": "v125",
+    "label": "SARI: severe respiratory + hospitalisation",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath",
+      "difficulty_breathing"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 90
+    }
+  },
+  {
+    "id": "v126",
+    "label": "SARI: severe respiratory + hospitalisation",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath",
+      "difficulty_breathing"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 90
+    }
+  },
+  {
+    "id": "v127",
+    "label": "SARI: severe respiratory + hospitalisation",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath",
+      "difficulty_breathing"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 90
+    }
+  },
+  {
+    "id": "v128",
+    "label": "SARI: severe respiratory + hospitalisation",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath",
+      "difficulty_breathing"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 90
+    }
+  },
+  {
+    "id": "v129",
+    "label": "SARI: severe respiratory + hospitalisation",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath",
+      "difficulty_breathing"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 90
+    }
+  },
+  {
+    "id": "v130",
+    "label": "SARI: severe respiratory + hospitalisation",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath",
+      "difficulty_breathing"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 90
+    }
+  },
+  {
+    "id": "v131",
+    "label": "SARI: severe respiratory + hospitalisation",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath",
+      "difficulty_breathing"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 90
+    }
+  },
+  {
+    "id": "v132",
+    "label": "Avian flu exposure",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "poultry_or_live_bird_exposure"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.6,
+      "oxygen_saturation": 92
+    }
+  },
+  {
+    "id": "v133",
+    "label": "Avian flu exposure",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "poultry_or_live_bird_exposure"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.6,
+      "oxygen_saturation": 92
+    }
+  },
+  {
+    "id": "v134",
+    "label": "Avian flu exposure",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "poultry_or_live_bird_exposure"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.6,
+      "oxygen_saturation": 92
+    }
+  },
+  {
+    "id": "v135",
+    "label": "Avian flu exposure",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "poultry_or_live_bird_exposure"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.6,
+      "oxygen_saturation": 92
+    }
+  },
+  {
+    "id": "v136",
+    "label": "Avian flu exposure",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "poultry_or_live_bird_exposure"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.6,
+      "oxygen_saturation": 92
+    }
+  },
+  {
+    "id": "v137",
+    "label": "Avian flu exposure",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "poultry_or_live_bird_exposure"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.6,
+      "oxygen_saturation": 92
+    }
+  },
+  {
+    "id": "v138",
+    "label": "Avian flu exposure",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "poultry_or_live_bird_exposure"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.6,
+      "oxygen_saturation": 92
+    }
+  },
+  {
+    "id": "v139",
+    "label": "SARS-like + camel exposure",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "camel_exposure_or_mideast_healthcare",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "SA",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.8,
+      "oxygen_saturation": 91
+    }
+  },
+  {
+    "id": "v140",
+    "label": "SARS-like + camel exposure",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "camel_exposure_or_mideast_healthcare",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "SA",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.8,
+      "oxygen_saturation": 91
+    }
+  },
+  {
+    "id": "v141",
+    "label": "SARS-like + camel exposure",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "camel_exposure_or_mideast_healthcare",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "SA",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.8,
+      "oxygen_saturation": 91
+    }
+  },
+  {
+    "id": "v142",
+    "label": "SARS-like + camel exposure",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "camel_exposure_or_mideast_healthcare",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "SA",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.8,
+      "oxygen_saturation": 91
+    }
+  },
+  {
+    "id": "v143",
+    "label": "SARS-like + camel exposure",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "camel_exposure_or_mideast_healthcare",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "SA",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.8,
+      "oxygen_saturation": 91
+    }
+  },
+  {
+    "id": "v144",
+    "label": "SARS-like + camel exposure",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "camel_exposure_or_mideast_healthcare",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "SA",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.8,
+      "oxygen_saturation": 91
+    }
+  },
+  {
+    "id": "v145",
+    "label": "SARS-like + camel exposure",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "camel_exposure_or_mideast_healthcare",
+      "travel_from_outbreak_area"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "SA",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.8,
+      "oxygen_saturation": 91
+    }
+  },
+  {
+    "id": "v146",
+    "label": "Malaria uncomplicated",
+    "present_symptoms": [
+      "fever",
+      "chills",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "TZ",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.4,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v147",
+    "label": "Malaria uncomplicated",
+    "present_symptoms": [
+      "fever",
+      "chills",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "TZ",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.4,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v148",
+    "label": "Malaria uncomplicated",
+    "present_symptoms": [
+      "fever",
+      "chills",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "TZ",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.4,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v149",
+    "label": "Malaria uncomplicated",
+    "present_symptoms": [
+      "fever",
+      "chills",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "TZ",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.4,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v150",
+    "label": "Malaria uncomplicated",
+    "present_symptoms": [
+      "fever",
+      "chills",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "TZ",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.4,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v151",
+    "label": "Malaria uncomplicated",
+    "present_symptoms": [
+      "fever",
+      "chills",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "TZ",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.4,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v152",
+    "label": "Malaria uncomplicated",
+    "present_symptoms": [
+      "fever",
+      "chills",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "TZ",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.4,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v153",
+    "label": "Malaria uncomplicated",
+    "present_symptoms": [
+      "fever",
+      "chills",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "TZ",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.4,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v154",
+    "label": "Severe malaria + danger signs",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "jaundice",
+      "dark_urine"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "TZ",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 39.1,
+      "oxygen_saturation": 95
+    }
+  },
+  {
+    "id": "v155",
+    "label": "Severe malaria + danger signs",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "jaundice",
+      "dark_urine"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "TZ",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 39.1,
+      "oxygen_saturation": 95
+    }
+  },
+  {
+    "id": "v156",
+    "label": "Severe malaria + danger signs",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "jaundice",
+      "dark_urine"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "TZ",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 39.1,
+      "oxygen_saturation": 95
+    }
+  },
+  {
+    "id": "v157",
+    "label": "Severe malaria + danger signs",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "jaundice",
+      "dark_urine"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "TZ",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 39.1,
+      "oxygen_saturation": 95
+    }
+  },
+  {
+    "id": "v158",
+    "label": "Severe malaria + danger signs",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "jaundice",
+      "dark_urine"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "TZ",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 39.1,
+      "oxygen_saturation": 95
+    }
+  },
+  {
+    "id": "v159",
+    "label": "Severe malaria + danger signs",
+    "present_symptoms": [
+      "fever",
+      "high_fever",
+      "jaundice",
+      "dark_urine"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "TZ",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 39.1,
+      "oxygen_saturation": 95
+    }
+  },
+  {
+    "id": "v160",
+    "label": "Typhoid: prolonged fever",
+    "present_symptoms": [
+      "fever",
+      "abdominal_pain",
+      "headache",
+      "malaise"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v161",
+    "label": "Typhoid: prolonged fever",
+    "present_symptoms": [
+      "fever",
+      "abdominal_pain",
+      "headache",
+      "malaise"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v162",
+    "label": "Typhoid: prolonged fever",
+    "present_symptoms": [
+      "fever",
+      "abdominal_pain",
+      "headache",
+      "malaise"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v163",
+    "label": "Typhoid: prolonged fever",
+    "present_symptoms": [
+      "fever",
+      "abdominal_pain",
+      "headache",
+      "malaise"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v164",
+    "label": "Typhoid: prolonged fever",
+    "present_symptoms": [
+      "fever",
+      "abdominal_pain",
+      "headache",
+      "malaise"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v165",
+    "label": "Typhoid: prolonged fever",
+    "present_symptoms": [
+      "fever",
+      "abdominal_pain",
+      "headache",
+      "malaise"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "contaminated_food_or_water"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.5,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v166",
+    "label": "Brucellosis: livestock + arthralgia",
+    "present_symptoms": [
+      "fever",
+      "muscle_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "livestock_raw_dairy_abattoir"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v167",
+    "label": "Brucellosis: livestock + arthralgia",
+    "present_symptoms": [
+      "fever",
+      "muscle_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "livestock_raw_dairy_abattoir"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v168",
+    "label": "Brucellosis: livestock + arthralgia",
+    "present_symptoms": [
+      "fever",
+      "muscle_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "livestock_raw_dairy_abattoir"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v169",
+    "label": "Brucellosis: livestock + arthralgia",
+    "present_symptoms": [
+      "fever",
+      "muscle_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "livestock_raw_dairy_abattoir"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v170",
+    "label": "Brucellosis: livestock + arthralgia",
+    "present_symptoms": [
+      "fever",
+      "muscle_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "livestock_raw_dairy_abattoir"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v171",
+    "label": "RVF: livestock + flood",
+    "present_symptoms": [
+      "fever",
+      "jaundice",
+      "bleeding",
+      "muscle_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "flood_livestock_exposure",
+      "livestock_raw_dairy_abattoir"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.9,
+      "oxygen_saturation": 96
+    }
+  },
+  {
+    "id": "v172",
+    "label": "RVF: livestock + flood",
+    "present_symptoms": [
+      "fever",
+      "jaundice",
+      "bleeding",
+      "muscle_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "flood_livestock_exposure",
+      "livestock_raw_dairy_abattoir"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.9,
+      "oxygen_saturation": 96
+    }
+  },
+  {
+    "id": "v173",
+    "label": "RVF: livestock + flood",
+    "present_symptoms": [
+      "fever",
+      "jaundice",
+      "bleeding",
+      "muscle_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "flood_livestock_exposure",
+      "livestock_raw_dairy_abattoir"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.9,
+      "oxygen_saturation": 96
+    }
+  },
+  {
+    "id": "v174",
+    "label": "RVF: livestock + flood",
+    "present_symptoms": [
+      "fever",
+      "jaundice",
+      "bleeding",
+      "muscle_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "flood_livestock_exposure",
+      "livestock_raw_dairy_abattoir"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.9,
+      "oxygen_saturation": 96
+    }
+  },
+  {
+    "id": "v175",
+    "label": "Dengue suspect",
+    "present_symptoms": [
+      "fever",
+      "headache",
+      "muscle_pain",
+      "rash_maculopapular"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "LK",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.6,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v176",
+    "label": "Dengue suspect",
+    "present_symptoms": [
+      "fever",
+      "headache",
+      "muscle_pain",
+      "rash_maculopapular"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "LK",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.6,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v177",
+    "label": "Dengue suspect",
+    "present_symptoms": [
+      "fever",
+      "headache",
+      "muscle_pain",
+      "rash_maculopapular"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "LK",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.6,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v178",
+    "label": "Dengue suspect",
+    "present_symptoms": [
+      "fever",
+      "headache",
+      "muscle_pain",
+      "rash_maculopapular"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [
+      {
+        "country_code": "LK",
+        "travel_role": "VISITED"
+      }
+    ],
+    "vitals": {
+      "temperature_c": 38.6,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v179",
+    "label": "Chikungunya",
+    "present_symptoms": [
+      "fever",
+      "muscle_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.8,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v180",
+    "label": "Chikungunya",
+    "present_symptoms": [
+      "fever",
+      "muscle_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.8,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v181",
+    "label": "Chikungunya",
+    "present_symptoms": [
+      "fever",
+      "muscle_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.8,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v182",
+    "label": "Chikungunya",
+    "present_symptoms": [
+      "fever",
+      "muscle_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "mosquito_exposure"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38.8,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v183",
+    "label": "Rabies: hydrophobia + animal bite",
+    "present_symptoms": [
+      "fever",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "dog_bat_animal_bite",
+      "animal_bite_or_wildlife_contact"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v184",
+    "label": "Rabies: hydrophobia + animal bite",
+    "present_symptoms": [
+      "fever",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "dog_bat_animal_bite",
+      "animal_bite_or_wildlife_contact"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v185",
+    "label": "Rabies: hydrophobia + animal bite",
+    "present_symptoms": [
+      "fever",
+      "headache"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "dog_bat_animal_bite",
+      "animal_bite_or_wildlife_contact"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v186",
+    "label": "Bubonic plague: bubo + flea",
+    "present_symptoms": [
+      "fever",
+      "limb_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "flea_or_rodent_exposure"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v187",
+    "label": "Bubonic plague: bubo + flea",
+    "present_symptoms": [
+      "fever",
+      "limb_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "flea_or_rodent_exposure"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v188",
+    "label": "Bubonic plague: bubo + flea",
+    "present_symptoms": [
+      "fever",
+      "limb_pain"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "flea_or_rodent_exposure"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39,
+      "oxygen_saturation": 97
+    }
+  },
+  {
+    "id": "v189",
+    "label": "Pneumonic plague: cough + pleuritic",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "flea_or_rodent_exposure",
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39.2,
+      "oxygen_saturation": 92
+    }
+  },
+  {
+    "id": "v190",
+    "label": "Pneumonic plague: cough + pleuritic",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "flea_or_rodent_exposure",
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39.2,
+      "oxygen_saturation": 92
+    }
+  },
+  {
+    "id": "v191",
+    "label": "Pneumonic plague: cough + pleuritic",
+    "present_symptoms": [
+      "fever",
+      "cough",
+      "shortness_of_breath"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "flea_or_rodent_exposure",
+      "close_contact_case"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 39.2,
+      "oxygen_saturation": 92
+    }
+  },
+  {
+    "id": "v192",
+    "label": "Anthrax cutaneous: black eschar",
+    "present_symptoms": [
+      "fever"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "livestock_raw_dairy_abattoir",
+      "animal_bite_or_wildlife_contact"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v193",
+    "label": "Anthrax cutaneous: black eschar",
+    "present_symptoms": [
+      "fever"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "livestock_raw_dairy_abattoir",
+      "animal_bite_or_wildlife_contact"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v194",
+    "label": "Anthrax cutaneous: black eschar",
+    "present_symptoms": [
+      "fever"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "livestock_raw_dairy_abattoir",
+      "animal_bite_or_wildlife_contact"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v195",
+    "label": "Anthrax cutaneous: black eschar",
+    "present_symptoms": [
+      "fever"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [
+      "livestock_raw_dairy_abattoir",
+      "animal_bite_or_wildlife_contact"
+    ],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": 38,
+      "oxygen_saturation": 98
+    }
+  },
+  {
+    "id": "v196",
+    "label": "Edge: no symptoms, no exposures",
+    "present_symptoms": [],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": null,
+      "oxygen_saturation": null
+    }
+  },
+  {
+    "id": "v197",
+    "label": "Edge: fever alone",
+    "present_symptoms": [
+      "fever"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": null,
+      "oxygen_saturation": null
+    }
+  },
+  {
+    "id": "v198",
+    "label": "Edge: bleeding alone, afebrile",
+    "present_symptoms": [
+      "bleeding"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": null,
+      "oxygen_saturation": null
+    }
+  },
+  {
+    "id": "v199",
+    "label": "Edge: cough alone",
+    "present_symptoms": [
+      "cough"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": null,
+      "oxygen_saturation": null
+    }
+  },
+  {
+    "id": "v200",
+    "label": "Edge: rash alone",
+    "present_symptoms": [
+      "rash_maculopapular"
+    ],
+    "absent_symptoms": [],
+    "exposure_engine_codes": [],
+    "visited_countries": [],
+    "vitals": {
+      "temperature_c": null,
+      "oxygen_saturation": null
+    }
+  }
+]

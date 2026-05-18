@@ -1,0 +1,14 @@
+[
+  {"name":"Sarah Nakimuli","email":"sarah.nakimuli@example.ug","role":"NATIONAL_ADMIN","province_code":null,"district":null,"password_hash":"bcrypt:ChangeMe!2026"},
+  {"name":"James Okello","email":"james.okello@example.ug","role":"NATIONAL_ADMIN","province_code":null,"district":null,"password_hash":"bcrypt:ChangeMe!2026"},
+  {"name":"Grace Namaganda","email":"grace.namaganda@example.ug","role":"PHEOC_OFFICER","province_code":"UG-C","district":null,"password_hash":"bcrypt:ChangeMe!2026"},
+  {"name":"Peter Wanyama","email":"peter.wanyama@example.ug","role":"PHEOC_OFFICER","province_code":"UG-E","district":null,"password_hash":"bcrypt:ChangeMe!2026"},
+  {"name":"Joyce Akello","email":"joyce.akello@example.ug","role":"PHEOC_OFFICER","province_code":"UG-N","district":null,"password_hash":"bcrypt:ChangeMe!2026"},
+  {"name":"David Tumusiime","email":"david.tumusiime@example.ug","role":"PHEOC_OFFICER","province_code":"UG-W","district":null,"password_hash":"bcrypt:ChangeMe!2026"},
+  {"name":"Mary Nansubuga","email":"mary.nansubuga@example.ug","role":"DISTRICT_SUPERVISOR","province_code":"UG-C","district":"KAMPALA","password_hash":"bcrypt:ChangeMe!2026"},
+  {"name":"Robert Kamukama","email":"robert.kamukama@example.ug","role":"DISTRICT_SUPERVISOR","province_code":"UG-W","district":"MBARARA","password_hash":"bcrypt:ChangeMe!2026"},
+  {"name":"Alice Acan","email":"alice.acan@example.ug","role":"DISTRICT_SUPERVISOR","province_code":"UG-N","district":"GULU","password_hash":"bcrypt:ChangeMe!2026"},
+  {"name":"Daniel Ssempala","email":"daniel.ssempala@example.ug","role":"SCREENER","province_code":"UG-C","district":"WAKISO","password_hash":"bcrypt:ChangeMe!2026"},
+  {"name":"Florence Atim","email":"florence.atim@example.ug","role":"SCREENER","province_code":"UG-E","district":"BUSIA","password_hash":"bcrypt:ChangeMe!2026"},
+  {"name":"Henry Mugisha","email":"henry.mugisha@example.ug","role":"SCREENER","province_code":"UG-N","district":"GULU","password_hash":"bcrypt:ChangeMe!2026"}
+]

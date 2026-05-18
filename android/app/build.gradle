@@ -1,0 +1,104 @@
+apply plugin: 'com.android.application'
+
+// Load signing credentials from a git-ignored file. Never hard-code passwords
+// in build.gradle. The file path is relative to the android/ module root.
+// Falls back to unsigned release build when the file is absent (CI without
+// credentials, contributors building locally, etc.) so the build never fails
+// with a cryptic "key not found" — it fails loudly with an informative
+// message at signing time instead.
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+android {
+    namespace = "io.ionic.starter"
+    compileSdk = rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "ug.moh.poesentinel"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    // Signing is configured lazily. When `android/keystore.properties` is
+    // present with a storeFile, we wire signingConfigs.release and bind it
+    // to the release build type so Gradle produces a signed APK directly.
+    // When the file is absent (e.g. build-signed-apk.sh signs externally via
+    // apksigner), we leave the release build type unsigned so Gradle emits
+    // `app-release-unsigned.apk` for the script to pick up.
+    if (keystoreProperties.getProperty('storeFile')) {
+        signingConfigs {
+            release {
+                storeFile     rootProject.file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias      keystoreProperties['keyAlias']
+                keyPassword   keystoreProperties['keyPassword']
+            }
+        }
+    }
+    buildTypes {
+        // Use Android's DEFAULT debug configuration — DO NOT customise.
+        // Earlier customizations (jniDebuggable, renderscriptDebuggable,
+        // applicationIdSuffix=".debug", versionNameSuffix="-debug") caused
+        // Samsung One UI to flag the app as "test/developer mode" and
+        // apply a global yellow tint via Eye Comfort auto-detection.
+        // The default debug variant already gets debuggable=true and
+        // is signed with the debug keystore — that's all chrome://inspect
+        // and adb need.
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (keystoreProperties.getProperty('storeFile')) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+
+    // ── ML Kit text recognition (bundled, offline-first) ──────────────────
+    // Restored 2026-05-04: passport MRZ scanning is a hard operational
+    // requirement. The 41 MB .so is unavoidable for offline OCR.
+    // libmlkit_google_ocr_pipeline.so is the Latin-script model — the only
+    // one needed for ICAO 9303 MRZ (A-Z, 0-9, <).
+    implementation "com.google.mlkit:text-recognition:$mlkitTextRecognitionVersion"
+
+    // Play Services ModuleInstallClient (Sentinel model-download bridge).
+    implementation "com.google.android.gms:play-services-base:$playServicesBaseVersion"
+
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}

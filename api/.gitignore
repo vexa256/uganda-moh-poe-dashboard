@@ -1,0 +1,12 @@
+vendor/
+.env
+storage/logs/
+storage/framework/cache/
+storage/framework/sessions/
+storage/framework/views/
+bootstrap/cache/
+*.log
+*.idsig
+# Never commit seeds with real email addresses as secrets
+storage/seed_contacts.php
+/tmp/

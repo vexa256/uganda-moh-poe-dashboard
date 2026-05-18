@@ -1,0 +1,134 @@
+# ─── Secrets ─────────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+!api/.env.example
+ssh-key
+ssh-key.pub
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+android/keystore.properties
+apk-details/release.keystore
+
+# ─── PHP / Laravel (api/) ────────────────────────────────────────────────
+api/vendor/
+api/storage/logs/*
+!api/storage/logs/.gitkeep
+api/storage/framework/cache/data/*
+api/storage/framework/sessions/*
+api/storage/framework/views/*
+api/storage/framework/testing/*
+api/storage/app/public/*
+!api/storage/app/public/.gitkeep
+api/bootstrap/cache/*.php
+api/public/storage
+api/public/hot
+api/.phpunit.result.cache
+api/auth.json
+api/Homestead.json
+api/Homestead.yaml
+api/npm-debug.log
+api/yarn-error.log
+
+# ─── Node / Vite / Ionic ─────────────────────────────────────────────────
+node_modules/
+api/node_modules/
+dist/
+dist-ssr/
+.vite/
+.eslintcache
+.npm/
+.yarn/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ─── Mobile build artifacts ──────────────────────────────────────────────
+android/.gradle/
+android/.kotlin/
+android/build/
+android/app/build/
+android/app/release/
+android/captures/
+android/local.properties
+android/.idea/
+android/.cxx/
+android/capacitor-cordova-android-plugins/
+*.iml
+ios/Pods/
+ios/build/
+ios/DerivedData/
+apks/
+apk-details/
+*.apk
+*.aab
+*.idsig
+*.keystore
+*.jks
+google-services.json
+GoogleService-Info.plist
+
+# ─── Build / dist artifacts ──────────────────────────────────────────────
+*.tsbuildinfo
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+out/
+
+# ─── Editor / OS ─────────────────────────────────────────────────────────
+.idea/
+.vscode/
+.history/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Tests / Coverage ────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+api/tests/coverage/
+cypress/videos/
+cypress/screenshots/
+cypress/downloads/
+tests/screenshots/
+
+# ─── AI / private notes / markdown ───────────────────────────────────────
+# Every .md is treated as private notes — only the canonical top-level
+# README.md is published.
+*.md
+!README.md
+.claude/
+.cursor/
+.aider*
+.codex
+.copilot/
+.shipping/
+prompt.txt
+
+# ─── Misc internal files ─────────────────────────────────────────────────
+dashboard.txt
+readme.txt
+app.sql
+report_template/
+report_template
+report_templates/
+report_templates
+mobile\ app-build/
+mobile\ app-build
+scripts/local-*
+
+# ─── AI / collaboration notes directories ────────────────────────────────
+# These dirs contain handoffs, plans, runbooks, and architecture notes
+# written for internal/AI consumption. Not for the public repo.
+docs/
+api/docs/

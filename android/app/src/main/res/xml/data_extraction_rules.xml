@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12+ (API 31+) backup and device-transfer rules.
+  Matches backup_rules.xml: exclude all offline PoE screening data from
+  both cloud backup and device-to-device transfer.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="database" />
+        <exclude domain="sharedpref" path="CapacitorStorage.xml" />
+        <exclude domain="file" path="app_webview/" />
+        <exclude domain="file" path="databases/" />
+        <exclude domain="external" />
+        <exclude domain="root" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="database" />
+        <exclude domain="sharedpref" path="CapacitorStorage.xml" />
+        <exclude domain="file" path="app_webview/" />
+        <exclude domain="file" path="databases/" />
+        <exclude domain="external" />
+        <exclude domain="root" />
+    </device-transfer>
+</data-extraction-rules>

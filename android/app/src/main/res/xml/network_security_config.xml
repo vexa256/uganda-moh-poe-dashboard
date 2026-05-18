@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Network security configuration.
+  - Production traffic MUST be HTTPS (default deny of cleartext).
+  - Cleartext is permitted only for local development loopbacks so that
+    `npm run dev` + the Laravel API on localhost:8000 keeps working during
+    WebView-attached debugging. 10.0.2.2 is the Android emulator's alias
+    for the host machine's loopback.
+  - Capacitor itself loads assets from `http://localhost` inside the
+    WebView, so that origin must stay permitted or the app will not boot.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="false">10.0.2.2</domain>
+    </domain-config>
+</network-security-config>

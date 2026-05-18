@@ -1,0 +1,714 @@
+[
+  {
+    "symptom_code": "abdominal_pain",
+    "display_name": "Abdominal Pain",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "abdominal_tenderness",
+    "display_name": "Abdominal Tenderness",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "aerophobia",
+    "display_name": "Aerophobia",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "altered_consciousness",
+    "display_name": "Altered Consciousness",
+    "category": null,
+    "is_red_flag": true,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "animal_bite_or_wildlife_contact",
+    "display_name": "Animal Bite Or Wildlife Contact",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "anorexia",
+    "display_name": "Anorexia",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "back_pain",
+    "display_name": "Back Pain",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "bleeding",
+    "display_name": "Bleeding",
+    "category": null,
+    "is_red_flag": true,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "bleeding_gums_or_nose",
+    "display_name": "Bleeding Gums Or Nose",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "bloody_diarrhea",
+    "display_name": "Bloody Diarrhea",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "bloody_sputum",
+    "display_name": "Bloody Sputum",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "bruising_or_ecchymosis",
+    "display_name": "Bruising Or Ecchymosis",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "calf_muscle_pain",
+    "display_name": "Calf Muscle Pain",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "camel_exposure_or_mideast_healthcare",
+    "display_name": "Camel Exposure Or Mideast Healthcare",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "chest_pain",
+    "display_name": "Chest Pain",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "chills",
+    "display_name": "Chills",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "cold_pale_skin",
+    "display_name": "Cold Pale Skin",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "conjunctivitis",
+    "display_name": "Conjunctivitis",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "constipation",
+    "display_name": "Constipation",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "contaminated_food_or_water",
+    "display_name": "Contaminated Food Or Water",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "coryza",
+    "display_name": "Coryza",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "cough",
+    "display_name": "Cough",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "dark_urine",
+    "display_name": "Dark Urine",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "diarrhea",
+    "display_name": "Diarrhea",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "difficulty_breathing",
+    "display_name": "Difficulty Breathing",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "dizziness",
+    "display_name": "Dizziness",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "dry_cough",
+    "display_name": "Dry Cough",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "encephalitis_signs",
+    "display_name": "Encephalitis Signs",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "facial_swelling",
+    "display_name": "Facial Swelling",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "fatigue",
+    "display_name": "Fatigue",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "fever",
+    "display_name": "Fever",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "fresh_water_contact",
+    "display_name": "Fresh Water Contact",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "genital_lesions",
+    "display_name": "Genital Lesions",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "gradual_onset_fever",
+    "display_name": "Gradual Onset Fever",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "headache",
+    "display_name": "Headache",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "hearing_loss",
+    "display_name": "Hearing Loss",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "hiccups",
+    "display_name": "Hiccups",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "high_fever",
+    "display_name": "High Fever",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "hydrophobia",
+    "display_name": "Hydrophobia",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "jaundice",
+    "display_name": "Jaundice",
+    "category": null,
+    "is_red_flag": true,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "joint_pain",
+    "display_name": "Joint Pain",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "limb_pain",
+    "display_name": "Limb Pain",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "loss_of_taste_smell",
+    "display_name": "Loss Of Taste Smell",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "low_energy",
+    "display_name": "Low Energy",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "low_grade_fever",
+    "display_name": "Low Grade Fever",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "malaise",
+    "display_name": "Malaise",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "mucosal_lesions",
+    "display_name": "Mucosal Lesions",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "muscle_pain",
+    "display_name": "Muscle Pain",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "nausea",
+    "display_name": "Nausea",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "night_sweats",
+    "display_name": "Night Sweats",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "pain_behind_eyes",
+    "display_name": "Pain Behind Eyes",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "painful_rash",
+    "display_name": "Painful Rash",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "painful_swollen_lymph_nodes",
+    "display_name": "Painful Swollen Lymph Nodes",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "pale_stools",
+    "display_name": "Pale Stools",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "paradoxical_bradycardia",
+    "display_name": "Paradoxical Bradycardia",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "paralysis_acute_flaccid",
+    "display_name": "Paralysis Acute Flaccid",
+    "category": null,
+    "is_red_flag": true,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "persistent_vomiting",
+    "display_name": "Persistent Vomiting",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "petechial_or_purpuric_rash",
+    "display_name": "Petechial Or Purpuric Rash",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "photophobia",
+    "display_name": "Photophobia",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "rapid_breathing",
+    "display_name": "Rapid Breathing",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "rash_face_first",
+    "display_name": "Rash Face First",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "rash_maculopapular",
+    "display_name": "Rash Maculopapular",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "rash_palms_soles",
+    "display_name": "Rash Palms Soles",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "rash_vesicular_pustular",
+    "display_name": "Rash Vesicular Pustular",
+    "category": null,
+    "is_red_flag": true,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "raw_meat_or_unpasteurised_dairy",
+    "display_name": "Raw Meat Or Unpasteurised Dairy",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "retroauricular_lymph_nodes",
+    "display_name": "Retroauricular Lymph Nodes",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "rice_water_diarrhea",
+    "display_name": "Rice Water Diarrhea",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "right_upper_quadrant_pain",
+    "display_name": "Right Upper Quadrant Pain",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "rose_spots",
+    "display_name": "Rose Spots",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "seizures",
+    "display_name": "Seizures",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "severe_dehydration",
+    "display_name": "Severe Dehydration",
+    "category": null,
+    "is_red_flag": true,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "severe_fatigue",
+    "display_name": "Severe Fatigue",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "severe_headache",
+    "display_name": "Severe Headache",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "severe_joint_pain",
+    "display_name": "Severe Joint Pain",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "shortness_of_breath",
+    "display_name": "Shortness Of Breath",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "skin_eschar",
+    "display_name": "Skin Eschar",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "sore_throat",
+    "display_name": "Sore Throat",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "splenomegaly",
+    "display_name": "Splenomegaly",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "stiff_neck",
+    "display_name": "Stiff Neck",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "sudden_onset_fever",
+    "display_name": "Sudden Onset Fever",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "swollen_lymph_nodes",
+    "display_name": "Swollen Lymph Nodes",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "tick_bite",
+    "display_name": "Tick Bite",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "undulant_fever",
+    "display_name": "Undulant Fever",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "unsafe_water",
+    "display_name": "Unsafe Water",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "unusual_cluster",
+    "display_name": "Unusual Cluster",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "very_high_fever",
+    "display_name": "Very High Fever",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "vomiting",
+    "display_name": "Vomiting",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "watery_diarrhea",
+    "display_name": "Watery Diarrhea",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": true,
+    "sensitivity": null
+  },
+  {
+    "symptom_code": "weakness",
+    "display_name": "Weakness",
+    "category": null,
+    "is_red_flag": false,
+    "is_hallmark": false,
+    "sensitivity": null
+  }
+]

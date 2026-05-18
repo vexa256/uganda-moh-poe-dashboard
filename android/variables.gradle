@@ -1,0 +1,27 @@
+ext {
+    // Bumped from 24 to 26 — Android 8.0 (Oreo) — to satisfy MLKit
+    // entity-extraction's minSdk requirement. Aligns with the Sentinel plan's
+    // stated field-device floor: "Android 8+ (>97% of field devices)".
+    minSdkVersion = 26
+    compileSdkVersion = 36
+    targetSdkVersion = 36
+    androidxActivityVersion = '1.11.0'
+    androidxAppCompatVersion = '1.7.1'
+    androidxCoordinatorLayoutVersion = '1.3.0'
+    androidxCoreVersion = '1.17.0'
+    androidxFragmentVersion = '1.8.9'
+    coreSplashScreenVersion = '1.2.0'
+    androidxWebkitVersion = '1.14.0'
+    junitVersion = '4.13.2'
+    androidxJunitVersion = '1.3.0'
+    androidxEspressoCoreVersion = '3.7.0'
+    cordovaAndroidVersion = '14.0.1'
+
+    // Sentinel ModuleInstall plugin (MLKit model downloads via Play Services).
+    // See android/app/src/main/java/io/ionic/starter/sentinel/ModuleInstallPlugin.java
+    playServicesBaseVersion     = '18.5.0'
+    mlkitTextRecognitionVersion = '16.0.1'
+    mlkitFaceDetectionVersion   = '16.1.7'
+    mlkitTranslateVersion       = '17.0.3'
+    mlkitEntityExtractionVersion= '16.0.0-beta6'
+}
