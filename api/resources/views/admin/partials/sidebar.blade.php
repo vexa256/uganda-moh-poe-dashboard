@@ -265,6 +265,10 @@
         */
 
         // ── 09 · CLINICAL LIBRARY ─────────────────────────────────────────
+        // Hidden from the sidebar on user request (2026-05-19). The underlying
+        // controllers and routes remain registered; deep-links still work.
+        // Re-enable by uncommenting this block.
+        /*
         [
             'section' => 'Clinical Library',
             'caption' => 'The admin home of the scoring engine. Epidemiologists update the brain of the mobile.',
@@ -282,6 +286,7 @@
                        url('/admin/clinical/endemic'), true),
             ],
         ],
+        */
 
         // ── 10 · POEs · ANNEX-1A ──────────────────────────────────────────
         [
