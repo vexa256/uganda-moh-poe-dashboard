@@ -433,8 +433,8 @@ final class AlertsLifecycleController extends Controller
 
         try {
             // FIX: notification_log columns are `related_entity_type` / `related_entity_id`
-            // (not `entity_type` / `entity_id`). Verified against the live ecsa_rwanda_2026
-            // schema. Using the wrong column names produced a 500 on every request.
+            // (not `entity_type` / `entity_id`). Verified against the live ug_poe schema.
+            // Using the wrong column names produced a 500 on every request.
             $rows = DB::table('notification_log')
                 ->where('related_entity_type', 'ALERT')
                 ->where('related_entity_id', $id)

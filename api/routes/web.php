@@ -818,7 +818,9 @@ Route::prefix('admin')->name('admin.')
             Route::get ('/export', [AdminReportR11Controller::class, 'export'])->name('export');
             Route::post('/export', [AdminReportR11Controller::class, 'export'])->name('export.post');
         });
-        Route::prefix('rpt-symptom-distribution')->name('rpt-symptom-distribution.')->group(function () {
+        // R12 legacy rpt-symptom-distribution superseded by Wave-3 V2
+        // SymptomDistributionController — see the V2 route group below.
+        Route::prefix('rpt-symptom-distribution-legacy')->name('rpt-symptom-distribution-legacy.')->group(function () {
             Route::get ('/',       [AdminReportR12Controller::class, 'index']) ->name('index');
             Route::get ('/data',   [AdminReportR12Controller::class, 'data'])  ->name('data');
             Route::get ('/export', [AdminReportR12Controller::class, 'export'])->name('export');
@@ -837,6 +839,134 @@ Route::prefix('admin')->name('admin.')
             Route::get ('/data',   [AdminReportR14Controller::class, 'data'])  ->name('data');
             Route::get ('/export', [AdminReportR14Controller::class, 'export'])->name('export');
             Route::post('/export', [AdminReportR14Controller::class, 'export'])->name('export.post');
+        });
+
+        /*--------------------------------------------------------------
+         | Wave 3 — Executive Reporting Module V2 (ported from rw-poe
+         | 2026-04-27). Clean controllers under V2 namespace; render
+         | data by default instead of falling back to the filter wizard.
+         | The legacy rpt-* surfaces above are scheduled for demolition.
+         | Mobile API contract untouched.
+         *--------------------------------------------------------------*/
+        Route::prefix('rpt-screening-overview')->name('rpt-screening-overview.')->group(function () {
+            $c = \App\Http\Controllers\Admin\Reports\V2\ScreeningOverviewController::class;
+            Route::get('/',                     [$c, 'index'])       ->name('index');
+            Route::get('/meta',                 [$c, 'meta'])        ->name('meta');
+            Route::get('/kpis',                 [$c, 'kpis'])        ->name('kpis');
+            Route::get('/chart/{chart}',        [$c, 'chart'])       ->name('chart');
+            Route::get('/chart/{chart}/csv',    [$c, 'chartCsv'])    ->name('chart.csv');
+            Route::get('/records',              [$c, 'records'])     ->name('records');
+            Route::get('/records/{poe}',        [$c, 'recordDetail'])->name('records.detail');
+        });
+        Route::prefix('rpt-gender')->name('rpt-gender.')->group(function () {
+            $c = \App\Http\Controllers\Admin\Reports\V2\GenderAnalyticsController::class;
+            Route::get('/',                     [$c, 'index'])       ->name('index');
+            Route::get('/meta',                 [$c, 'meta'])        ->name('meta');
+            Route::get('/kpis',                 [$c, 'kpis'])        ->name('kpis');
+            Route::get('/chart/{chart}',        [$c, 'chart'])       ->name('chart');
+            Route::get('/chart/{chart}/csv',    [$c, 'chartCsv'])    ->name('chart.csv');
+            Route::get('/records',              [$c, 'records'])     ->name('records');
+            Route::get('/records/{poe}',        [$c, 'recordDetail'])->name('records.detail');
+        });
+        Route::prefix('rpt-symptom-distribution')->name('rpt-symptom-distribution.')->group(function () {
+            $c = \App\Http\Controllers\Admin\Reports\V2\SymptomDistributionController::class;
+            Route::get('/',                     [$c, 'index'])       ->name('index');
+            Route::get('/meta',                 [$c, 'meta'])        ->name('meta');
+            Route::get('/kpis',                 [$c, 'kpis'])        ->name('kpis');
+            Route::get('/chart/{chart}',        [$c, 'chart'])       ->name('chart');
+            Route::get('/chart/{chart}/csv',    [$c, 'chartCsv'])    ->name('chart.csv');
+            Route::get('/records',              [$c, 'records'])     ->name('records');
+            Route::get('/records/{symptom}',    [$c, 'recordDetail'])->name('records.detail');
+        });
+        Route::prefix('rpt-ops-risk')->name('rpt-ops-risk.')->group(function () {
+            $c = \App\Http\Controllers\Admin\Reports\V2\OperationalRiskController::class;
+            Route::get('/',                       [$c, 'index'])       ->name('index');
+            Route::get('/meta',                   [$c, 'meta'])        ->name('meta');
+            Route::get('/kpis',                   [$c, 'kpis'])        ->name('kpis');
+            Route::get('/chart/{chart}',          [$c, 'chart'])       ->name('chart');
+            Route::get('/chart/{chart}/csv',      [$c, 'chartCsv'])    ->name('chart.csv');
+            Route::get('/records',                [$c, 'records'])     ->name('records');
+            Route::get('/records/{type}/{key}',   [$c, 'recordDetail'])->name('records.detail');
+        });
+        Route::prefix('rpt-alert-intel')->name('rpt-alert-intel.')->group(function () {
+            $c = \App\Http\Controllers\Admin\Reports\V2\AlertIntelligenceController::class;
+            Route::get('/',                  [$c, 'index'])       ->name('index');
+            Route::get('/meta',              [$c, 'meta'])        ->name('meta');
+            Route::get('/kpis',              [$c, 'kpis'])        ->name('kpis');
+            Route::get('/chart/{chart}',     [$c, 'chart'])       ->name('chart');
+            Route::get('/chart/{chart}/csv', [$c, 'chartCsv'])    ->name('chart.csv');
+            Route::get('/records',           [$c, 'records'])     ->name('records');
+            Route::get('/records/{id}',      [$c, 'recordDetail'])->whereNumber('id')->name('records.detail');
+        });
+        Route::prefix('rpt-response-time')->name('rpt-response-time.')->group(function () {
+            $c = \App\Http\Controllers\Admin\Reports\V2\ResponseTimelinessController::class;
+            Route::get('/',                  [$c, 'index'])       ->name('index');
+            Route::get('/meta',              [$c, 'meta'])        ->name('meta');
+            Route::get('/kpis',              [$c, 'kpis'])        ->name('kpis');
+            Route::get('/chart/{chart}',     [$c, 'chart'])       ->name('chart');
+            Route::get('/chart/{chart}/csv', [$c, 'chartCsv'])    ->name('chart.csv');
+            Route::get('/records',           [$c, 'records'])     ->name('records');
+            Route::get('/records/{id}',      [$c, 'recordDetail'])->whereNumber('id')->name('records.detail');
+        });
+        Route::prefix('rpt-resolution-db')->name('rpt-resolution-db.')->group(function () {
+            $c = \App\Http\Controllers\Admin\Reports\V2\ResolutionDatabaseController::class;
+            Route::get('/',                  [$c, 'index'])       ->name('index');
+            Route::get('/meta',              [$c, 'meta'])        ->name('meta');
+            Route::get('/kpis',              [$c, 'kpis'])        ->name('kpis');
+            Route::get('/chart/{chart}',     [$c, 'chart'])       ->name('chart');
+            Route::get('/chart/{chart}/csv', [$c, 'chartCsv'])    ->name('chart.csv');
+            Route::get('/records',           [$c, 'records'])     ->name('records');
+            Route::get('/records/{id}',      [$c, 'recordDetail'])->whereNumber('id')->name('records.detail');
+        });
+        Route::prefix('rpt-case-files')->name('rpt-case-files.')->group(function () {
+            $c = \App\Http\Controllers\Admin\Reports\V2\CaseFileRegistryController::class;
+            Route::get('/',                  [$c, 'index'])       ->name('index');
+            Route::get('/meta',              [$c, 'meta'])        ->name('meta');
+            Route::get('/kpis',              [$c, 'kpis'])        ->name('kpis');
+            Route::get('/chart/{chart}',     [$c, 'chart'])       ->name('chart');
+            Route::get('/chart/{chart}/csv', [$c, 'chartCsv'])    ->name('chart.csv');
+            Route::get('/records',           [$c, 'records'])     ->name('records');
+            Route::get('/records/{id}',      [$c, 'recordDetail'])->whereNumber('id')->name('records.detail');
+        });
+        Route::prefix('rpt-poe-performance')->name('rpt-poe-performance.')->group(function () {
+            $c = \App\Http\Controllers\Admin\Reports\V2\PoePerformanceController::class;
+            Route::get('/',                  [$c, 'index'])       ->name('index');
+            Route::get('/meta',              [$c, 'meta'])        ->name('meta');
+            Route::get('/kpis',              [$c, 'kpis'])        ->name('kpis');
+            Route::get('/chart/{chart}',     [$c, 'chart'])       ->name('chart');
+            Route::get('/chart/{chart}/csv', [$c, 'chartCsv'])    ->name('chart.csv');
+            Route::get('/records',           [$c, 'records'])     ->name('records');
+            Route::get('/records/{key}',     [$c, 'recordDetail'])->name('records.detail');
+        });
+        Route::prefix('rpt-user-activity')->name('rpt-user-activity.')->group(function () {
+            $c = \App\Http\Controllers\Admin\Reports\V2\UserActivityController::class;
+            Route::get('/',                  [$c, 'index'])       ->name('index');
+            Route::get('/meta',              [$c, 'meta'])        ->name('meta');
+            Route::get('/kpis',              [$c, 'kpis'])        ->name('kpis');
+            Route::get('/chart/{chart}',     [$c, 'chart'])       ->name('chart');
+            Route::get('/chart/{chart}/csv', [$c, 'chartCsv'])    ->name('chart.csv');
+            Route::get('/records',           [$c, 'records'])     ->name('records');
+            Route::get('/records/{key}',     [$c, 'recordDetail'])->name('records.detail');
+        });
+        Route::prefix('rpt-country-travel')->name('rpt-country-travel.')->group(function () {
+            $c = \App\Http\Controllers\Admin\Reports\V2\CountryTravelController::class;
+            Route::get('/',                  [$c, 'index'])       ->name('index');
+            Route::get('/meta',              [$c, 'meta'])        ->name('meta');
+            Route::get('/kpis',              [$c, 'kpis'])        ->name('kpis');
+            Route::get('/chart/{chart}',     [$c, 'chart'])       ->name('chart');
+            Route::get('/chart/{chart}/csv', [$c, 'chartCsv'])    ->name('chart.csv');
+            Route::get('/records',           [$c, 'records'])     ->name('records');
+            Route::get('/records/{key}',     [$c, 'recordDetail'])->name('records.detail');
+        });
+        Route::prefix('rpt-national-dashboard')->name('rpt-national-dashboard.')->group(function () {
+            $c = \App\Http\Controllers\Admin\Reports\V2\NationalDashboardController::class;
+            Route::get('/',                  [$c, 'index'])       ->name('index');
+            Route::get('/meta',              [$c, 'meta'])        ->name('meta');
+            Route::get('/kpis',              [$c, 'kpis'])        ->name('kpis');
+            Route::get('/chart/{chart}',     [$c, 'chart'])       ->name('chart');
+            Route::get('/chart/{chart}/csv', [$c, 'chartCsv'])    ->name('chart.csv');
+            Route::get('/records',           [$c, 'records'])     ->name('records');
+            Route::get('/records/{key}',     [$c, 'recordDetail'])->name('records.detail');
         });
     });
 
