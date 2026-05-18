@@ -132,3 +132,7 @@ scripts/local-*
 # written for internal/AI consumption. Not for the public repo.
 docs/
 api/docs/
+
+# stray prod dump — never commit
+ug_poe_prod_*.sql
+*-prod-*.sql

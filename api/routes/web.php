@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\Governance\TemplatesController as AdminGovTemplat
 use App\Http\Controllers\Admin\Governance\DataQualityController as AdminGovDqController;
 use App\Http\Controllers\Admin\Governance\RetentionController as AdminGovRetentionController;
 use App\Http\Controllers\Admin\System\CronController as AdminSysCronController;
+use App\Http\Controllers\Admin\System\MigrationsController as AdminSysMigrationsController;
 use App\Http\Controllers\Admin\System\MailController as AdminSysMailController;
 use App\Http\Controllers\Admin\System\MobileController as AdminSysMobileController;
 use App\Http\Controllers\Admin\System\WhoConnectorController as AdminSysWhoController;
@@ -692,6 +693,19 @@ Route::prefix('admin')->name('admin.')
             Route::get('/summary', [AdminSysMobileController::class, 'summary'])->name('summary');
             Route::get('/pending', [AdminSysMobileController::class, 'pending'])->name('pending');
             Route::get('/quiet',   [AdminSysMobileController::class, 'quiet'])  ->name('quiet');
+        });
+
+    // sys-migrations — NATIONAL_ADMIN-only schema management surface.
+    // Two routes:
+    //   GET  /admin/system/migrations         → status page (Blade) + JSON via ?json=1
+    //   GET  /admin/system/migrations/status  → JSON status (machine-readable)
+    //   POST /admin/system/migrations/run     → run pending migrations
+    //                                          · ?dry=1 to preview SQL without writing
+    Route::prefix('system/migrations')->name('system.migrations.')
+        ->middleware('role:NATIONAL_ADMIN')->group(function () {
+            Route::get ('/',       [AdminSysMigrationsController::class, 'index']) ->name('index');
+            Route::get ('/status', [AdminSysMigrationsController::class, 'status'])->name('status');
+            Route::post('/run',    [AdminSysMigrationsController::class, 'run'])   ->name('run');
         });
 
     // sys-who — IHR EIS gateway placeholder (not yet connected) (v4).
