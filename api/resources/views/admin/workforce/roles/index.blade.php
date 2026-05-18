@@ -128,7 +128,7 @@
                 <select class="select w-auto !h-8 text-xs" x-model="filters.scope" @change="pushUrl()">
                     <option value="">Any scope</option>
                     <option value="NATIONAL">National</option>
-                    <option value="PHEOC">Province / PHEOC</option>
+                    <option value="PHEOC">Region / PHEOC</option>
                     <option value="DISTRICT">District</option>
                     <option value="POE">Point of Entry</option>
                     <option value="SERVICE">Service</option>
@@ -468,10 +468,10 @@ function wfRoles(){
     coach.glossary = coach.glossary || [];
     const ACTIONS_ARR = Object.values(coach.actions || {});
 
-    const SCOPE_LABELS = { NATIONAL:'National', PHEOC:'Province / PHEOC', DISTRICT:'District', POE:'Point of Entry', SERVICE:'Service', OBSERVER:'Observer' };
+    const SCOPE_LABELS = { NATIONAL:'National', PHEOC:'Region / PHEOC', DISTRICT:'District', POE:'Point of Entry', SERVICE:'Service', OBSERVER:'Observer' };
     const CAP_LABELS = {
         reads_national:'Read national data',
-        reads_province:'Read province data',
+        reads_province:'Read region data',
         reads_district:'Read district data',
         reads_poe:'Read PoE data',
         writes_users:'Manage users',

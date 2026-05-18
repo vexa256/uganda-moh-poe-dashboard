@@ -86,7 +86,7 @@
     <section class="grid grid-cols-1 xl:grid-cols-3 gap-4">
         <div class="card xl:col-span-2">
             <div class="card-header !pb-2">
-                <p class="card-title">By province</p>
+                <p class="card-title">By region</p>
                 <p class="card-description">Primary (brand) · secondary (info) · open alerts (critical).</p>
             </div>
             <div class="card-content !pt-0">

@@ -10,7 +10,7 @@
         <div class="kpi"><p class="kpi-label">Active</p><p class="kpi-value tabular-nums" x-text="tabCounts.active ?? '—'"></p></div>
         <div class="kpi"><p class="kpi-label">Retired</p><p class="kpi-value tabular-nums text-muted-foreground" x-text="tabCounts.retired ?? '—'"></p></div>
         <div class="kpi"><p class="kpi-label">Bundle Version</p><p class="kpi-value tabular-nums" x-text="bundleVersion ? 'v' + bundleVersion : '—'"></p></div>
-        <div class="kpi"><p class="kpi-label">Provinces</p><p class="kpi-value tabular-nums" x-text="meta.provinces?.length ?? '—'"></p></div>
+        <div class="kpi"><p class="kpi-label">Regions</p><p class="kpi-value tabular-nums" x-text="meta.provinces?.length ?? '—'"></p></div>
     </section>
 
     <section class="card">
@@ -34,7 +34,7 @@
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <select class="select w-auto !h-8 text-xs" x-model="filters.province_id" @change="loadData()">
-                        <option value="0">All provinces</option>
+                        <option value="0">All regions</option>
                         <template x-for="p in meta.provinces" :key="p.id"><option :value="p.id" x-text="p.name"></option></template>
                     </select>
                     <button class="btn btn-ghost btn-xs" @click="resetFilters()" x-show="filters.province_id != 0 || filters.q !== ''">Clear</button>
@@ -45,7 +45,7 @@
                 <table class="table">
                     <thead class="table-head"><tr>
                         <th class="table-head-th">District</th>
-                        <th class="table-head-th hidden md:table-cell">Province</th>
+                        <th class="table-head-th hidden md:table-cell">Region</th>
                         <th class="table-head-th hidden lg:table-cell">Code · Stem</th>
                         <th class="table-head-th text-center">PoEs</th>
                         <th class="table-head-th text-right">Actions</th>
@@ -156,9 +156,9 @@
                     <template x-if="wizard.step===2">
                         <div class="space-y-4">
                             <div>
-                                <label class="label">Provincial PHEOC <span class="text-critical">*</span></label>
+                                <label class="label">Regional PHEOC <span class="text-critical">*</span></label>
                                 <select class="select mt-1.5" x-model="wizard.form.province_id">
-                                    <option value="">Select province…</option>
+                                    <option value="">Select region…</option>
                                     <template x-for="p in meta.provinces" :key="p.id"><option :value="p.id" x-text="p.name"></option></template>
                                 </select>
                             </div>

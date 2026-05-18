@@ -135,9 +135,9 @@
                     <div class="space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label class="label">Provincial PHEOC <span class="text-critical">*</span></label>
+                                <label class="label">Regional PHEOC <span class="text-critical">*</span></label>
                                 <select class="select mt-1.5" x-model="wizard.form.province_id" @change="onWizardProvinceChange()">
-                                    <option value="">Select province…</option>
+                                    <option value="">Select region…</option>
                                     <template x-for="p in meta.provinces" :key="p.id">
                                         <option :value="p.id" x-text="p.name"></option>
                                     </template>

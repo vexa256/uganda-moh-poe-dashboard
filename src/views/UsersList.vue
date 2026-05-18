@@ -437,7 +437,7 @@
                       </span>
                     </div>
                     <div class="ul-det-cell">
-                      <span class="ul-det-k">Province</span>
+                      <span class="ul-det-k">Region</span>
                       <span class="ul-det-v">
                         {{ (user.assignment && user.assignment.province_code) || user.province_code || '—' }}
                       </span>
@@ -781,7 +781,7 @@
                 {{ errors['assignment.province_code'] }}
               </span>
             </div>
-            <div v-if="form.assignment.province_code && geoRequired('district_code')" class="ul-fg"
+            <div v-if="geoRequired('district_code')" class="ul-fg"
               :class="errors['assignment.district_code'] && 'ul-fg--err'">
               <label class="ul-fl">
                 District
@@ -794,7 +794,7 @@
                 search-placeholder="Search districts…"
                 aria-label="Select district"
                 select-class="ul-fsel"
-                @change="onDistrictChange"
+                @change="onDistrictPickWithRegionBackfill"
               />
               <span v-if="errors['assignment.district_code']" class="ul-ferr">
                 {{ errors['assignment.district_code'] }}
@@ -1067,7 +1067,7 @@ const ROLES = [
   { value: 'POE_DATA_OFFICER',    label: 'POE Data Officer',     scope: 'POE — aggregated reporting' },
   { value: 'POE_ADMIN',           label: 'POE Admin',            scope: 'POE — manages users at this POE' },
   { value: 'DISTRICT_SUPERVISOR', label: 'District Supervisor',  scope: 'District — monitors all POEs in district' },
-  { value: 'PHEOC_OFFICER',       label: 'PHEOC Officer',        scope: 'Provincial PHEOC — monitors all districts' },
+  { value: 'PHEOC_OFFICER',       label: 'PHEOC Officer',        scope: 'Regional PHEOC — monitors all districts' },
   { value: 'NATIONAL_ADMIN',      label: 'National Admin',       scope: 'National — full system access' },
 ]
 
@@ -1277,9 +1277,43 @@ const syncBarText = computed(() => {
 // ── COMPUTED — form ───────────────────────────────────────────────────────
 // Note: PHEOC_DISTRICT_MAP / DISTRICT_POE_MAP are computed refs (reactive
 // to poe-main-updated), so we unwrap them with .value inside these getters.
+// 2026-05-19 — District field UX hardening. The user complained that the
+// District dropdown's search "doesn't work". Root cause: the field was
+// hidden entirely until a Region (Province) was first selected, and the
+// SearchableSelect z-index bug (fixed separately) made the search input
+// invisible even after a region pick. We now allow direct search across
+// ALL districts in the tenant country, AND keep the cascade-filter when a
+// Region is already chosen. On district pick we back-fill the region so
+// the form scope remains consistent.
+const allDistrictsFlat = computed(() => {
+  const seen = new Set()
+  const out = []
+  for (const region of Object.keys(PHEOC_DISTRICT_MAP.value)) {
+    for (const d of (PHEOC_DISTRICT_MAP.value[region] || [])) {
+      if (!d || seen.has(d)) continue
+      seen.add(d); out.push(d)
+    }
+  }
+  return out.sort((a, b) => a.localeCompare(b))
+})
+
+// district → region lookup, so picking a district can back-fill the region.
+const districtToRegionMap = computed(() => {
+  const map = {}
+  for (const region of Object.keys(PHEOC_DISTRICT_MAP.value)) {
+    for (const d of (PHEOC_DISTRICT_MAP.value[region] || [])) {
+      if (d && !map[d]) map[d] = region
+    }
+  }
+  return map
+})
+
 const filteredDistricts = computed(() => {
   const p = form.value.assignment.province_code
-  return p ? (PHEOC_DISTRICT_MAP.value[p] || []) : []
+  // When a region is picked, scope to its districts.
+  // Otherwise present the full flat list so the user can search any district
+  // directly and have the region auto-populated on selection.
+  return p ? (PHEOC_DISTRICT_MAP.value[p] || []) : allDistrictsFlat.value
 })
 const filteredPoes = computed(() => {
   const d = form.value.assignment.district_code
@@ -1921,6 +1955,27 @@ function onPheocChange() {
   form.value.assignment.pheoc_code    = form.value.assignment.province_code
 }
 function onDistrictChange() { form.value.assignment.poe_code = '' }
+// 2026-05-19 — back-fill the Region (province_code) and PHEOC code when the
+// user picks a district directly without first selecting a region. The
+// District selector is now searchable across all districts in the tenant
+// country; this handler keeps the form's geo scope consistent regardless of
+// the order in which the user fills the fields.
+function onDistrictPickWithRegionBackfill(picked) {
+  // Always clear the dependent POE — same semantics as onDistrictChange.
+  form.value.assignment.poe_code = ''
+  const dist = String(picked || form.value.assignment.district_code || '')
+  if (!dist) return
+  const region = districtToRegionMap.value[dist]
+  if (region && !form.value.assignment.province_code) {
+    form.value.assignment.province_code = region
+    // The PHEOC code mirrors the region for Uganda's PHEOC structure
+    // (each region has one PHEOC); keep them in sync to satisfy the
+    // server's province_or_pheoc requirement for downstream roles.
+    if (!form.value.assignment.pheoc_code) {
+      form.value.assignment.pheoc_code = region
+    }
+  }
+}
 
 function geoScopeNote(rk) {
   const m = {

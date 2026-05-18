@@ -9,7 +9,7 @@
     <section class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div class="kpi"><p class="kpi-label">Active</p><p class="kpi-value tabular-nums" x-text="tabCounts.active ?? '—'"></p></div>
         <div class="kpi"><p class="kpi-label">Retired</p><p class="kpi-value tabular-nums text-muted-foreground" x-text="tabCounts.retired ?? '—'"></p></div>
-        <div class="kpi"><p class="kpi-label">Provinces</p><p class="kpi-value tabular-nums" x-text="meta.provinces?.length ?? '—'"></p></div>
+        <div class="kpi"><p class="kpi-label">Regions</p><p class="kpi-value tabular-nums" x-text="meta.provinces?.length ?? '—'"></p></div>
         <div class="kpi"><p class="kpi-label">Status</p><p class="kpi-value text-[14px]">Greenfield</p></div>
     </section>
 
@@ -34,7 +34,7 @@
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <select class="select w-auto !h-8 text-xs" x-model="filters.province_id" @change="onProvinceFilter()">
-                        <option value="0">All provinces</option>
+                        <option value="0">All regions</option>
                         <template x-for="p in meta.provinces" :key="p.id"><option :value="p.id" x-text="p.name"></option></template>
                     </select>
                     <select class="select w-auto !h-8 text-xs" x-model="filters.district_id" @change="loadData()">
@@ -53,7 +53,7 @@
                     <thead class="table-head"><tr>
                         <th class="table-head-th">Hospital</th>
                         <th class="table-head-th hidden md:table-cell">Type</th>
-                        <th class="table-head-th hidden md:table-cell">Province / District</th>
+                        <th class="table-head-th hidden md:table-cell">Region / District</th>
                         <th class="table-head-th hidden lg:table-cell">Phone</th>
                         <th class="table-head-th text-right">Actions</th>
                     </tr></thead>
@@ -175,7 +175,7 @@
                         <div class="space-y-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
-                                    <label class="label">Province <span class="text-critical">*</span></label>
+                                    <label class="label">Region <span class="text-critical">*</span></label>
                                     <select class="select mt-1.5" x-model="wizard.form.province_id" @change="onWizardProvinceChange()">
                                         <option value="">Select…</option>
                                         <template x-for="p in meta.provinces" :key="p.id"><option :value="p.id" x-text="p.name"></option></template>

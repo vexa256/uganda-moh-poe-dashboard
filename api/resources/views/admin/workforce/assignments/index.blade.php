@@ -96,8 +96,8 @@
             </div>
             <div class="lg:col-span-5 px-4 py-3.5">
                 <div class="flex items-center justify-between mb-1.5">
-                    <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Coverage by province</p>
-                    <p class="text-[10px] text-muted-foreground" x-text="provinceBars.length+' provinces'"></p>
+                    <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Coverage by region</p>
+                    <p class="text-[10px] text-muted-foreground" x-text="provinceBars.length+' regions'"></p>
                 </div>
                 <ul class="space-y-1.5 max-h-32 overflow-auto pr-1">
                     <template x-if="provinceBars.length===0"><li class="text-[11px] italic text-muted-foreground">Not yet recorded</li></template>
@@ -163,7 +163,7 @@
                     <div class="flex flex-wrap items-center gap-2">
                         <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mr-1">Refine</p>
                         <select class="select w-auto !h-8 text-xs" x-model="filters.province_code" @change="loadData(); pushUrl()">
-                            <option value="">Any province</option>
+                            <option value="">Any region</option>
                             <template x-for="p in meta.provinces" :key="p"><option :value="p" x-text="p"></option></template>
                         </select>
                         <select class="select w-auto !h-8 text-xs" x-model="filters.district_code" @change="loadData(); pushUrl()">
@@ -331,7 +331,7 @@
                         <div class="space-y-3">
                             <div><label class="label">Country</label><input type="text" class="input mt-1.5" x-model="wizard.form.country_code" placeholder="Uganda"></div>
                             <div>
-                                <label class="label">Province / PHEOC</label>
+                                <label class="label">Region / PHEOC</label>
                                 <select class="select mt-1.5" x-model="wizard.form.province_code" @change="wizard.form.pheoc_code=wizard.form.province_code">
                                     <option value="">Select…</option>
                                     <template x-for="p in meta.provinces" :key="p"><option :value="p" x-text="p"></option></template>

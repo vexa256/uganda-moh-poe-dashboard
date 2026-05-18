@@ -251,11 +251,11 @@
                     {{-- Province rollup --}}
                     <template x-if="rollups.province?.length">
                         <div>
-                            <h3 class="text-[13px] font-semibold mb-2">Per province (PHEOC)</h3>
+                            <h3 class="text-[13px] font-semibold mb-2">Per region (PHEOC)</h3>
                             <div class="table-wrap">
                                 <table class="table">
                                     <thead class="table-head"><tr>
-                                        <th class="table-head-th">Province</th>
+                                        <th class="table-head-th">Region</th>
                                         <th class="table-head-th text-right">Screened</th>
                                         <th class="table-head-th text-right">Symptomatic</th>
                                         <th class="table-head-th text-right">Districts</th>

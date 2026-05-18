@@ -232,7 +232,7 @@
                 <thead>
                     <tr>
                         <th>Entry point</th>
-                        <th>Province</th>
+                        <th>Region</th>
                         <th>District</th>
                         <th class="text-right">Booth screenings</th>
                         <th class="text-right">Full checks opened</th>
@@ -582,7 +582,7 @@ function rptPoeOperations() {
                     r.avg_minutes === null ? '—' : r.avg_minutes,
                 ]);
                 return { fileName: 'entry-point-operations.csv',
-                    headers: ['Entry point','Code','Province','District','Type','Booth screenings','Full checks opened','Closed','Waiting now','Over 20 min','Avg minutes'],
+                    headers: ['Entry point','Code','Region','District','Type','Booth screenings','Full checks opened','Closed','Waiting now','Over 20 min','Avg minutes'],
                     rows };
             }
             if (key === 'primary_screeners') {

@@ -1,7 +1,7 @@
 @extends('admin.layout')
 
 @section('crumb', 'Geography')
-@section('title', 'Provinces')
+@section('title', 'Regions')
 
 @section('content')
 <div x-data="provincesRegistry()" x-init="boot()" x-effect="window.adminLock.set('page', wizard?.open || sheet?.open || confirm?.open)" class="space-y-5">
@@ -36,7 +36,7 @@
                     </div>
                     <button type="button" class="btn btn-brand btn-sm" @click="openCreate()">
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg>
-                        New Province
+                        New Region
                     </button>
                 </div>
             </div>
@@ -46,7 +46,7 @@
                 <table class="table">
                     <thead class="table-head">
                         <tr>
-                            <th class="table-head-th">Province</th>
+                            <th class="table-head-th">Region</th>
                             <th class="table-head-th hidden md:table-cell">Code</th>
                             <th class="table-head-th hidden md:table-cell">Type</th>
                             <th class="table-head-th text-center">Districts</th>
@@ -56,7 +56,7 @@
                     </thead>
                     <tbody class="table-body">
                         <template x-if="loading"><tr><td colspan="6" class="table-cell text-center py-8 text-muted-foreground text-sm">Loading…</td></tr></template>
-                        <template x-if="!loading && rows.length===0"><tr><td colspan="6" class="table-cell"><div class="empty-state"><p class="text-sm">No provinces match.</p></div></td></tr></template>
+                        <template x-if="!loading && rows.length===0"><tr><td colspan="6" class="table-cell"><div class="empty-state"><p class="text-sm">No regions match.</p></div></td></tr></template>
                         <template x-for="row in rows" :key="row.id">
                             <tr class="table-row">
                                 <td class="table-cell">
@@ -105,7 +105,7 @@
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857"/></svg>
                     </div>
                     <div class="min-w-0 flex-1">
-                        <p class="text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground">Province</p>
+                        <p class="text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground">Region</p>
                         <h2 class="text-[15px] font-bold leading-tight" x-text="sheet.data?.name || 'Loading…'"></h2>
                     </div>
                     <button class="btn btn-ghost btn-icon-xs" @click="sheet.open=false"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
@@ -141,7 +141,7 @@
                     <header class="flex items-center gap-3 px-4 sm:px-6 py-3 border-b">
                         <div class="grid place-items-center h-9 w-9 rounded-lg bg-brand-soft text-brand-ink"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"/></svg></div>
                         <div class="min-w-0 flex-1">
-                            <p class="text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground" x-text="wizard.mode==='edit'?'Edit Province':'New Province'"></p>
+                            <p class="text-[10.5px] font-semibold uppercase tracking-wider text-muted-foreground" x-text="wizard.mode==='edit'?'Edit Region':'New Region'"></p>
                             <h2 class="text-[14px] font-bold truncate" x-text="wizard.form.name || '—'"></h2>
                         </div>
                         <button class="btn btn-ghost btn-icon-xs" @click="wizard.open=false"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
@@ -159,7 +159,7 @@
                         <template x-if="wizard.step===1">
                             <div class="space-y-4">
                                 <div>
-                                    <label class="label">Province name <span class="text-critical">*</span></label>
+                                    <label class="label">Region name <span class="text-critical">*</span></label>
                                     <input type="text" class="input mt-1.5" x-model="wizard.form.name" placeholder="e.g. Central Region PHEOC">
                                     <p class="help-text mt-1.5">Appears verbatim in <span class="kbd">ref_poes.admin_level_1</span>. Renaming cascades.</p>
                                 </div>
@@ -213,7 +213,7 @@
              role="dialog" aria-modal="true" @keydown.escape.window="confirm.open=false">
             <div class="absolute inset-0 bg-black/55 backdrop-blur-sm" @click="confirm.open=false"></div>
             <div class="relative w-full max-w-sm bg-card border rounded-xl shadow-elevation-5 p-5" @click.stop>
-                <h3 class="text-[14px] font-bold text-critical">Retire province?</h3>
+                <h3 class="text-[14px] font-bold text-critical">Retire region?</h3>
                 <p class="text-[12.5px] text-muted-foreground leading-relaxed mt-1.5">
                     <span class="font-semibold text-foreground" x-text="confirm.row?.name"></span>
                     · blocked if active districts / PoEs / hospitals exist.

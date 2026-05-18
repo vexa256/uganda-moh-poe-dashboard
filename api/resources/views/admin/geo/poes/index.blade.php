@@ -82,7 +82,7 @@
                 {{-- Filter chips row --}}
                 <div class="flex flex-wrap items-center gap-2 -mt-1">
                     <select class="select w-auto !h-8 text-xs" x-model="filters.province_id" @change="onProvinceFilter()">
-                        <option value="0">All provinces</option>
+                        <option value="0">All regions</option>
                         <template x-for="p in meta.provinces" :key="p.id">
                             <option :value="p.id" x-text="p.name"></option>
                         </template>
@@ -125,7 +125,7 @@
                         <tr>
                             <th class="table-head-th">PoE</th>
                             <th class="table-head-th hidden md:table-cell">Type</th>
-                            <th class="table-head-th hidden md:table-cell">Province / District</th>
+                            <th class="table-head-th hidden md:table-cell">Region / District</th>
                             <th class="table-head-th hidden lg:table-cell">Border</th>
                             <th class="table-head-th">Flags</th>
                             <th class="table-head-th text-right">Actions</th>

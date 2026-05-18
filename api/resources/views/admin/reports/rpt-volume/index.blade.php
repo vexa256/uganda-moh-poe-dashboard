@@ -459,7 +459,7 @@
                 <thead>
                     <tr>
                         <th>Entry point</th>
-                        <th>Province</th>
+                        <th>Region</th>
                         <th>District</th>
                         <th class="text-right">Booth screenings</th>
                         <th class="text-right">Full checks</th>
@@ -940,7 +940,7 @@ function rptVolume() {
                 ]);
                 return {
                     fileName: 'entry-point-league.csv',
-                    headers: ['Entry point', 'Province', 'District', 'Type', 'Booth screenings', 'Full checks', 'Risk found', 'Sent for care', 'Risk rate', 'Care referral rate'],
+                    headers: ['Entry point', 'Region', 'District', 'Type', 'Booth screenings', 'Full checks', 'Risk found', 'Sent for care', 'Risk rate', 'Care referral rate'],
                     rows,
                 };
             }

@@ -185,7 +185,7 @@
                 <p>
                     <span class="font-semibold text-foreground/80">Access tiers:</span>
                     <span class="font-mono text-[10.5px]">NATIONAL_ADMIN</span> sees everything ·
-                    <span class="font-mono text-[10.5px]">PHEOC_OFFICER</span> sees their province ·
+                    <span class="font-mono text-[10.5px]">PHEOC_OFFICER</span> sees their region ·
                     <span class="font-mono text-[10.5px]">DISTRICT_SUPERVISOR</span> sees their district.
                 </p>
                 <p class="mt-2 text-[10.5px] text-muted-foreground/50">

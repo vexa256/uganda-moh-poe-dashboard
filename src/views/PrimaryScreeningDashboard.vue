@@ -606,7 +606,7 @@ const scopeBanner = computed(() => {
   // Tier label + bg colour key for the banner's left strip.
   const tierMap = {
     NATIONAL_ADMIN:      { tier: 'NATIONAL',  scope: 'All POEs across the country',                 dot: '#7C3AED' },
-    PHEOC_OFFICER:       { tier: 'PHEOC',     scope: a.pheoc_code || a.province_code || sc?.code || 'Province coordination', dot: '#0EA5E9' },
+    PHEOC_OFFICER:       { tier: 'PHEOC',     scope: a.pheoc_code || a.province_code || sc?.code || 'Region coordination', dot: '#0EA5E9' },
     DISTRICT_SUPERVISOR: { tier: 'DISTRICT',  scope: a.district_code || sc?.code || 'District',     dot: '#10B981' },
     POE_ADMIN:           { tier: 'POE',       scope: a.poe_code || sc?.code || 'Point of Entry',    dot: '#F59E0B' },
     POE_PRIMARY:         { tier: 'POE',       scope: a.poe_code || sc?.code || 'Point of Entry',    dot: '#F59E0B' },

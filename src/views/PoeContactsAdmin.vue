@@ -319,7 +319,7 @@
             <template v-else>
               <!-- Province — shown only to PHEOC_OFFICER as informational filter -->
               <template v-if="(auth.role_key || '') === 'PHEOC_OFFICER'">
-                <label class="pc-flbl">Province <IonIcon :icon="lockClosedOutline" class="pc-lk" title="Locked to your province"/></label>
+                <label class="pc-flbl">Region <IonIcon :icon="lockClosedOutline" class="pc-lk" title="Locked to your region"/></label>
                 <input :value="form.province_code || '—'" class="pc-inp" disabled/>
               </template>
 

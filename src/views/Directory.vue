@@ -98,7 +98,7 @@
             <div class="dr-dc">
               <div class="dr-dc-h">Scope</div>
               <div class="dr-dc-r"><span>Country</span><span>{{ detail.country_code || '—' }}</span></div>
-              <div class="dr-dc-r"><span>Province</span><span>{{ detail.province_code || '—' }}</span></div>
+              <div class="dr-dc-r"><span>Region</span><span>{{ detail.province_code || '—' }}</span></div>
               <div class="dr-dc-r"><span>PHEOC</span><span>{{ detail.pheoc_code || '—' }}</span></div>
               <div class="dr-dc-r"><span>District</span><span>{{ detail.district_code || '—' }}</span></div>
               <div class="dr-dc-r"><span>POE</span><span>{{ detail.poe_code || '—' }}</span></div>

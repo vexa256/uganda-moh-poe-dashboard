@@ -235,7 +235,7 @@
                             <template x-for="r in meta.roles" :key="r.role_key"><option :value="r.role_key" x-text="r.display_name"></option></template>
                         </select>
                         <select class="select w-auto !h-8 text-xs" x-model="filters.province" @change="loadData(); pushUrl()">
-                            <option value="">Any province</option>
+                            <option value="">Any region</option>
                             <template x-for="p in meta.provinces" :key="p"><option :value="p" x-text="p"></option></template>
                         </select>
                         <select class="select w-auto !h-8 text-xs" x-model="filters.district" @change="loadData(); pushUrl()">

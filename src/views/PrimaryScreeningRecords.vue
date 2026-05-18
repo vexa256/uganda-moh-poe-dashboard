@@ -648,7 +648,7 @@
               <div class="pr-kv"><span class="pr-k">District</span><span class="pr-v">{{ detailRecord.district_code }}</span></div>
               <div class="pr-kv"><span class="pr-k">PHEOC</span><span class="pr-v">{{ detailRecord.pheoc_code || '—' }}</span></div>
               <div class="pr-kv"><span class="pr-k">Country</span><span class="pr-v">{{ detailRecord.country_code }}</span></div>
-              <div class="pr-kv"><span class="pr-k">Province</span><span class="pr-v">{{ detailRecord.province_code || '—' }}</span></div>
+              <div class="pr-kv"><span class="pr-k">Region</span><span class="pr-v">{{ detailRecord.province_code || '—' }}</span></div>
             </div>
             <div class="pr-section-hdr"><span class="pr-sec-n">D</span> Device</div>
             <div class="pr-kv-grid">

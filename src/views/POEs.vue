@@ -155,7 +155,7 @@
             <div class="ph-group-dot" :class="group.type === 'PHEOC' ? 'ph-group-dot--pheoc' : 'ph-group-dot--province'"/>
             <span class="ph-group-name">{{ group.admin_level_1 }}</span>
             <span class="ph-group-tag" :class="group.type === 'PHEOC' ? 'ph-group-tag--pheoc' : 'ph-group-tag--province'">
-              {{ group.type === 'PHEOC' ? 'PHEOC' : 'Province' }}
+              {{ group.type === 'PHEOC' ? 'PHEOC' : 'Region' }}
             </span>
             <span class="ph-group-count">{{ group.poes.length }}</span>
           </div>
@@ -248,10 +248,10 @@
           </IonFabButton>
           <IonFabButton
             class="ph-fab-action ph-fab-prov"
-            data-label="Add Province / PHEOC"
+            data-label="Add Region / PHEOC"
             data-sublabel="Provincial emergency ops centre"
             @click="openCreate('province')"
-            aria-label="Add Province / PHEOC">
+            aria-label="Add Region / PHEOC">
             <IonIcon :icon="flagOutline"/>
           </IonFabButton>
           <IonFabButton
@@ -395,7 +395,7 @@
               <div class="pd-tree-node pd-tree-node--pheoc">
                 <div class="pd-tree-node-icon pd-tree-icon--pheoc">🏥</div>
                 <div class="pd-tree-node-body">
-                  <div class="pd-tree-node-key">{{ selectedPoe.admin_level_1_type === 'PHEOC' ? 'Provincial PHEOC' : 'Province' }}</div>
+                  <div class="pd-tree-node-key">{{ selectedPoe.admin_level_1_type === 'PHEOC' ? 'Regional PHEOC' : 'Region' }}</div>
                   <div class="pd-tree-node-val">{{ selectedPoe.admin_level_1 || selectedPoe.province }}</div>
                   <div v-if="selectedPoe.admin_level_1_type === 'PHEOC'" class="pd-tree-node-tag">PHEOC</div>
                 </div>
@@ -645,7 +645,7 @@
                 <code class="pd-ref-val">{{ selectedPoe.poe_name }}</code>
               </div>
               <div class="pd-ref-row">
-                <span class="pd-ref-key">Province Code (record stamp)</span>
+                <span class="pd-ref-key">Region Code (record stamp)</span>
                 <code class="pd-ref-val">{{ selectedPoe.province }}</code>
               </div>
               <div class="pd-ref-row">
@@ -665,7 +665,7 @@
                 <code class="pd-ref-val">{{ selectedPoe.regional_cluster_or_rpheoc }}</code>
               </div>
               <div v-if="selectedPoe.source_province_group" class="pd-ref-row">
-                <span class="pd-ref-key">Source Province Group</span>
+                <span class="pd-ref-key">Source Region Group</span>
                 <code class="pd-ref-val">{{ selectedPoe.source_province_group }}</code>
               </div>
               <div v-if="selectedPoe.source_url" class="pd-ref-row">
@@ -792,14 +792,14 @@
             <div class="pe-hint">Transport mode is auto-derived from POE type.</div>
           </div>
           <div class="pe-field">
-            <label class="pe-label">PHEOC / Province <span class="pe-req">*</span></label>
+            <label class="pe-label">PHEOC / Region <span class="pe-req">*</span></label>
             <SearchableSelect
               v-model="editor.form.province_id"
               :options="provincesList"
               value-key="id"
               label-key="name"
               placeholder="— Select PHEOC —"
-              search-placeholder="Search PHEOC / provinces…"
+              search-placeholder="Search PHEOC / regions…"
               select-class="pe-inp"
             />
             <div v-if="editor.errors.province_id" class="pe-error">{{ editor.errors.province_id }}</div>
@@ -887,14 +887,14 @@
             <div v-if="editor.errors.name" class="pe-error">{{ editor.errors.name }}</div>
           </div>
           <div class="pe-field">
-            <label class="pe-label">PHEOC / Province <span class="pe-req">*</span></label>
+            <label class="pe-label">PHEOC / Region <span class="pe-req">*</span></label>
             <SearchableSelect
               v-model="editor.form.province_id"
               :options="provincesList"
               value-key="id"
               label-key="name"
               placeholder="— Select PHEOC —"
-              search-placeholder="Search PHEOC / provinces…"
+              search-placeholder="Search PHEOC / regions…"
               select-class="pe-inp"
             />
             <div v-if="editor.errors.province_id" class="pe-error">{{ editor.errors.province_id }}</div>
@@ -925,7 +925,7 @@
             </select>
           </div>
           <div class="pe-field">
-            <label class="pe-label">PHEOC / Province <span class="pe-req">*</span></label>
+            <label class="pe-label">PHEOC / Region <span class="pe-req">*</span></label>
             <select v-model.number="editor.form.province_id" class="pe-inp">
               <option value="">— Select PHEOC —</option>
               <option v-for="p in provincesList" :key="p.id" :value="p.id">{{ p.name }}</option>
@@ -1179,7 +1179,7 @@ const poeTypeOptions = [
 ]
 const provinceTypeOptions = [
   { value: 'PHEOC',    label: 'PHEOC (Provincial)' },
-  { value: 'PROVINCE', label: 'Province' },
+  { value: 'PROVINCE', label: 'Region' },
   { value: 'REGION',   label: 'Region' },
 ]
 const hospitalTypeOptions = [
@@ -1194,7 +1194,7 @@ const hospitalTypeOptions = [
 ]
 
 function entityLabel (e) {
-  return ({ poe: 'POE', province: 'Province / PHEOC', district: 'District', hospital: 'Hospital' })[e] || e
+  return ({ poe: 'POE', province: 'Region / PHEOC', district: 'District', hospital: 'Hospital' })[e] || e
 }
 
 // Thin API helper — injects user_id on writes, handles error envelopes.

@@ -251,7 +251,7 @@ const lead = computed(() => {
   const r = String(auth.value?.role_key || '')
   const poe = auth.value?.poe_code ? ` · ${auth.value.poe_code}` : ''
   if (r === 'NATIONAL_ADMIN')      return `National oversight is active${poe ? '' : ''}.`
-  if (r === 'PHEOC_OFFICER')       return `PHEOC command centre — ${scopeCode.value || 'your province'} at a glance.`
+  if (r === 'PHEOC_OFFICER')       return `PHEOC command centre — ${scopeCode.value || 'your region'} at a glance.`
   if (r === 'DISTRICT_SUPERVISOR') return `District supervision — ${scopeCode.value || 'your district'}.`
   if (r === 'POE_ADMIN')           return `POE administration${poe}.`
   if (r === 'POE_PRIMARY')         return `Primary screening station ready${poe}.`
@@ -267,7 +267,7 @@ const subLead = computed(() => {
   if (r === 'POE_DATA_OFFICER')                return 'Submit aggregated reports on schedule. Overdue templates block compliance.'
   if (r === 'POE_ADMIN')                       return 'You manage this POE — users, contacts, and the operational picture.'
   if (r === 'DISTRICT_SUPERVISOR')             return 'Watch alerts across your district. Intelligence and history are one tap away.'
-  if (r === 'PHEOC_OFFICER')                   return 'Your province is visible end-to-end. Escalate to national when thresholds trigger.'
+  if (r === 'PHEOC_OFFICER')                   return 'Your region is visible end-to-end. Escalate to national when thresholds trigger.'
   if (r === 'NATIONAL_ADMIN')                  return 'You see everything country-wide. Use the admin panel for configuration.'
   return 'Sign out and back in to refresh your session, or contact your administrator if this persists.'
 })

@@ -250,7 +250,7 @@
                                 <div><p class="text-[10px] uppercase tracking-wider text-muted-foreground">Type</p><p x-text="drill.data?.poe?.type || '—'"></p></div>
                                 <div><p class="text-[10px] uppercase tracking-wider text-muted-foreground">Transport</p><p x-text="drill.data?.poe?.transport || '—'"></p></div>
                                 <div><p class="text-[10px] uppercase tracking-wider text-muted-foreground">Border</p><p x-text="drill.data?.poe?.border_country || '—'"></p></div>
-                                <div><p class="text-[10px] uppercase tracking-wider text-muted-foreground">Province</p><p x-text="drill.data?.poe?.province || '—'"></p></div>
+                                <div><p class="text-[10px] uppercase tracking-wider text-muted-foreground">Region</p><p x-text="drill.data?.poe?.province || '—'"></p></div>
                                 <div><p class="text-[10px] uppercase tracking-wider text-muted-foreground">District</p><p x-text="drill.data?.poe?.district || '—'"></p></div>
                                 <div><p class="text-[10px] uppercase tracking-wider text-muted-foreground">Coords</p><p class="font-mono text-[11px]" x-text="drillCoords()"></p></div>
                             </div>

@@ -78,7 +78,7 @@
           <div class="st-row"><span class="st-k">POE</span><span class="st-v">{{ auth.poe_code||'—' }}</span></div>
           <div class="st-row"><span class="st-k">District</span><span class="st-v">{{ auth.district_code||'—' }}</span></div>
           <div class="st-row"><span class="st-k">PHEOC</span><span class="st-v">{{ auth.pheoc_code||'—' }}</span></div>
-          <div class="st-row"><span class="st-k">Province</span><span class="st-v">{{ auth.province_code||'—' }}</span></div>
+          <div class="st-row"><span class="st-k">Region</span><span class="st-v">{{ auth.province_code||'—' }}</span></div>
           <div class="st-row"><span class="st-k">Country</span><span class="st-v">{{ auth.country_code||'—' }}</span></div>
         </div>
 
