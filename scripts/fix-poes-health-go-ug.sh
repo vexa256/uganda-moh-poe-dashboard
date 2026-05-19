@@ -114,6 +114,27 @@ find storage bootstrap/cache -type d -exec chmod g+s {} +
 
 c_green "✔ storage/framework/{cache,sessions,views,testing} + storage/logs + bootstrap/cache present, owned by $WEB_USER, setgid."
 
+# ----- 1b. .git WRITABLE BY WEB USER -----------------------------------------
+# The deploy:watch daemon (and monitor:watch) run as $WEB_USER and need to
+# `git fetch`/`git pull`. Without these perms, every fetch fails with
+# "dubious ownership" or "permission denied" and the daemon's log fills
+# with the same error every cycle. We touch only the .git directory; the
+# working tree's ownership stays with whoever cloned the repo.
+REPO_ROOT="$(dirname "$APP_ROOT")"
+if [[ -d "$REPO_ROOT/.git" ]]; then
+  step "1b · git repo permissions for $WEB_USER ($REPO_ROOT/.git)"
+  chgrp -R "$WEB_USER" "$REPO_ROOT/.git"
+  chmod -R g+rwX        "$REPO_ROOT/.git"
+  find "$REPO_ROOT/.git" -type d -exec chmod g+s {} +
+  # System-wide safe.directory so git stops refusing to operate when the
+  # working tree is owned by `ubuntu` but the daemon runs as $WEB_USER.
+  git config --system --add safe.directory "$REPO_ROOT" 2>/dev/null || true
+  git config --system --add safe.directory '*'          2>/dev/null || true
+  c_green "✔ $REPO_ROOT/.git is now group=$WEB_USER, g+rwX, setgid — daemons can pull."
+else
+  c_yellow "→ $REPO_ROOT/.git not present (rsync-deploy?) — skipping git perm fix."
+fi
+
 # ----- 2. MYSQL USER + DATABASE ---------------------------------------------
 step "2/6 · MySQL user + database (via sudo mysql socket-auth)"
 
@@ -229,12 +250,13 @@ c_green "✔ Caches cleared."
 # ----- 5. MIGRATIONS --------------------------------------------------------
 step "5/6 · Migrations"
 
-if ask_yn "Run 'php artisan migrate --force' now?" "y"; then
-  sudo -u "$WEB_USER" "$PHP_BIN" artisan migrate --force --ansi
-  c_green "✔ Migrations applied."
-else
-  c_yellow "→ Skipped migrations on operator request."
-fi
+# Unconditional. The reconciliation migration (0000_00_00_000000_reconcile_to_sot)
+# brings any database — fresh, partial, or full — into alignment with the SOT.
+# It's idempotent: on a fully-migrated DB it's a no-op. We don't gate this on
+# operator confirmation any more — the deploy:watch daemon will rerun it on
+# every future git pull anyway, so skipping here only delays the inevitable.
+sudo -u "$WEB_USER" "$PHP_BIN" artisan migrate --force --ansi
+c_green "✔ Migrations applied (SOT reconciliation ensures schema parity)."
 
 # ----- 6. PROBE -------------------------------------------------------------
 step "6/6 · Live probe"

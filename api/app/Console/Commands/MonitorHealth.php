@@ -159,10 +159,25 @@ final class MonitorHealth extends Command
     {
         try {
             $cwd = base_path();
-            if (! is_dir($cwd . '/.git') && ! is_dir(dirname($cwd) . '/.git')) {
+            if (is_dir(dirname($cwd) . '/.git')) {
+                $cwd = dirname($cwd);
+            } elseif (! is_dir($cwd . '/.git')) {
                 return; // not a git checkout
             }
-            $proc = new Process(['git', 'pull', '--ff-only', '--quiet'], $cwd, null, null, 60);
+            // Inline safe.directory so git doesn't refuse to operate on a
+            // repo owned by a different user (CVE-2022-24765 mitigation).
+            // Common case: repo cloned by `ubuntu`, monitor runs as
+            // `www-data`. HOME=/tmp dodges the case where www-data has
+            // no writable home for git's ~/.gitconfig.
+            $env = [
+                'GIT_CONFIG_COUNT'   => '2',
+                'GIT_CONFIG_KEY_0'   => 'safe.directory',
+                'GIT_CONFIG_VALUE_0' => $cwd,
+                'GIT_CONFIG_KEY_1'   => 'safe.directory',
+                'GIT_CONFIG_VALUE_1' => '*',
+                'HOME'               => sys_get_temp_dir(),
+            ];
+            $proc = new Process(['git', 'pull', '--ff-only', '--quiet'], $cwd, $env, null, 60);
             $proc->run();
             if (! $proc->isSuccessful()) {
                 $this->warn('git pull non-zero: ' . trim($proc->getErrorOutput() ?: $proc->getOutput()));

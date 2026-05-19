@@ -11,7 +11,22 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        // Replace Laravel's default Migrator with one that re-checks the
+        // ledger before every individual migration. This lets the SOT
+        // reconciliation migration backfill the migrations table mid-run
+        // so historical migrations whose tables already exist are skipped
+        // instead of crashing on CREATE TABLE.
         //
+        // `extend()` (not `singleton()`) so the wrapper applies AFTER the
+        // deferrable MigrationServiceProvider resolves 'migrator'.
+        $this->app->extend('migrator', function ($migrator, $app) {
+            return new \App\Migrations\CollisionSafeMigrator(
+                $migrator->getRepository(),
+                $app['db'],
+                $app['files'],
+                $app['events']
+            );
+        });
     }
 
     public function boot(): void
@@ -38,6 +53,47 @@ class AppServiceProvider extends ServiceProvider
         if (! $this->app->runningInConsole() && config('monitor.autostart', true)) {
             $this->ensureMonitorRunning();
         }
+
+        // Self-bootstrap the deploy:watch daemon on first HTTP hit. Same
+        // shape as monitor:watch — rate-limited, lockfile-guarded. Gated
+        // to environments that actually want auto-deploy (production /
+        // staging by default); local dev opts out via DEPLOY_WATCH_ENVS.
+        if (! $this->app->runningInConsole() && config('deploy.autostart', true)) {
+            $envs = (array) config('deploy.environments', ['production', 'staging']);
+            if (in_array($this->app->environment(), $envs, true)) {
+                $this->ensureDeployWatchRunning();
+            }
+        }
+    }
+
+    private function ensureDeployWatchRunning(): void
+    {
+        // Rate-limit attempts so we don't fork on every single request.
+        $stamp = storage_path('app/deploy-watch.boot');
+        $now = time();
+        if (is_file($stamp) && ($now - (int) @filemtime($stamp)) < 60) {
+            return;
+        }
+        @touch($stamp);
+
+        $lockPath = storage_path('app/deploy-watch.lock');
+        if (is_file($lockPath)) {
+            $pid = (int) @file_get_contents($lockPath);
+            if ($pid > 0 && file_exists("/proc/{$pid}")) {
+                return; // already running
+            }
+        }
+
+        $php = PHP_BINARY ?: 'php';
+        $artisan = base_path('artisan');
+        $log = storage_path('logs/deploy-watch.log');
+        $cmd = sprintf(
+            'nohup %s %s deploy:watch >> %s 2>&1 &',
+            escapeshellarg($php),
+            escapeshellarg($artisan),
+            escapeshellarg($log)
+        );
+        @exec($cmd);
     }
 
     private function ensureMonitorRunning(): void
