@@ -541,6 +541,20 @@ async function pushSecondaryPhase1(record) {
       updated_at: serverIsoNow(),
     }))
     pushEvent('secondary-phase1', { client_uuid: working.client_uuid, server_id: serverId })
+
+    // ── DEFENSE IN DEPTH ──────────────────────────────────────────────
+    // Immediately chain Phase 2 if there are any local children waiting,
+    // so child data entered on a still-IN_PROGRESS case lands on the
+    // same engine pass that Phase 1 succeeds. Failure here is non-fatal
+    // (the engine's flush loop will retry); Phase 1 success is what we
+    // return either way.
+    try {
+      const fresh = await dbGet(STORE.SECONDARY_SCREENINGS, working.client_uuid).catch(() => null)
+      if (fresh && await hasLocalChildren(fresh.client_uuid)) {
+        await pushSecondaryPhase2(fresh)
+      }
+    } catch (_) { /* swallow — Phase 1 already succeeded */ }
+
     return { ok: true, serverId }
   }
   // Idempotent retry: 422 (parent missing) → defer; engine retries after parents land.
@@ -551,15 +565,54 @@ async function pushSecondaryPhase1(record) {
 
 // 4) SECONDARY SCREENING — Phase 2 (disposition + 5 child tables) ────────────
 
-function needsPhase2(record) {
+// PARANOID phase-2 gate.
+//
+// Historically this only fired on terminal / decision events, which meant
+// that diseases / symptoms / exposures / actions / samples / travel
+// countries entered while the case was still IN_PROGRESS sat on the device
+// forever (no push). Confirmed in prod 2026-05-19 — screening #34 (AYENAFD
+// TIMOTHY) was SYNCED at the parent row but 0 child rows ever reached the
+// server, despite three suspected diseases having been entered locally.
+//
+// New rule: Phase 2 fires when ANY of the following is true.
+//   • the case is terminal (DISPOSITIONED / CLOSED), or
+//   • a decision value has been set, or
+//   • ANY child row exists in IDB for this case.
+//
+// `hasLocalChildren` is async (it inspects 6 child stores via the existing
+// `secondary_screening_id` index) so `needsPhase2` is now async. The three
+// call sites have been updated to await it.
+async function hasLocalChildren(clientUuid) {
+  if (!clientUuid) return false
+  const stores = [
+    STORE.SECONDARY_SUSPECTED_DISEASES,
+    STORE.SECONDARY_SYMPTOMS,
+    STORE.SECONDARY_EXPOSURES,
+    STORE.SECONDARY_ACTIONS,
+    STORE.SECONDARY_SAMPLES,
+    STORE.SECONDARY_TRAVEL_COUNTRIES,
+  ]
+  for (const s of stores) {
+    const rows = await dbGetByIndex(s, 'secondary_screening_id', clientUuid).catch(() => [])
+    if ((rows || []).length > 0) return true
+  }
+  return false
+}
+
+async function needsPhase2(record) {
   // No server id yet → Phase 1 first, not Phase 2.
   if (!record.id || record.id === record.client_uuid) return false
-  // Already synced at this version → no work.
-  if (isUpToDate(record)) return false
-  // Push if there is decision data or a terminal status to report.
+  // Already synced at this version AND no local children waiting → no work.
+  const upToDate = isUpToDate(record)
+  // Decision / terminal data on the parent itself.
   const terminal    = record.case_status === 'DISPOSITIONED' || record.case_status === 'CLOSED'
   const hasDecision = !!(record.syndrome_classification || record.risk_level || record.final_disposition)
-  return terminal || hasDecision
+  if (terminal || hasDecision) return true
+  // The paranoid leg: if any child row exists locally, force a Phase 2.
+  // The server's `/sync` endpoint is replace-all per child table, so this
+  // is idempotent — re-pushing the same children just replays the same set.
+  if (await hasLocalChildren(record.client_uuid)) return true
+  return !upToDate ? false : false
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -720,7 +773,7 @@ async function buildPhase2Payload(caseRec) {
 }
 
 async function pushSecondaryPhase2(record) {
-  if (!needsPhase2(record)) return { skipped: 'phase2-not-required' }
+  if (!(await needsPhase2(record))) return { skipped: 'phase2-not-required' }
   if (!inScope(record)) return { skipped: 'out-of-scope (cross-tenant)' }
   const serverId = record.id || record.server_id
   if (!serverId || serverId === record.client_uuid) return { skipped: 'awaiting-phase1' }
@@ -919,7 +972,11 @@ async function flushStore(store, pushFn, opts = {}) {
   let pending
   if (phase2) {
     pending = await dbGetAll(store).catch(() => [])
-    pending = (pending || []).filter(needsPhase2)
+    // needsPhase2 is async (paranoid leg inspects 6 child IDB stores).
+    // Pre-resolve in parallel and filter on the boolean results so the
+    // downstream loop preserves its original synchronous shape.
+    const flags = await Promise.all((pending || []).map(r => needsPhase2(r).catch(() => false)))
+    pending = (pending || []).filter((_, i) => flags[i])
   } else {
     pending = await dbGetByIndex(store, 'sync_status', SYNC.UNSYNCED).catch(() => [])
   }
@@ -1146,7 +1203,11 @@ export async function getPendingCounts() {
         }
         if (r.last_sync_error) withError++
         if ((r._4xx_streak || 0) >= HARD_4XX_TRIGGER) stuck4xx++
-        if (key === STORE.SECONDARY_SCREENINGS && needsPhase2(r)) phase2Pending++
+        // needsPhase2 is async; resolve sequentially so the loop's
+        // existing for…of semantics aren't broken. This path is the
+        // sync-center counter, not the hot push path, so the small
+        // per-record awaits are fine.
+        if (key === STORE.SECONDARY_SCREENINGS && (await needsPhase2(r))) phase2Pending++
       }
     } catch (e) {
       log('warn', `getPendingCounts ${key}`, e?.message)

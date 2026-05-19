@@ -773,8 +773,14 @@
             <span><strong>{{ yesExposureCount }}</strong> exposure{{ yesExposureCount > 1 ? 's' : '' }} confirmed YES — {{ engineExposureCodes.length }} engine signals activated</span>
           </div>
 
-          <!-- ── IDSR Annex 1A "Also" cluster events at this POE today ── -->
-          <ion-card class="sc-card">
+          <!-- ── IDSR Annex 1A "Also" cluster events at this POE today ──
+               Hidden by user request 2026-05-19. clusterFlags is still in the
+               reactive model with safe-default `false` values, so the wire
+               payload (lines ~3552, ~4540) still carries the same keys and
+               the DB columns receive their NOT NULL defaults. NEVER remove
+               the clusterFlags reactive object — the buildPayload code paths
+               depend on its presence. -->
+          <ion-card v-if="false" class="sc-card">
             <ion-card-header>
               <ion-card-title class="sc-card-title">Unusual events at this POE today</ion-card-title>
             </ion-card-header>
@@ -1520,27 +1526,29 @@
           <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="5 3 9 7 5 11"/></svg>
         </button>
 
-        <!-- Step 2 → 3 -->
+        <!-- Step 2 → 3 (symptoms are MANDATORY — at least one assessed) -->
         <button
           v-if="step === 2"
           class="sc-nav-btn sc-nav-btn--next"
           type="button"
           @click="saveStep2AndNext"
-          :disabled="saving"
+          :disabled="saving || !step2Valid"
+          :title="step2Valid ? 'Continue to exposures' : 'Mark at least one symptom Yes or No before continuing.'"
         >
-          {{ saving ? 'Saving…' : 'Next' }}
+          {{ saving ? 'Saving…' : (step2Valid ? 'Next' : 'Assess at least one symptom') }}
           <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="5 3 9 7 5 11"/></svg>
         </button>
 
-        <!-- Step 3 → 4 (triggers analysis) -->
+        <!-- Step 3 → 4 (exposures are MANDATORY — at least one answered) -->
         <button
           v-if="step === 3"
           class="sc-nav-btn sc-nav-btn--analyse"
           type="button"
           @click="saveStep3AndAnalyse"
-          :disabled="saving"
+          :disabled="saving || !step3Valid"
+          :title="step3Valid ? 'Run intelligence analysis' : 'Answer at least one exposure question before continuing.'"
         >
-          {{ saving ? 'Analysing…' : 'Analyse →' }}
+          {{ saving ? 'Analysing…' : (step3Valid ? 'Analyse →' : 'Answer at least one exposure') }}
         </button>
 
         <!-- 1-M: Step 4 → proceed to step 5 (also in inline button above, this is footer mirror) -->
@@ -2458,7 +2466,44 @@ function bioProblems() {
   if (!profile.traveler_nationality_country_code) problems.push('Nationality is required.')
   return problems
 }
-const step1Valid = computed(() => bioProblems().length === 0)
+
+// Travel gating — added 2026-05-19 per "ALL critical travel information is
+// mandatory". The minimum the surveillance officer must capture before
+// moving on: arrival datetime, conveyance type, conveyance identifier, and
+// journey-start country. Without these the case lacks "WHEN, HOW, WHERE"
+// — the international epidemiology bare minimum.
+function travelProblems() {
+  const problems = []
+  if (!profile.arrival_datetime)         problems.push('Arrival date & time is required.')
+  if (!profile.conveyance_type)          problems.push('Conveyance type (Flight, Vehicle, etc.) is required.')
+  if (!profile.conveyance_identifier || String(profile.conveyance_identifier).trim().length < 1) {
+    problems.push('Flight / vehicle / vessel number is required.')
+  }
+  if (!profile.journey_start_country_code) problems.push('Journey-start country is required.')
+  return problems
+}
+
+function step1Problems() { return [...bioProblems(), ...travelProblems()] }
+const step1Valid = computed(() => step1Problems().length === 0)
+
+// Step 2 — symptoms are MANDATORY. The officer must have explicitly
+// assessed at least one symptom (YES or NO). Unrecorded (null) does
+// not count. This blocks the "skip-through" pattern where an officer
+// would advance to exposures without engaging the symptom panel.
+function step2Problems() {
+  const assessed = Object.values(symptomsMap).filter(s => s && s.is_present !== null && s.is_present !== undefined).length
+  return assessed >= 1 ? [] : ['Assess at least one symptom before continuing (mark a symptom Yes or No).']
+}
+const step2Valid = computed(() => step2Problems().length === 0)
+
+// Step 3 — exposures are MANDATORY. The officer must have explicitly
+// answered (YES / NO / UNKNOWN counts as engaged — UNKNOWN is a real
+// epidemiological response) at least one exposure question.
+function step3Problems() {
+  const answered = Object.values(exposuresMap).filter(e => e && (e.response === 'YES' || e.response === 'NO' || e.response === 'UNKNOWN')).length
+  return answered >= 1 ? [] : ['Answer at least one exposure question before continuing.']
+}
+const step3Valid = computed(() => step3Problems().length === 0)
 
 // ─── REFERENCE DATA ───────────────────────────────────────────────────────
 // Uganda at the top, then East African Community neighbours, then alphabetical.
