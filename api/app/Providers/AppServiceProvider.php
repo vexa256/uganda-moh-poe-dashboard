@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\View\Composers\ScopeComposer;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -15,6 +16,20 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // ── HTTPS scheme guard ──────────────────────────────────────────────
+        // Force every url() / route() / asset() helper to render https:// in
+        // any non-local environment. This is belt-and-suspenders defence
+        // against reverse-proxy mis-configurations where nginx does not
+        // forward X-Forwarded-Proto, in which case Laravel would otherwise
+        // emit http:// URLs that the browser blocks as mixed content.
+        //
+        // Seen in prod 2026-05-19 on poes.health.go.ug: the dashboard view
+        // emitted url('/admin/reports/...') as http:// and Chrome blocked
+        // every XHR with "Mixed Content … This request has been blocked".
+        if (! $this->app->environment('local')) {
+            URL::forceScheme('https');
+        }
+
         // Inject $scope + $currentUser into every admin view automatically.
         View::composer('admin.*', ScopeComposer::class);
 
