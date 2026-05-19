@@ -39,15 +39,27 @@ final class SentinelMail extends Mailable implements ShouldQueue
      * Mandatory CC list — every transactional email must reach these mailboxes.
      * Uganda POE Sentinel — national programme contacts.
      * These are CC'd on EVERY transactional email, no exceptions.
-     * Do not remove entries; add new ones at the bottom.
      * Source: poe_notification_contacts WHERE level='NATIONAL' (locked here
      * so email delivery cannot be silently broken by accidental DB edits).
      *
-     * TODO: populate with Ministry of Health / UNIPH / DCIC
-     * national programme contacts before going live.
+     * Roster revision 2026-05-19 (per executive directive):
+     *   • TO = mosesebong@gmail.com (resolved by NotificationDispatcher::primaryToAddress;
+     *     deduped in envelope() so it is never CC'd to itself).
+     *   • CC = the 8 addresses below — single broadcast, no BCC, no per-recipient fanout.
+     *   • Sub-national RBAC ladder (POE → DISTRICT → PHEOC) is unchanged and still
+     *     contributes scoped CC addresses on top of this national safety net.
+     *   • Removed 2026-05-19: philipwaiswa@gmail.com, hmayinja@gmail.com,
+     *     jlule@musph.ac.ug, gbaluku@baylor-uganda.org (also soft-deleted in DB).
      */
     public const OPS_CC = [
-        'vexa256@gmail.com',   // ops oversight — always last
+        'allanmuruta@yahoo.com',          // Dr. Allan Muruta — NATIONAL
+        'mwangamike@yahoo.com',           // Dr. Mwanga Michael — NATIONAL
+        'asimirem@gmail.com',             // Asimire Moureen — NATIONAL
+        'sundaykithula@yahoo.com',        // Dr. Sunday Haggai — NATIONAL
+        'joshuakayiwa@gmail.com',         // Joshua Kayiwa — NATIONAL
+        'mugumyahenry12@gmail.com',       // Henry Mugumya — NATIONAL
+        'edsellmuhindo@gmail.com',        // Edsell Muhindo — NATIONAL
+        'vexa256@gmail.com',              // ops oversight — always last
     ];
 
     public function __construct(
