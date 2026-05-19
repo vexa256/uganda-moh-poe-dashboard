@@ -49,6 +49,10 @@ abstract class BaseQuickReportController extends BaseReportController
             'ihr_tier'     => ['nullable', 'integer', 'min:1', 'max:3'],
             'ihr_notified' => ['nullable', 'in:0,1'],
             'clinical'     => ['nullable', 'string', 'max:32'],
+            // Alert Database / Analysis / Outcomes vocabulary
+            'owner'          => ['nullable', 'integer', 'min:1'],
+            'close_category' => ['nullable', 'string', 'max:60'],
+            'breached'       => ['nullable', 'in:0,1'],
         ]);
     }
 

@@ -999,6 +999,24 @@ Route::prefix('admin')->name('admin.')
             Route::get ('/data',   [$c, 'data'])  ->name('data');
             Route::get ('/export', [$c, 'export'])->name('export');
         });
+        Route::prefix('alert-database')->name('alert-db.')->group(function () {
+            $c = \App\Http\Controllers\Admin\QuickReports\AlertDatabaseController::class;
+            Route::get ('/',       [$c, 'index']) ->name('index');
+            Route::get ('/data',   [$c, 'data'])  ->name('data');
+            Route::get ('/export', [$c, 'export'])->name('export');
+        });
+        Route::prefix('alert-analysis')->name('alert-intel.')->group(function () {
+            $c = \App\Http\Controllers\Admin\QuickReports\AlertAnalysisController::class;
+            Route::get ('/',       [$c, 'index']) ->name('index');
+            Route::get ('/data',   [$c, 'data'])  ->name('data');
+            Route::get ('/export', [$c, 'export'])->name('export');
+        });
+        Route::prefix('alert-outcomes')->name('alert-out.')->group(function () {
+            $c = \App\Http\Controllers\Admin\QuickReports\AlertOutcomesController::class;
+            Route::get ('/',       [$c, 'index']) ->name('index');
+            Route::get ('/data',   [$c, 'data'])  ->name('data');
+            Route::get ('/export', [$c, 'export'])->name('export');
+        });
     });
 
     // clin-exposures — ref_exposures + ref_exposure_mappings.

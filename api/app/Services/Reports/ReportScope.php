@@ -68,6 +68,9 @@ final class ReportScope
         // Same RBAC contract as the rpt-* surfaces. Default 7-day window.
         'qr-suspected',
         'qr-confirmed',
+        'qr-alert-db',
+        'qr-alert-intel',
+        'qr-alert-out',
     ];
 
     public function __construct(protected PheocScope $pheoc)
