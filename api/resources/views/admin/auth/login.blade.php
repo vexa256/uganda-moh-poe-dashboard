@@ -315,8 +315,10 @@
                 </button>
             </form>
 
-            {{-- Authorised-use notice (NIST 800-53 AC-8 pattern) --}}
-            <div id="auth-notice" class="auth-notice mt-6 p-3.5 text-[11.5px] leading-relaxed text-foreground/80">
+            {{-- Authorised-use notice + access-tier reference: hidden per request 2026-05-19.
+                 Kept in markup (display:none) so screen readers and aria-describedby on the
+                 form still resolve, and so the copy can be re-enabled without a re-write. --}}
+            <div id="auth-notice" hidden class="auth-notice mt-6 p-3.5 text-[11.5px] leading-relaxed text-foreground/80">
                 <p class="font-semibold text-foreground flex items-center gap-1.5">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-3.5 w-3.5 text-critical" aria-hidden="true">
                         <path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
@@ -330,8 +332,7 @@
                 </p>
             </div>
 
-            {{-- Access tier reference --}}
-            <div class="mt-5 text-[11.5px] text-muted-foreground/80 leading-relaxed">
+            <div hidden class="mt-5 text-[11.5px] text-muted-foreground/80 leading-relaxed">
                 <p>
                     <span class="font-semibold text-foreground/80">Access tiers:</span>
                     <span class="font-mono text-[10.5px]">NATIONAL_ADMIN</span> sees all jurisdictions ·
