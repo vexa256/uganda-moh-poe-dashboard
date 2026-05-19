@@ -993,6 +993,12 @@ Route::prefix('admin')->name('admin.')
             Route::get ('/data',   [$c, 'data'])  ->name('data');
             Route::get ('/export', [$c, 'export'])->name('export');
         });
+        Route::prefix('confirmed-cases')->name('confirmed.')->group(function () {
+            $c = \App\Http\Controllers\Admin\QuickReports\ConfirmedCasesController::class;
+            Route::get ('/',       [$c, 'index']) ->name('index');
+            Route::get ('/data',   [$c, 'data'])  ->name('data');
+            Route::get ('/export', [$c, 'export'])->name('export');
+        });
     });
 
     // clin-exposures — ref_exposures + ref_exposure_mappings.

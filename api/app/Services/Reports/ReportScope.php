@@ -67,6 +67,7 @@ final class ReportScope
         // Minimalistic 1-chart / 1-table reports under /admin/quick-reports.
         // Same RBAC contract as the rpt-* surfaces. Default 7-day window.
         'qr-suspected',
+        'qr-confirmed',
     ];
 
     public function __construct(protected PheocScope $pheoc)

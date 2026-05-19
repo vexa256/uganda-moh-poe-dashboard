@@ -33,11 +33,22 @@ abstract class BaseQuickReportController extends BaseReportController
      */
     protected function filterRules(): array
     {
+        // NB. `classification` stays loose — Suspected Cases binds it to
+        //     `secondary_screenings.syndrome_classification` (free-form), so
+        //     a tight enum would lock that report out of its own data.
+        //     Confirmed Cases uses a distinct key (`class`) for the lab
+        //     case-classification vocabulary to avoid the collision.
         return array_merge(parent::filterRules(), [
-            'risk'        => ['nullable', 'in:LOW,MEDIUM,HIGH,CRITICAL'],
-            'status'      => ['nullable', 'in:OPEN,IN_PROGRESS,DISPOSITIONED,CLOSED,REOPENED,ACKNOWLEDGED'],
-            'disposition' => ['nullable', 'string', 'max:32'],
-            'with_disease'=> ['nullable', 'in:0,1'],
+            'risk'         => ['nullable', 'in:LOW,MEDIUM,HIGH,CRITICAL'],
+            'status'       => ['nullable', 'in:OPEN,IN_PROGRESS,DISPOSITIONED,CLOSED,REOPENED,ACKNOWLEDGED'],
+            'disposition'  => ['nullable', 'string', 'max:32'],
+            'with_disease' => ['nullable', 'in:0,1'],
+            // Confirmed Cases vocabulary
+            'class'        => ['nullable', 'in:SUSPECTED,PROBABLE,CONFIRMED,DISCARDED,LOST_TO_FOLLOWUP,UNKNOWN,PENDING'],
+            'disease'      => ['nullable', 'string', 'max:80'],
+            'ihr_tier'     => ['nullable', 'integer', 'min:1', 'max:3'],
+            'ihr_notified' => ['nullable', 'in:0,1'],
+            'clinical'     => ['nullable', 'string', 'max:32'],
         ]);
     }
 
