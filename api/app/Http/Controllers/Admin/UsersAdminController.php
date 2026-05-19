@@ -247,7 +247,7 @@ final class UsersAdminController extends Controller
                 'send_invitation' => 'nullable|boolean',
                 'client_uuid'     => 'nullable|string|max:64', // accepted, not persisted
             ], [
-                'assignments.*.province_code.in' => 'Invalid Provincial PHEOC — must exactly match a name from POES.JS (e.g. "Gulu Provincial PHEOC").',
+                'assignments.*.province_code.in' => 'Invalid Regional PHEOC — must exactly match a name from POES.JS (e.g. "Gulu Regional PHEOC").',
                 'assignments.*.pheoc_code.in'    => 'Invalid PHEOC — must exactly match a name from POES.JS.',
                 'assignments.*.district_code.in' => 'Invalid district — must exactly match a name from POES.JS (e.g. "Lamwo District").',
                 'assignments.*.poe_code.in'      => 'Invalid POE — must exactly match a poe_name from POES.JS (e.g. "Mutukula").',
@@ -263,6 +263,31 @@ final class UsersAdminController extends Controller
             $this->guard->assertCanAssignRole($r->user(), (string) $data['role_key']);
             foreach ((array) ($data['assignments'] ?? []) as $a) {
                 $this->guard->assertAssignmentInScope($r->user(), (array) $a);
+            }
+
+            // 2026-05-19 — Single-tenant hard lock. This deployment is Uganda
+            // only; every persisted country_code MUST match the tenant config.
+            // The AdminUsersGuard lets NATIONAL_ADMIN (is_super) bypass scope
+            // checks for cross-region work within the tenant — but we never
+            // want a Uganda super-admin to be able to spawn a user pinned to a
+            // foreign country (KE, RW, …). The check normalises to BOTH the
+            // ISO2 code and the legacy long-name so old payloads still pass.
+            $tenantCodes = array_filter(array_unique([
+                (string) config('country.code', 'UG'),
+                (string) config('country.legacy_code', 'Uganda'),
+                (string) config('country.iso3', 'UGA'),
+            ]));
+            $rejectIfForeign = function (?string $cc, string $field) use ($tenantCodes) {
+                if ($cc === null || $cc === '') return;
+                if (! in_array($cc, $tenantCodes, true)) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        $field => "country_code '{$cc}' is outside this tenant (Uganda). Allowed: ".implode(', ', $tenantCodes),
+                    ])->status(422);
+                }
+            };
+            $rejectIfForeign($data['country_code'] ?? null, 'country_code');
+            foreach ((array) ($data['assignments'] ?? []) as $i => $a) {
+                $rejectIfForeign($a['country_code'] ?? null, "assignments.{$i}.country_code");
             }
 
             $actorId      = (int) $r->user()->id;
@@ -459,6 +484,25 @@ final class UsersAdminController extends Controller
             }
             if (array_key_exists('is_active', $data) && ! $data['is_active']) {
                 $this->guard->assertNotSelfDestructive($r->user(), $id, 'suspend');
+            }
+
+            // 2026-05-19 — Single-tenant hard lock (same rule as store()).
+            // Reject any update that would persist a foreign country_code on
+            // either the user row or its primary assignment.
+            $tenantCodes = array_filter(array_unique([
+                (string) config('country.code', 'UG'),
+                (string) config('country.legacy_code', 'Uganda'),
+                (string) config('country.iso3', 'UGA'),
+            ]));
+            if (! empty($data['country_code']) && ! in_array($data['country_code'], $tenantCodes, true)) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'country_code' => "country_code '{$data['country_code']}' is outside this tenant (Uganda).",
+                ])->status(422);
+            }
+            if (! empty($data['assignment']['country_code']) && ! in_array($data['assignment']['country_code'], $tenantCodes, true)) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'assignment.country_code' => "assignment.country_code '{$data['assignment']['country_code']}' is outside this tenant (Uganda).",
+                ])->status(422);
             }
 
             // If role is changing, enforce geo against the incoming assignment

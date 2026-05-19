@@ -176,7 +176,7 @@ final class AdminUsersGuard
         }
         if (! empty($scope['provinces']) && $province && ! in_array($province, $scope['provinces'], true)) {
             throw ValidationException::withMessages([
-                'assignment.province_code' => 'Provincial PHEOC is outside your scope.',
+                'assignment.province_code' => 'Regional PHEOC is outside your scope.',
             ])->status(403);
         }
         if (! empty($scope['countries']) && $country && ! in_array($country, $scope['countries'], true)) {

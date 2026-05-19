@@ -26,15 +26,26 @@
     <Teleport to="body">
       <!-- Mobile-only backdrop. Tap closes; presence stops accidental tap-through. -->
       <Transition name="ss-fade">
-        <div v-if="open && isPhoneViewport" class="ss-backdrop" @click="close" @touchstart.passive="close" />
+        <!-- Mobile-only backdrop. Tap closes; presence stops accidental tap-through.
+             2026-05-19 — only `@click` (NO @touchstart). touchstart on the backdrop
+             previously fired during the touchend of the trigger button at panel-open
+             time on some Android WebViews, racing the dropdown shut milliseconds
+             after open. click is enough: the panel sits above the backdrop, so a
+             tap on the input never reaches the backdrop. -->
+        <div v-if="open && isPhoneViewport" class="ss-backdrop" @click="close" />
       </Transition>
       <Transition name="ss-fade">
+        <!-- 2026-05-19 — REMOVED `@mousedown.prevent` from this panel root.
+             It cancelled the synthesized mousedown that browsers fire after a
+             tap on a child element, which on mobile prevented the search input
+             from gaining focus → soft keyboard never opened → user could not
+             type. Where preventing-blur matters (option clicks) the .prevent
+             is moved directly onto the `.ss-opt` element below. -->
         <div
           v-if="open"
           class="ss-panel"
           :style="panelStyle"
           role="listbox"
-          @mousedown.prevent
         >
           <!-- Search bar -->
           <div class="ss-search-bar">
@@ -45,10 +56,14 @@
             <input
               ref="inputRef"
               class="ss-search-input"
-              type="text"
+              type="search"
+              inputmode="search"
+              enterkeyhint="search"
               v-model="query"
               :placeholder="searchPlaceholder"
               autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
               spellcheck="false"
               @keydown.escape.prevent="close"
               @keydown.enter.prevent="selectFirst"
@@ -74,6 +89,7 @@
               :class="{ 'ss-opt--active': !hasValue }"
               role="option"
               :aria-selected="!hasValue"
+              @mousedown.prevent
               @click="pick(emptyValue)"
             >{{ placeholder }}</div>
 
@@ -103,6 +119,7 @@
                 }"
                 role="option"
                 :aria-selected="String(opt[valueKey]) === String(modelValue)"
+                @mousedown.prevent
                 @click="pick(opt[valueKey])"
               >
                 <span class="ss-opt-text">{{ opt[labelKey] }}</span>
