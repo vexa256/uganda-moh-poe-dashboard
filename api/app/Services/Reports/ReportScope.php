@@ -62,6 +62,11 @@ final class ReportScope
         'rpt-country-travel',        // R10
         'rpt-national-dashboard',    // National Dashboard (Phase 5 stub → Phase 7 real)
         'rpt-poe-operations',        // R14 — PoE Operations (was missing → 403 for everyone)
+
+        // ── Quick Reports (added 2026-05-19) ─────────────────────────────
+        // Minimalistic 1-chart / 1-table reports under /admin/quick-reports.
+        // Same RBAC contract as the rpt-* surfaces. Default 7-day window.
+        'qr-suspected',
     ];
 
     public function __construct(protected PheocScope $pheoc)

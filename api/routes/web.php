@@ -978,6 +978,23 @@ Route::prefix('admin')->name('admin.')
         });
     });
 
+    /*------------------------------------------------------------------
+     | Section · Quick Reports
+     | Minimalistic 1-chart / 1-table operational shortcuts. Same RBAC
+     | + memoise + ExportWriter machinery as /admin/reports, but each
+     | surface is locked to one question, one chart, one table — no
+     | tabs, no kanban, no 6-card KPI walls. Default window: past 7d.
+     | Mobile API contracts: untouched.
+     *-----------------------------------------------------------------*/
+    Route::prefix('quick-reports')->name('quick.')->group(function () {
+        Route::prefix('suspected-cases')->name('suspected.')->group(function () {
+            $c = \App\Http\Controllers\Admin\QuickReports\SuspectedCasesController::class;
+            Route::get ('/',       [$c, 'index']) ->name('index');
+            Route::get ('/data',   [$c, 'data'])  ->name('data');
+            Route::get ('/export', [$c, 'export'])->name('export');
+        });
+    });
+
     // clin-exposures — ref_exposures + ref_exposure_mappings.
     Route::prefix('clinical/exposures')->name('clinical.exposures.')
         ->middleware('role:NATIONAL_ADMIN')->group(function () {
