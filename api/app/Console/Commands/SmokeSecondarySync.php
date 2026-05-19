@@ -94,19 +94,19 @@ class SmokeSecondarySync extends Command
             // ── 2. POST /primary-screenings ─────────────────────────────
             $primaryReq = Request::create('/primary-screenings', 'POST', [
                 'client_uuid'            => $clientUuidPrimary,
-                'reference_data_version' => 1,
+                'reference_data_version' => '1',                              // must be string
                 'captured_by_user_id'    => $userId,
-                'traveler_direction'     => 'ARRIVAL',
+                'traveler_direction'     => 'ENTRY',                          // enum: ENTRY|EXIT|TRANSIT
                 'gender'                 => 'MALE',
                 'traveler_full_name'     => 'SMOKE TEST · ' . substr($clientUuidPrimary, 0, 8),
                 'temperature_value'      => 37.6,
                 'temperature_unit'       => 'C',
                 'symptoms_present'       => 1,
-                'captured_at'            => now()->toIso8601String(),
+                'captured_at'            => now()->format('Y-m-d H:i:s'),     // MySQL datetime, not ISO 8601
                 'captured_timezone'      => 'Africa/Kampala',
                 'device_id'              => 'smoke-test',
                 'app_version'            => 'smoke-1.0',
-                'platform'               => 'TEST',
+                'platform'               => 'ANDROID',                        // enum: ANDROID|IOS|WEB
                 'record_version'         => 1,
                 'country_code'           => $countryCode,
                 'province_code'          => $asg->province_code ?? null,
@@ -127,15 +127,15 @@ class SmokeSecondarySync extends Command
             // ── 3. POST /secondary-screenings (Phase 1 / case shell) ────
             $secReq = Request::create('/secondary-screenings', 'POST', [
                 'client_uuid'            => $clientUuidSecondary,
-                'reference_data_version' => 1,
+                'reference_data_version' => '1',
                 'notification_id'        => $notifId,
                 'primary_screening_id'   => $createdPrimaryId,
                 'opened_by_user_id'      => $userId,
-                'opened_at'              => now()->toIso8601String(),
+                'opened_at'              => now()->format('Y-m-d H:i:s'),
                 'opened_timezone'        => 'Africa/Kampala',
                 'device_id'              => 'smoke-test',
                 'app_version'            => 'smoke-1.0',
-                'platform'               => 'TEST',
+                'platform'               => 'ANDROID',
                 'traveler_gender'        => 'MALE',
                 'record_version'         => 1,
             ]);
@@ -164,7 +164,7 @@ class SmokeSecondarySync extends Command
                 'journey_start_country_code'       => 'KE',
                 'conveyance_type'                  => 'AIR',
                 'conveyance_identifier'            => 'KQ-412',
-                'arrival_datetime'                 => now()->toIso8601String(),
+                'arrival_datetime'                 => now()->format('Y-m-d H:i:s'),
                 'purpose_of_travel'                => 'BUSINESS',
                 'destination_district_code'        => $asg->district_code ?? null,
                 'temperature_value'                => 38.4,
@@ -180,26 +180,30 @@ class SmokeSecondarySync extends Command
                 'syndrome_classification'          => 'ILI',
                 'risk_level'                       => 'MEDIUM',
                 'officer_notes'                    => 'Smoke test — synthetic case for sync validation.',
+                // NOTE: codes below are drawn from prod ref_* tables. Real
+                // mobile payloads use the same lower-case symptom/disease
+                // codes; exposures are UPPER. Travel role enum on the
+                // server is VISITED | TRANSIT only.
                 'symptoms'           => [
-                    ['symptom_code' => 'fever',   'is_present' => 1, 'onset_date' => now()->subDay()->toDateString()],
-                    ['symptom_code' => 'cough',   'is_present' => 1],
-                    ['symptom_code' => 'fatigue', 'is_present' => 0],
+                    ['symptom_code' => 'abdominal_pain', 'is_present' => 1, 'onset_date' => now()->subDay()->toDateString()],
+                    ['symptom_code' => 'anorexia',       'is_present' => 1],
+                    ['symptom_code' => 'back_pain',      'is_present' => 0],
                 ],
                 'exposures'          => [
-                    ['exposure_code' => 'SICK_CONTACT', 'response' => 'YES', 'details' => 'Family member ill'],
-                    ['exposure_code' => 'HEALTH_FACILITY_VISIT', 'response' => 'NO'],
+                    ['exposure_code' => 'TRAVEL_OUTBREAK_AREA',  'response' => 'YES', 'details' => 'Family member ill'],
+                    ['exposure_code' => 'CONTACT_SICK_PERSON',   'response' => 'NO'],
                 ],
                 'actions'            => [
                     ['action_code' => 'TEMPERATURE_RECHECK', 'is_done' => 1],
                 ],
                 'travel_countries'   => [
-                    ['country_code' => 'KE', 'travel_role' => 'ORIGIN',  'departure_date' => now()->subDays(2)->toDateString()],
-                    ['country_code' => 'UG', 'travel_role' => 'CURRENT', 'arrival_date'   => now()->toDateString()],
+                    ['country_code' => 'KE', 'travel_role' => 'VISITED', 'arrival_date' => now()->subDays(2)->toDateString(), 'departure_date' => now()->subDays(1)->toDateString()],
+                    ['country_code' => 'TZ', 'travel_role' => 'TRANSIT', 'arrival_date' => now()->subDays(1)->toDateString(), 'departure_date' => now()->toDateString()],
                 ],
                 'suspected_diseases' => [
-                    ['disease_code' => 'INFLUENZA',     'rank_order' => 1, 'confidence' => 72.5, 'reasoning' => 'fever + cough + recent travel'],
-                    ['disease_code' => 'COVID19',       'rank_order' => 2, 'confidence' => 45.0],
-                    ['disease_code' => 'MALARIA',       'rank_order' => 3, 'confidence' => 18.0, 'reasoning' => 'differential'],
+                    ['disease_code' => 'cholera',     'rank_order' => 1, 'confidence' => 72.5, 'reasoning' => 'travel + abdominal pain'],
+                    ['disease_code' => 'yellow_fever','rank_order' => 2, 'confidence' => 45.0],
+                    ['disease_code' => 'polio',      'rank_order' => 3, 'confidence' => 18.0, 'reasoning' => 'differential'],
                 ],
             ];
             $syncReq  = Request::create("/secondary-screenings/{$createdSecondaryId}/sync", 'POST', $fullBundle);
