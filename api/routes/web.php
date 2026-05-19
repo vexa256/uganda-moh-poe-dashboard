@@ -1017,6 +1017,24 @@ Route::prefix('admin')->name('admin.')
             Route::get ('/data',   [$c, 'data'])  ->name('data');
             Route::get ('/export', [$c, 'export'])->name('export');
         });
+        Route::prefix('symptom-spread')->name('symptoms.')->group(function () {
+            $c = \App\Http\Controllers\Admin\QuickReports\SymptomSpreadController::class;
+            Route::get ('/',       [$c, 'index']) ->name('index');
+            Route::get ('/data',   [$c, 'data'])  ->name('data');
+            Route::get ('/export', [$c, 'export'])->name('export');
+        });
+        Route::prefix('poe-analysis')->name('poe.')->group(function () {
+            $c = \App\Http\Controllers\Admin\QuickReports\PoeAnalysisController::class;
+            Route::get ('/',       [$c, 'index']) ->name('index');
+            Route::get ('/data',   [$c, 'data'])  ->name('data');
+            Route::get ('/export', [$c, 'export'])->name('export');
+        });
+        Route::prefix('country-analysis')->name('country.')->group(function () {
+            $c = \App\Http\Controllers\Admin\QuickReports\CountryAnalysisController::class;
+            Route::get ('/',       [$c, 'index']) ->name('index');
+            Route::get ('/data',   [$c, 'data'])  ->name('data');
+            Route::get ('/export', [$c, 'export'])->name('export');
+        });
     });
 
     // clin-exposures — ref_exposures + ref_exposure_mappings.

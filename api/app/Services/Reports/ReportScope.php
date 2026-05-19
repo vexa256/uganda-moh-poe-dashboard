@@ -71,6 +71,9 @@ final class ReportScope
         'qr-alert-db',
         'qr-alert-intel',
         'qr-alert-out',
+        'qr-symptoms',
+        'qr-poe',
+        'qr-country',
     ];
 
     public function __construct(protected PheocScope $pheoc)
