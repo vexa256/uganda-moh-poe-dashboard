@@ -68,7 +68,11 @@ abstract class BaseQuickReportController extends BaseReportController
         if ($diff <= 1) {
             return 'Today';
         }
-        $f = $from->format('M j');
+        // Include the FROM year explicitly when it differs from the TO year —
+        // otherwise "May 20 → May 19, 2026" reads as an inverted range when
+        // the FROM is actually in the prior year.
+        $sameYear = $from->format('Y') === $to->format('Y');
+        $f = $sameYear ? $from->format('M j') : $from->format('M j, Y');
         $t = $to->format('M j, Y');
         return "{$f} → {$t}";
     }
