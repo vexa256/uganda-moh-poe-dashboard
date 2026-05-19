@@ -176,7 +176,7 @@ class SmokeSecondarySync extends Command
                 'oxygen_saturation'                => 96,
                 'triage_category'                  => 'URGENT',
                 'emergency_signs_present'          => 0,
-                'general_appearance'               => 'Looks unwell, mild diaphoresis',
+                'general_appearance'               => 'UNWELL',
                 'syndrome_classification'          => 'ILI',
                 'risk_level'                       => 'MEDIUM',
                 'officer_notes'                    => 'Smoke test — synthetic case for sync validation.',
