@@ -800,7 +800,7 @@
                 {{ errors['assignment.district_code'] }}
               </span>
             </div>
-            <div v-if="form.assignment.district_code && geoRequired('poe_code')"
+            <div v-if="geoRequired('poe_code')"
               class="ul-fg" :class="errors['assignment.poe_code'] && 'ul-fg--err'">
               <label class="ul-fl">Point of Entry <span class="ul-req">*</span></label>
               <SearchableSelect
@@ -810,6 +810,7 @@
                 search-placeholder="Search POEs…"
                 aria-label="Select POE"
                 select-class="ul-fsel"
+                @change="onPoePickWithScopeBackfill"
               />
               <span v-if="errors['assignment.poe_code']" class="ul-ferr">
                 {{ errors['assignment.poe_code'] }}
@@ -1060,16 +1061,28 @@ const DISTRICT_POE_MAP = computed(() => {
 
 // Server-accepted role_keys — must match UserController::VALID_ROLES exactly.
 // If you add a role here, add it on the server too (and vice-versa).
-const ROLES = [
-  { value: 'SCREENER',            label: 'Screener',             scope: 'POE — primary & secondary screening' },
-  { value: 'POE_PRIMARY',         label: 'POE Primary Officer',  scope: 'POE — primary screening lane' },
-  { value: 'POE_SECONDARY',       label: 'POE Secondary Officer',scope: 'POE — secondary screening lane' },
-  { value: 'POE_DATA_OFFICER',    label: 'POE Data Officer',     scope: 'POE — aggregated reporting' },
-  { value: 'POE_ADMIN',           label: 'POE Admin',            scope: 'POE — manages users at this POE' },
-  { value: 'DISTRICT_SUPERVISOR', label: 'District Supervisor',  scope: 'District — monitors all POEs in district' },
-  { value: 'PHEOC_OFFICER',       label: 'PHEOC Officer',        scope: 'Regional PHEOC — monitors all districts' },
-  { value: 'NATIONAL_ADMIN',      label: 'National Admin',       scope: 'National — full system access' },
+//
+// 2026-05-19 — User-facing role picker is intentionally pruned to the four
+// operationally meaningful roles. The granular POE lane roles
+// (POE_PRIMARY / POE_SECONDARY / POE_DATA_OFFICER / POE_ADMIN) are still
+// honoured by the server for legacy users; new accounts pick SCREENER for
+// any POE-level field officer and the existing primary/secondary lane is
+// handled inside the mobile UI based on the form context. Hiding these
+// four reduces the cognitive load on the admin creating users and
+// eliminates a class of mismatched-permission tickets.
+const ROLES_ALL = [
+  { value: 'SCREENER',            label: 'Screener',             scope: 'POE — primary & secondary screening', hidden: false },
+  { value: 'POE_PRIMARY',         label: 'POE Primary Officer',  scope: 'POE — primary screening lane',       hidden: true  },
+  { value: 'POE_SECONDARY',       label: 'POE Secondary Officer',scope: 'POE — secondary screening lane',     hidden: true  },
+  { value: 'POE_DATA_OFFICER',    label: 'POE Data Officer',     scope: 'POE — aggregated reporting',         hidden: true  },
+  { value: 'POE_ADMIN',           label: 'POE Admin',            scope: 'POE — manages users at this POE',    hidden: true  },
+  { value: 'DISTRICT_SUPERVISOR', label: 'District Supervisor',  scope: 'District — monitors all POEs in district', hidden: false },
+  { value: 'PHEOC_OFFICER',       label: 'PHEOC Officer',        scope: 'Regional PHEOC — monitors all districts',  hidden: false },
+  { value: 'NATIONAL_ADMIN',      label: 'National Admin',       scope: 'National — full system access',      hidden: false },
 ]
+// What the role-picker shows. Edit lists (already-assigned roles) still
+// resolve labels from ROLES_ALL so legacy assignments render correctly.
+const ROLES = ROLES_ALL.filter(r => !r.hidden)
 
 // Geographic requirements per role
 const ROLE_GEO = {
@@ -1315,9 +1328,44 @@ const filteredDistricts = computed(() => {
   // directly and have the region auto-populated on selection.
   return p ? (PHEOC_DISTRICT_MAP.value[p] || []) : allDistrictsFlat.value
 })
+
+// 2026-05-19 — POE field: same search-anywhere pattern as District.
+// Previously the POE dropdown was empty unless the user had picked a
+// district that happened to host a POE — and most Uganda districts have
+// no POE. The dropdown then "didn't fetch" from the user's perspective.
+// We now flatten every POE (all 39 in the embedded dataset) and let the
+// user search by POE name directly; selecting a POE back-fills the
+// district AND the region so the form's geographic scope is consistent.
+const allPoesFlat = computed(() => {
+  const seen = new Set()
+  const out = []
+  for (const p of (POE_DATA.value.poes || [])) {
+    if (!p || p.country !== 'Uganda' || !p.poe_name) continue
+    if (seen.has(p.poe_name)) continue
+    seen.add(p.poe_name); out.push(p.poe_name)
+  }
+  return out.sort((a, b) => a.localeCompare(b))
+})
+
+// poe_name → { district, region } lookup for back-fill.
+const poeToScopeMap = computed(() => {
+  const map = {}
+  for (const p of (POE_DATA.value.poes || [])) {
+    if (!p || p.country !== 'Uganda' || !p.poe_name) continue
+    if (map[p.poe_name]) continue
+    map[p.poe_name] = {
+      district: p.district || null,
+      region:   p.admin_level_1 || p.province || null,
+    }
+  }
+  return map
+})
+
 const filteredPoes = computed(() => {
   const d = form.value.assignment.district_code
-  return d ? (DISTRICT_POE_MAP.value[d] || []) : []
+  // If district is picked, narrow to that district. Otherwise present
+  // the full nationwide list searchable by POE name.
+  return d ? (DISTRICT_POE_MAP.value[d] || []) : allPoesFlat.value
 })
 
 // ── LIFECYCLE ─────────────────────────────────────────────────────────────
@@ -1973,6 +2021,26 @@ function onDistrictPickWithRegionBackfill(picked) {
     // server's province_or_pheoc requirement for downstream roles.
     if (!form.value.assignment.pheoc_code) {
       form.value.assignment.pheoc_code = region
+    }
+  }
+}
+
+// 2026-05-19 — POE search-anywhere with auto-backfill of district + region.
+// The POE field is no longer gated on a district pick — the user can search
+// any of the 39 gazetted Uganda POEs by name and have everything above it
+// (district, region, PHEOC) filled in for them.
+function onPoePickWithScopeBackfill(picked) {
+  const poe = String(picked || form.value.assignment.poe_code || '')
+  if (!poe) return
+  const scope = poeToScopeMap.value[poe]
+  if (!scope) return
+  if (scope.district && !form.value.assignment.district_code) {
+    form.value.assignment.district_code = scope.district
+  }
+  if (scope.region && !form.value.assignment.province_code) {
+    form.value.assignment.province_code = scope.region
+    if (!form.value.assignment.pheoc_code) {
+      form.value.assignment.pheoc_code = scope.region
     }
   }
 }

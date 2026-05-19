@@ -22,8 +22,17 @@
       ><path d="M1 1l4 4 4-4"/></svg>
     </button>
 
-    <!-- ── Dropdown — teleported to <body> so Ionic overflow:hidden can't clip it ── -->
-    <Teleport to="body">
+    <!-- ── Dropdown — teleported to the nearest <ion-modal> when present,
+         else to <body>. Why: Ionic's IonModal installs a focus trap that
+         pulls focus back inside the modal whenever any descendant
+         input gains focus from "outside". A teleport to <body> places
+         the panel's search input *outside* the modal's focus-trap
+         root, so the keyboard never opens — the user sees the dropdown
+         but cannot type. Teleporting to the modal's element keeps the
+         input inside the trap. When not inside a modal we fall back to
+         <body> so the panel can still escape ion-content overflow:hidden.
+         (2026-05-19) -->
+    <Teleport :to="teleportTarget">
       <!-- Mobile-only backdrop. Tap closes; presence stops accidental tap-through. -->
       <Transition name="ss-fade">
         <!-- Mobile-only backdrop. Tap closes; presence stops accidental tap-through.
@@ -56,15 +65,18 @@
             <input
               ref="inputRef"
               class="ss-search-input"
-              type="search"
-              inputmode="search"
-              enterkeyhint="search"
-              v-model="query"
+              type="text"
+              :value="query"
               :placeholder="searchPlaceholder"
               autocomplete="off"
               autocorrect="off"
               autocapitalize="off"
               spellcheck="false"
+              tabindex="0"
+              @input="query = $event.target.value"
+              @click.stop
+              @mousedown.stop
+              @touchstart.stop
               @keydown.escape.prevent="close"
               @keydown.enter.prevent="selectFirst"
               @keydown.arrow-down.prevent="moveDown"
@@ -165,6 +177,27 @@ const query    = ref('')
 const focusIdx = ref(-1)
 const panelStyle = ref({})
 const isPhoneViewport = ref(false)
+// Dynamic teleport target. Defaults to <body>; flipped to the nearest
+// <ion-modal> ancestor on open if one exists.  Recomputed when the
+// dropdown opens so it always tracks the *current* modal context (the
+// same SearchableSelect component instance can be re-rendered inside a
+// modal that opens later, e.g. user-create flow).
+const teleportTarget = ref('body')
+
+function _resolveTeleportTarget() {
+  // Walk up from rootRef to find a containing <ion-modal>.
+  if (typeof window === 'undefined') { teleportTarget.value = 'body'; return }
+  const root = rootRef.value
+  if (!root) { teleportTarget.value = 'body'; return }
+  let el = root.parentElement
+  while (el && el !== document.body) {
+    // Match ion-modal in any case (Web Components are case-insensitive in HTML).
+    const tag = (el.tagName || '').toUpperCase()
+    if (tag === 'ION-MODAL') { teleportTarget.value = el; return }
+    el = el.parentElement
+  }
+  teleportTarget.value = 'body'
+}
 
 function _updateViewportFlag() {
   if (typeof window === 'undefined') { isPhoneViewport.value = false; return }
@@ -304,6 +337,7 @@ function openDropdown() {
   query.value  = ''
   focusIdx.value = -1
   _updateViewportFlag()
+  _resolveTeleportTarget()
   panelStyle.value = calcPanelStyle()
   open.value = true
   nextTick(() => {
