@@ -419,22 +419,22 @@
                     <div class="qr-modal-body space-y-5">
                         <div class="qr-modal-section">
                             <p>What this measures</p>
-                            <p>How often each suspected disease appears across the secondary screenings opened in <span x-text="payload.window?.label || 'this window'"></span>. One screening can contribute to more than one disease — clinicians often note two or three differential hypotheses.</p>
+                            <p x-text="explainWhat()"></p>
                         </div>
                         <div class="qr-modal-section">
                             <p>How to read it</p>
-                            <p>Bars are sorted from most-suspected to least. The longer the bar, the more screenings flagged that disease as a possibility. The “Other” bar collects every disease beyond the top 12 so the visible categories stay legible.</p>
+                            <p x-text="explainHowToRead()"></p>
                         </div>
                         <div class="qr-modal-section">
                             <p>What to do next</p>
-                            <p>The top one or two diseases are where laboratory confirmation and contact-tracing capacity should focus. Click <em>View</em> on any row to open the full case file.</p>
+                            <p x-text="explainNext()"></p>
                         </div>
                         <div class="qr-modal-section">
                             <p>Source data</p>
                             <div class="qr-table-wrap mt-2 max-h-[280px]">
                                 <table class="qr-table">
                                     <thead>
-                                        <tr><th>Suspected disease</th><th class="text-right pr-3">Cases</th><th class="text-right pr-3">% of mentions</th></tr>
+                                        <tr><th x-text="explainCategoryHeader()"></th><th class="text-right pr-3">Cases</th><th class="text-right pr-3">% share</th></tr>
                                     </thead>
                                     <tbody>
                                         <template x-for="(lbl, i) in (payload.chart?.labels || [])" :key="i">
@@ -571,6 +571,7 @@
             renderChart() {
                 const labels = this.payload?.chart?.labels || [];
                 const values = this.payload?.chart?.values || [];
+                const colors = this.payload?.chart?.colors || [];
                 this.chartHasData = labels.length > 0;
                 if (!this.chartHasData) {
                     if (this.chart) { this.chart.destroy(); this.chart = null; }
@@ -582,16 +583,19 @@
                 const desired = Math.max(280, labels.length * 36 + 60);
                 wrap.style.height = Math.min(540, desired) + 'px';
 
+                // Per-bar colours direct from the controller. Darker variants
+                // for the border give each bar a crisp Material edge.
+                const fillColors   = colors.map((c, i) => c || '#1E88E5');
+                const borderColors = fillColors.map(c => this.darken(c, 18));
+
                 if (this.chart) {
                     this.chart.data.labels = labels;
                     this.chart.data.datasets[0].data = values;
+                    this.chart.data.datasets[0].backgroundColor = fillColors;
+                    this.chart.data.datasets[0].borderColor     = borderColors;
                     this.chart.update('none');
                     return;
                 }
-
-                const css      = getComputedStyle(document.documentElement);
-                const brand    = `hsl(${(css.getPropertyValue('--brand') || '152 58% 28%').trim()})`;
-                const brandInk = `hsl(${(css.getPropertyValue('--brand-ink') || '155 70% 18%').trim()})`;
 
                 this.chart = new Chart(this.$refs.chart.getContext('2d'), {
                     type: 'bar',
@@ -600,34 +604,41 @@
                         datasets: [{
                             label: 'Cases',
                             data: values,
-                            backgroundColor: brand,
-                            borderColor: brandInk,
-                            borderWidth: 1,
+                            backgroundColor: fillColors,
+                            borderColor: borderColors,
+                            borderWidth: 1.5,
                             borderRadius: 4,
                             barThickness: 'flex',
-                            maxBarThickness: 22,
+                            maxBarThickness: 24,
+                            hoverBackgroundColor: fillColors.map(c => this.darken(c, 8)),
                         }],
                     },
                     options: {
                         indexAxis: 'y',
                         responsive: true,
                         maintainAspectRatio: false,
-                        animation: { duration: 240 },
-                        layout: { padding: { left: 4, right: 24, top: 4, bottom: 4 } },
+                        animation: { duration: 260 },
+                        layout: { padding: { left: 4, right: 28, top: 4, bottom: 4 } },
                         scales: {
                             x: {
                                 beginAtZero: true,
-                                ticks: { precision: 0, font: { size: 11 } },
-                                grid: { color: 'rgba(0,0,0,.06)', drawBorder: false },
+                                ticks: { precision: 0, font: { size: 11 }, color: '#475569' },
+                                grid: { color: 'rgba(15, 23, 42, .06)', drawBorder: false },
                             },
                             y: {
-                                ticks: { autoSkip: false, font: { size: 11.5 } },
+                                ticks: { autoSkip: false, font: { size: 11.5, weight: '500' }, color: '#0F172A' },
                                 grid: { display: false, drawBorder: false },
                             },
                         },
                         plugins: {
                             legend: { display: false },
                             tooltip: {
+                                backgroundColor: '#0F172A',
+                                titleFont: { weight: '600', size: 12 },
+                                bodyFont: { size: 11.5 },
+                                padding: 10,
+                                cornerRadius: 6,
+                                displayColors: true,
                                 callbacks: {
                                     title: items => items[0].label,
                                     label: item => {
@@ -639,6 +650,20 @@
                         },
                     },
                 });
+            },
+
+            /**
+             * Darken a hex colour by N% (returns hex). Used to derive crisp
+             * bar borders and hover fills from the Material palette.
+             */
+            darken(hex, pct) {
+                const m = /^#?([0-9a-f]{6})$/i.exec(hex || '');
+                if (!m) return hex;
+                const n = parseInt(m[1], 16);
+                const r = Math.max(0, Math.round(((n >> 16) & 0xff) * (1 - pct/100)));
+                const g = Math.max(0, Math.round(((n >>  8) & 0xff) * (1 - pct/100)));
+                const b = Math.max(0, Math.round(( n        & 0xff) * (1 - pct/100)));
+                return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
             },
 
             // ───── Sort (client-side over the visible 20) ─────
@@ -714,6 +739,10 @@
             },
             chartSub() {
                 if (!this.ready) return '';
+                // Server emits a kind-aware subtitle; prefer it. Fall back to
+                // a count-based summary for older payloads.
+                const fromServer = this.payload?.chart?.subtitle;
+                if (fromServer) return fromServer;
                 const total = (this.payload.chart?.values || []).reduce((s, v) => s + v, 0);
                 const wd    = this.payload.kpis?.with_disease ?? 0;
                 if (!total) return 'No diagnoses recorded yet — cases are still listed in the register.';
@@ -747,6 +776,48 @@
                 return `${pad(this.lastLoadedAt.getHours())}:${pad(this.lastLoadedAt.getMinutes())}`;
             },
 
+            explainCategoryHeader() {
+                switch (this.payload.chart?.kind) {
+                    case 'diseases': return 'Suspected disease';
+                    case 'risk':     return 'Risk tier';
+                    case 'poe':      return 'Point of entry';
+                    case 'day':      return 'Day';
+                    default:         return 'Category';
+                }
+            },
+            explainWhat() {
+                const w = this.payload.window?.label || 'this window';
+                switch (this.payload.chart?.kind) {
+                    case 'diseases':
+                        return `How often each suspected disease appears across the secondary screenings opened in ${w}. One screening can contribute to more than one disease — clinicians often note two or three differential hypotheses.`;
+                    case 'risk':
+                        return `How risky the screening officers rated each case in ${w}. Diseases were not yet recorded on these cases, so the chart falls back to the risk dimension.`;
+                    case 'poe':
+                        return `Where the suspected cases were opened in ${w}. Neither diseases nor risk had been assessed at the time of opening, so the chart falls back to the point-of-entry dimension.`;
+                    case 'day':
+                        return `When the suspected cases were opened, day by day, across ${w}.`;
+                    default:
+                        return `There are no suspected cases in ${w}. Widen the date range or clear a filter to see something here.`;
+                }
+            },
+            explainHowToRead() {
+                switch (this.payload.chart?.kind) {
+                    case 'diseases': return 'Bars are sorted from most-suspected to least. The longer the bar, the more screenings flagged that disease as a possibility. The “Other” bar collects every disease beyond the top 12 so the visible categories stay legible.';
+                    case 'risk':     return 'Bars are sorted by risk tier — Low, Medium, High, Critical, then Not assessed. The colour mirrors the urgency: green for Low, deep orange for High, red for Critical.';
+                    case 'poe':      return 'Bars are sorted from busiest entry point to quietest. The “Other” bar groups entry points beyond the top 12 so the labels stay readable.';
+                    case 'day':      return 'Bars run left-to-right as days. A single tall bar means a cluster; a flat line means steady activity.';
+                    default:         return '';
+                }
+            },
+            explainNext() {
+                switch (this.payload.chart?.kind) {
+                    case 'diseases': return 'The top one or two diseases are where laboratory confirmation and contact-tracing capacity should focus. Click View on any row to open the full case file.';
+                    case 'risk':     return 'Critical and High bars demand same-day clinical review. Click any row in the register to read the case file.';
+                    case 'poe':      return 'Entry points generating the most suspected cases warrant staffing review and supervisor outreach. Click any row to read the case file.';
+                    case 'day':      return 'Day-on-day spikes deserve a quick look — they often precede a confirmed cluster. Click any row to read the case file.';
+                    default:         return '';
+                }
+            },
             explainPct(i) {
                 const v = this.payload.chart?.values?.[i] ?? 0;
                 const t = (this.payload.chart?.values || []).reduce((s, x) => s + x, 0);

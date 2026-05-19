@@ -56,6 +56,37 @@ final class SuspectedCasesController extends BaseQuickReportController
     /** Hard cap on chart categories so labels never collide. */
     private const CHART_TOP_N = 12;
 
+    /**
+     * Material Design vivid palette (saturation ≥70%). Used for categorical
+     * charts (diseases / POEs / days). Cycles in order. Yellow and lime are
+     * deliberately omitted — they fail the contrast bar on a white card.
+     */
+    private const MATERIAL_PALETTE = [
+        '#E53935', // red 600
+        '#1E88E5', // blue 600
+        '#43A047', // green 600
+        '#FB8C00', // orange 600
+        '#8E24AA', // purple 600
+        '#00ACC1', // cyan 600
+        '#F4511E', // deep-orange 600
+        '#3949AB', // indigo 600
+        '#7CB342', // light-green 600
+        '#D81B60', // pink 600
+        '#FFB300', // amber 600
+        '#00897B', // teal 600
+        '#5E35B1', // deep-purple 600
+        '#6D4C41', // brown 600
+    ];
+
+    /** Semantic palette for risk-level charts. */
+    private const RISK_COLORS = [
+        'LOW'      => '#43A047', // green 600
+        'MEDIUM'   => '#FB8C00', // orange 600
+        'HIGH'     => '#E64A19', // deep-orange 700
+        'CRITICAL' => '#C62828', // red 800
+        'UNKNOWN'  => '#546E7A', // blue-grey 600
+    ];
+
     public function index(Request $request): View
     {
         $scope = $this->ensureAccess($request);
@@ -299,28 +330,15 @@ final class SuspectedCasesController extends BaseQuickReportController
             }
         }
 
-        // ── 7. Chart: top suspected diseases (no chart if no diseases) ─────
-        arsort($diseaseFreq);
-        $chartLabels = [];
-        $chartValues = [];
-        $other = 0;
-        $i = 0;
-        foreach ($diseaseFreq as $label => $count) {
-            if ($i < self::CHART_TOP_N) {
-                $chartLabels[] = (string) $label;
-                $chartValues[] = (int) $count;
-            } else {
-                $other += (int) $count;
-            }
-            $i++;
-        }
-        if ($other > 0) {
-            $chartLabels[] = 'Other';
-            $chartValues[] = $other;
-        }
-        $chartTitle = $chartLabels
-            ? sprintf('Top suspected diseases · %d cases · %s', $totalCohort, $this->windowLabel($from, $to))
-            : sprintf('No suspected diseases recorded · %s', $this->windowLabel($from, $to));
+        // ── 7. Adaptive chart pick ─────────────────────────────────────────
+        // We always want a chart with real signal. Priority:
+        //   A. Top suspected diseases — when ≥1 case has a diagnosis attached.
+        //   B. Cases by risk level    — when risk is populated on ≥1 case.
+        //   C. Cases by point of entry — always populated when there are cases.
+        //   D. Cases per day          — last-resort time-series.
+        // Each option emits labels + values + per-bar colours so the front
+        // end can render without re-deciding semantics.
+        $chart = $this->pickChart($sec, $diseaseFreq, $poeNames, $from, $to, $totalCohort);
 
         // ── 8. Table rows (full + visible-20) ──────────────────────────────
         $tableFull = [];
@@ -366,13 +384,7 @@ final class SuspectedCasesController extends BaseQuickReportController
                 'open'         => $kpiOpen,
                 'last_24h'     => $kpi24h,
             ],
-            'chart' => [
-                'labels' => $chartLabels,
-                'values' => $chartValues,
-                'unit'   => 'cases',
-                'title'  => $chartTitle,
-                'other'  => $other,
-            ],
+            'chart' => $chart,
             'table'       => $tableVisible,
             'table_full'  => $tableFull,
             'total_rows'  => $totalCohort,
@@ -403,6 +415,167 @@ final class SuspectedCasesController extends BaseQuickReportController
         $anon = trim((string) ($r->traveler_anonymous_code ?? ''));
         if ($anon !== '') { return $anon; }
         return 'Unknown traveller';
+    }
+
+    /**
+     * Adaptive chart picker. Walks four candidates in priority order and
+     * returns the first one with real signal (≥1 non-zero bucket and
+     * ≥2 distinct categories where applicable). Each result includes a
+     * `kind` tag the front-end uses to label the chart, plus a per-bar
+     * colour array so the rendering layer never picks colour itself.
+     *
+     * @return array{kind:string,title:string,subtitle:string,labels:array<int,string>,values:array<int,int>,colors:array<int,string>,unit:string,other:int}
+     */
+    private function pickChart(
+        \Illuminate\Support\Collection $sec,
+        array $diseaseFreq,
+        array $poeNames,
+        \DateTimeInterface $from,
+        \DateTimeInterface $to,
+        int $totalCohort,
+    ): array {
+        $windowLabel = $this->windowLabel($from, $to);
+
+        // ── Candidate A: top suspected diseases ────────────────────────
+        if (! empty($diseaseFreq)) {
+            arsort($diseaseFreq);
+            $labels = []; $values = []; $other = 0; $i = 0;
+            foreach ($diseaseFreq as $label => $count) {
+                if ($i < self::CHART_TOP_N) { $labels[] = (string) $label; $values[] = (int) $count; }
+                else                         { $other  += (int) $count; }
+                $i++;
+            }
+            if ($other > 0) { $labels[] = 'Other'; $values[] = $other; }
+            return [
+                'kind'     => 'diseases',
+                'title'    => sprintf('Top suspected diseases · %d %s · %s',
+                                $totalCohort, $totalCohort === 1 ? 'case' : 'cases', $windowLabel),
+                'subtitle' => 'How many cases flagged each suspected disease as a possibility.',
+                'labels'   => $labels,
+                'values'   => $values,
+                'colors'   => $this->cyclePalette(count($labels), $other > 0),
+                'unit'     => 'cases',
+                'other'    => $other,
+            ];
+        }
+
+        // ── Candidate B: cases by risk level ───────────────────────────
+        $riskBuckets = ['LOW' => 0, 'MEDIUM' => 0, 'HIGH' => 0, 'CRITICAL' => 0, 'UNKNOWN' => 0];
+        foreach ($sec as $r) {
+            $risk = strtoupper((string) ($r->risk_level ?? ''));
+            $key  = in_array($risk, ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'], true) ? $risk : 'UNKNOWN';
+            $riskBuckets[$key]++;
+        }
+        $riskNonZero = array_filter($riskBuckets);
+        if (count($riskNonZero) >= 2 || ($riskNonZero && ! isset($riskNonZero['UNKNOWN']))) {
+            $labels = []; $values = []; $colors = [];
+            foreach ($riskBuckets as $k => $v) {
+                if ($v === 0) { continue; }
+                $labels[] = $k === 'UNKNOWN' ? 'Not assessed' : ucfirst(strtolower($k));
+                $values[] = $v;
+                $colors[] = self::RISK_COLORS[$k];
+            }
+            return [
+                'kind'     => 'risk',
+                'title'    => sprintf('Suspected cases by risk level · %s', $windowLabel),
+                'subtitle' => 'Risk tier assigned by the screening officer. Diseases were not yet attached to these cases.',
+                'labels'   => $labels,
+                'values'   => $values,
+                'colors'   => $colors,
+                'unit'     => 'cases',
+                'other'    => 0,
+            ];
+        }
+
+        // ── Candidate C: cases by point of entry ───────────────────────
+        $poeBuckets = [];
+        foreach ($sec as $r) {
+            $code = (string) ($r->poe_code ?? '');
+            if ($code === '') { continue; }
+            $poeBuckets[$code] = ($poeBuckets[$code] ?? 0) + 1;
+        }
+        if (count($poeBuckets) >= 1) {
+            arsort($poeBuckets);
+            $labels = []; $values = []; $i = 0; $other = 0;
+            foreach ($poeBuckets as $code => $count) {
+                if ($i < self::CHART_TOP_N) {
+                    $labels[] = $poeNames[$code] ?? $code;
+                    $values[] = $count;
+                } else {
+                    $other += $count;
+                }
+                $i++;
+            }
+            if ($other > 0) { $labels[] = 'Other'; $values[] = $other; }
+            return [
+                'kind'     => 'poe',
+                'title'    => sprintf('Suspected cases by point of entry · %s', $windowLabel),
+                'subtitle' => 'Where the cases were opened. Diseases and risk were not yet recorded for this window.',
+                'labels'   => $labels,
+                'values'   => $values,
+                'colors'   => $this->cyclePalette(count($labels), $other > 0),
+                'unit'     => 'cases',
+                'other'    => $other,
+            ];
+        }
+
+        // ── Candidate D: cases per day ─────────────────────────────────
+        $dayBuckets = [];
+        foreach ($sec as $r) {
+            try {
+                $d = Carbon::parse((string) $r->opened_at)
+                    ->setTimezone(config('app.timezone', 'Africa/Kampala'))
+                    ->format('M j');
+                $dayBuckets[$d] = ($dayBuckets[$d] ?? 0) + 1;
+            } catch (\Throwable $e) { /* skip */ }
+        }
+        if ($dayBuckets) {
+            $labels = array_keys($dayBuckets);
+            $values = array_values($dayBuckets);
+            return [
+                'kind'     => 'day',
+                'title'    => sprintf('Suspected cases per day · %s', $windowLabel),
+                'subtitle' => 'When the cases were opened, day by day.',
+                'labels'   => $labels,
+                'values'   => $values,
+                'colors'   => $this->cyclePalette(count($labels), false),
+                'unit'     => 'cases',
+                'other'    => 0,
+            ];
+        }
+
+        // ── No data anywhere ───────────────────────────────────────────
+        return [
+            'kind'     => 'empty',
+            'title'    => sprintf('No suspected cases · %s', $windowLabel),
+            'subtitle' => 'Nothing to plot in this window. Widen the date range or clear a filter.',
+            'labels'   => [],
+            'values'   => [],
+            'colors'   => [],
+            'unit'     => 'cases',
+            'other'    => 0,
+        ];
+    }
+
+    /**
+     * Generate `$n` colours cycling through MATERIAL_PALETTE. When `$other`
+     * is true, the final bar gets a neutral blue-grey so the "Other" bucket
+     * reads as a residual rather than a category.
+     *
+     * @return array<int,string>
+     */
+    private function cyclePalette(int $n, bool $other): array
+    {
+        $out = [];
+        $palette = self::MATERIAL_PALETTE;
+        $paletteLen = count($palette);
+        for ($i = 0; $i < $n; $i++) {
+            $out[] = $palette[$i % $paletteLen];
+        }
+        if ($other && $n > 0) {
+            $out[$n - 1] = '#90A4AE'; // blue-grey 300 — quiet residual colour
+        }
+        return $out;
     }
 
     private function humanDate(string $iso): string
