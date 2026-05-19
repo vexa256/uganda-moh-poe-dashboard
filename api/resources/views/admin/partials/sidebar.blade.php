@@ -107,6 +107,67 @@
             ],
         ],
 
+        // ══════════════════════════════════════════════════════════════════
+        // 01 · QUICK REPORTS · top-of-rail shortcuts (added 2026-05-19)
+        // ══════════════════════════════════════════════════════════════════
+        // One-click jumps to the 11 most-asked operational reports.
+        // Ordered MOST CRITICAL → LEAST CRITICAL on the clinical/outbreak
+        // axis: live suspected → confirmed cases → alert ops → epidemiology
+        // → throughput → workforce. Labels capped at 16 chars to prevent
+        // truncation in the sidebar rail at any width.
+        // ══════════════════════════════════════════════════════════════════
+        [
+            'section' => 'Quick Reports',
+            'caption' => 'Fast jumps to the 11 most-used operational reports — ordered by clinical criticality.',
+            'icon'    => 'M13 10V3L4 14h7v7l9-11h-7z',
+            'items'   => [
+                $nav('qr-suspected',   'Suspected Cases',
+                    '#1 priority · live secondary-screening pipeline · travellers flagged for clinical review',
+                    'M12 9v2m0 4h.01M4.93 19.07a10 10 0 1114.14 0M4.93 19.07L12 12l7.07 7.07',
+                    url('/admin/reports/rpt-suspected'), true),
+                $nav('qr-confirmed',   'Confirmed Cases',
+                    '#2 priority · laboratory-confirmed cases · outbreak signal · case demographics',
+                    'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+                    url('/admin/reports/rpt-case-confirmation'), true),
+                $nav('qr-alert-db',    'Alert Database',
+                    '#3 priority · every alert · status · owner · severity · closure category',
+                    'M4 6h16M4 10h16M4 14h10M4 18h10',
+                    url('/admin/reports/rpt-resolution-db'), true),
+                $nav('qr-alert-intel', 'Alert Analysis',
+                    '#4 priority · alert pattern detection · risk-level trend · classification donut · false-positive rate',
+                    'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9',
+                    url('/admin/reports/rpt-alert-intel'), true),
+                $nav('qr-alert-out',   'Alert Outcomes',
+                    '#5 priority · alert acknowledgement · resolution time · % within SLA · closure reasons',
+                    'M5 13l4 4L19 7',
+                    url('/admin/reports/rpt-alert-acknowledgement'), true),
+                $nav('qr-symptoms',    'Symptom Spread',
+                    '#6 priority · symptom distribution · syndrome × POE heatmap · red-flag clinical signals',
+                    'M3 3v18h18M9 17V9m4 8V5m4 12v-7',
+                    url('/admin/reports/rpt-symptom-distribution'), true),
+                $nav('qr-poe',         'POE Analysis',
+                    '#7 priority · POE operational performance · volume vs alert rate · dark POEs · officer activity',
+                    'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+                    url('/admin/reports/rpt-poe-operations'), true),
+                $nav('qr-country',     'Country Analysis',
+                    '#8 priority · top origin countries · alert-generating countries · endemic-country flow',
+                    'M12 21v-1m0 0a8 8 0 100-16 8 8 0 000 16zM8 12h8M12 8v8',
+                    url('/admin/reports/rpt-country-analytics'), true),
+                $nav('qr-daily',       'Daily Screening',
+                    '#9 priority · day-by-day screening report · arrivals processed · escalation count · daily ops cadence',
+                    'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
+                    url('/admin/reports/rpt-screening-outcomes'), true),
+                $nav('qr-volume',      'Screening Volume',
+                    '#10 priority · throughput overview · total screened · primary vs secondary · trend',
+                    'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+                    url('/admin/reports/rpt-volume'), true),
+                $nav('qr-users',       'User Analysis',
+                    '#11 priority · workforce activity · screenings per officer · alerts handled · dormancy',
+                    'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
+                    url('/admin/reports/rpt-user-activity'), true),
+            ],
+        ],
+
 
 
 
