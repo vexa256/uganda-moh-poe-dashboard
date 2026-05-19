@@ -47,27 +47,38 @@ class SmokeSecondarySync extends Command
         $this->line('═══════════════════════════════════════════════════════════');
 
         // ── 1. Resolve target user + POE ────────────────────────────────
-        $userId = (int) $this->option('user');
-        if ($userId <= 0) {
-            $u = DB::table('users')->where('role_key', 'NATIONAL_ADMIN')->where('is_active', 1)
-                ->orderBy('id')->first();
-            if (! $u) { $this->error('No active NATIONAL_ADMIN user found.'); return self::FAILURE; }
-            $userId = (int) $u->id;
-        }
+        $userId  = (int) $this->option('user');
         $poeCode = (string) $this->option('poe');
-        if ($poeCode === '') {
-            $p = DB::table('ref_poes')->whereNull('deleted_at')->where('is_active', 1)->orderBy('id')->first();
-            if (! $p) { $this->error('No active POE in ref_poes.'); return self::FAILURE; }
-            $poeCode = (string) $p->poe_code;
+
+        // Resolve the right user+POE pair. The smoke flow needs a user whose
+        // active assignment actually carries a poe_code (a SCREENER, not a
+        // supervisor-tier NATIONAL_ADMIN whose assignment is district-only).
+        if ($userId <= 0) {
+            $q = DB::table('users as u')
+                ->join('user_assignments as ua', 'ua.user_id', '=', 'u.id')
+                ->where('u.is_active', 1)
+                ->where('ua.is_active', 1)
+                ->whereNotNull('ua.poe_code');
+            if ($poeCode !== '') { $q->where('ua.poe_code', $poeCode); }
+            $row = $q->select('u.id as user_id', 'ua.poe_code')->orderBy('u.id')->first();
+            if (! $row) { $this->error('No active user with a poe_code assignment found.'); return self::FAILURE; }
+            $userId  = (int) $row->user_id;
+            $poeCode = (string) $row->poe_code;
+        } elseif ($poeCode === '') {
+            $row = DB::table('user_assignments')->where('user_id', $userId)
+                ->where('is_active', 1)->whereNotNull('poe_code')
+                ->orderBy('is_primary', 'desc')->orderBy('id')->first();
+            if (! $row) { $this->error("User {$userId} has no active POE assignment."); return self::FAILURE; }
+            $poeCode = (string) $row->poe_code;
         }
+
         $poeRow = DB::table('ref_poes')->where('poe_code', $poeCode)->first();
         if (! $poeRow) { $this->error("POE {$poeCode} not found."); return self::FAILURE; }
 
         // Resolve the user's primary assignment row to fill geographic codes.
-        // user_assignments has no soft-delete; lifecycle is via is_active +
-        // starts_at/ends_at, mirrored here.
         $asg = DB::table('user_assignments')
             ->where('user_id', $userId)->where('is_active', 1)
+            ->where('poe_code', $poeCode)
             ->orderBy('is_primary', 'desc')->orderBy('id')->first();
         $countryCode = $asg->country_code ?? $poeRow->country_code ?? 'UG';
 
