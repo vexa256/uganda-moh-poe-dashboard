@@ -249,7 +249,7 @@
             <div class="qr-kpi">
                 <p class="qr-kpi-label">Suspected cases</p>
                 <p class="qr-kpi-value" x-text="fmt(payload.kpis?.total)"></p>
-                <p class="qr-kpi-hint" x-text="`Within ${payload.window?.label?.toLowerCase() || 'window'}`"></p>
+                <p class="qr-kpi-hint" x-text="payload.window?.label ? 'Within ' + payload.window.label : 'Within window'"></p>
             </div>
             <div class="qr-kpi qr-kpi-info">
                 <p class="qr-kpi-label">With diagnosis</p>
@@ -419,7 +419,7 @@
                     <div class="qr-modal-body space-y-5">
                         <div class="qr-modal-section">
                             <p>What this measures</p>
-                            <p>How often each suspected disease appears across the secondary screenings opened in <span x-text="payload.window?.label?.toLowerCase() || 'this window'"></span>. One screening can contribute to more than one disease — clinicians often note two or three differential hypotheses.</p>
+                            <p>How often each suspected disease appears across the secondary screenings opened in <span x-text="payload.window?.label || 'this window'"></span>. One screening can contribute to more than one disease — clinicians often note two or three differential hypotheses.</p>
                         </div>
                         <div class="qr-modal-section">
                             <p>How to read it</p>
@@ -695,7 +695,9 @@
                 if (row.age !== null && row.age !== undefined) bits.push(`${row.age}y`);
                 if (row.sex)         bits.push(this.prettySex(row.sex));
                 if (row.nationality) bits.push(row.nationality);
-                if (row.alert_code)  bits.push(row.alert_code);
+                // Alert code intentionally NOT mixed into demographics —
+                // it's a system identifier, not a traveller attribute. The
+                // case-file link in the action column carries it.
                 return bits.join(' · ') || '—';
             },
 
@@ -703,10 +705,12 @@
             headline() {
                 if (!this.ready) return 'Loading suspected cases…';
                 const n = this.payload.total_rows ?? 0;
-                const w = (this.payload.window?.label || '').toLowerCase();
-                if (n === 0) return `No suspected cases in ${w || 'this window'}.`;
+                const w = this.payload.window?.label || '';
+                const scope = this.payload.scope?.label || '';
+                if (n === 0) return `No suspected cases${w ? ' for ' + w : ''}.`;
                 const word = n === 1 ? 'case' : 'cases';
-                return `${n.toLocaleString()} suspected ${word} · ${this.payload.window?.label || ''}`;
+                // Window is shown in the topbar chip; subtitle carries count + scope.
+                return `${n.toLocaleString()} suspected ${word}${scope ? ' · ' + scope : ''}`;
             },
             chartSub() {
                 if (!this.ready) return '';
