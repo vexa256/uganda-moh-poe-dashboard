@@ -64,9 +64,10 @@ class SmokeSecondarySync extends Command
         if (! $poeRow) { $this->error("POE {$poeCode} not found."); return self::FAILURE; }
 
         // Resolve the user's primary assignment row to fill geographic codes.
+        // user_assignments has no soft-delete; lifecycle is via is_active +
+        // starts_at/ends_at, mirrored here.
         $asg = DB::table('user_assignments')
             ->where('user_id', $userId)->where('is_active', 1)
-            ->whereNull('deleted_at')
             ->orderBy('is_primary', 'desc')->orderBy('id')->first();
         $countryCode = $asg->country_code ?? $poeRow->country_code ?? 'UG';
 
