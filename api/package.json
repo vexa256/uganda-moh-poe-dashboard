@@ -3,7 +3,8 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
+        "build": "node scripts/build.mjs",
+        "build:force": "vite build",
         "dev": "vite"
     },
     "devDependencies": {
