@@ -72,7 +72,7 @@
     .wf-step-dot       { @apply inline-flex h-5 w-5 items-center justify-center rounded-full border border-border bg-muted text-[10px] font-semibold; }
     .wf-step--done .wf-step-dot { @apply bg-success/15 border-success/40 text-success; }
     .wf-step--active   { @apply text-foreground; }
-    .wf-step--active .wf-step-dot { @apply bg-brand text-brand-foreground border-brand; }
+    .wf-step--active .wf-step-dot { @apply bg-brand text-white border-brand; }
     .wf-step-sep       { @apply h-px flex-1 bg-border/60; }
 
     .wf-fld            { @apply mt-3 first:mt-0; }
