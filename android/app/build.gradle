@@ -12,11 +12,21 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+// Dual-flavor build canon (see memory: project_dual_apk_build_canon.md).
+// -PappIdOverride and -PappNameOverride let build-dual-apks.sh emit
+// Training + Production APKs from one tree. Defaults preserve production.
+def appIdProp   = project.hasProperty('appIdOverride')   ? project.appIdOverride   : 'ug.moh.poesentinel'
+def appNameProp = project.hasProperty('appNameOverride') ? project.appNameOverride : 'Uganda POE Screening'
+
 android {
     namespace = "io.ionic.starter"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "ug.moh.poesentinel"
+        applicationId appIdProp
+        resValue "string", "app_name",            appNameProp
+        resValue "string", "title_activity_main", appNameProp
+        resValue "string", "package_name",        appIdProp
+        resValue "string", "custom_url_scheme",   appIdProp
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

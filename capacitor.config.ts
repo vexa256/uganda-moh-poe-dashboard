@@ -1,8 +1,11 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
+// Dual-flavor build canon (see memory: project_dual_apk_build_canon.md).
+// CAP_APP_ID / CAP_APP_NAME let build-dual-apks.sh produce Training and
+// Production APKs from one source tree. Defaults preserve production.
 const config: CapacitorConfig = {
-  appId: 'ug.moh.poesentinel',
-  appName: 'Uganda POE Screening',
+  appId: process.env.CAP_APP_ID || 'ug.moh.poesentinel',
+  appName: process.env.CAP_APP_NAME || 'Uganda POE Screening',
   webDir: 'dist',
 
   // Background that matches splash + status bar — prevents white flash

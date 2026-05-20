@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
+<!-- app_name, title_activity_main, package_name, custom_url_scheme are
+     injected via resValue in android/app/build.gradle so the Training and
+     Production APKs can carry distinct identifiers from one source tree.
+     See memory: project_dual_apk_build_canon.md. -->
 <resources>
-    <string name="app_name">Uganda POE Screening</string>
-    <string name="title_activity_main">Uganda POE Screening</string>
-    <string name="package_name">ug.moh.poesentinel</string>
-    <string name="custom_url_scheme">ug.moh.poesentinel</string>
 </resources>
