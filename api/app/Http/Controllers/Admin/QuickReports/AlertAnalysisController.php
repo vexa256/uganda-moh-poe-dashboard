@@ -68,7 +68,7 @@ final class AlertAnalysisController extends BaseQuickReportController
             fn () => $this->buildPayload($scope, $filters),
         );
         $payload['filters'] = $filters;
-        $payload['scope']   = ['label' => $scope['label'] ?? '—', 'level' => $scope['scope_level'] ?? 'SELF'];
+        $payload['scope']   = $this->scopeBlock($scope);
         return $this->ok($payload);
     }
 

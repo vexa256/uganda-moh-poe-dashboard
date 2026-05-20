@@ -74,6 +74,46 @@ abstract class BaseQuickReportController extends BaseReportController
     }
 
     /**
+     * Build the scope descriptor block injected into every QR payload.
+     *
+     * Returns a richer object than the bare `scope.label` so views can render
+     * the user's access tier explicitly without having to re-derive it:
+     *
+     *   scope.level         e.g. "NATIONAL" | "PHEOC" | "DISTRICT" | "POE" | "SELF"
+     *   scope.level_label   e.g. "National admin" | "PHEOC officer" | "District supervisor" | "POE / screener"
+     *   scope.label         e.g. "Uganda · National PHEOC" (the original bare label from PheocScope)
+     *   scope.access_label  e.g. "NATIONAL — Uganda · National PHEOC (39 POEs in scope)"
+     *   scope.poes_in_scope count of POEs the user may query
+     *   scope.is_super      true for NATIONAL_ADMIN
+     */
+    protected function scopeBlock(array $scope): array
+    {
+        $level = (string) ($scope['scope_level'] ?? 'SELF');
+        $tierLabels = [
+            'NATIONAL' => 'National admin',
+            'PHEOC'    => 'PHEOC officer',
+            'DISTRICT' => 'District supervisor',
+            'POE'      => 'POE / screener',
+            'SELF'     => 'Self-access',
+        ];
+        $allowedPoes = $this->scope->allowedPoes($scope);
+        $poeCount = count($allowedPoes);
+        $bareLabel = (string) ($scope['label'] ?? '—');
+        $tierLabel = $tierLabels[$level] ?? $level;
+        $poeNoun = $poeCount === 1 ? 'POE' : 'POEs';
+        $access = "{$level} — {$bareLabel}" . ($poeCount > 0 ? " ({$poeCount} {$poeNoun} in scope)" : '');
+
+        return [
+            'level'          => $level,
+            'level_label'    => $tierLabel,
+            'label'          => $bareLabel,
+            'access_label'   => $access,
+            'poes_in_scope'  => $poeCount,
+            'is_super'       => (bool) ($scope['is_super'] ?? false),
+        ];
+    }
+
+    /**
      * Human-friendly label for the resolved window — surfaced in dynamic titles
      * so every chart/table/heading honestly reports the active range.
      */

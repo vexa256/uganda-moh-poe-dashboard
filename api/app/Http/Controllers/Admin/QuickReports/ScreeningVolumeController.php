@@ -52,7 +52,7 @@ final class ScreeningVolumeController extends BaseQuickReportController
         $payload = $this->memoise((int) ($scope['user_id'] ?? 0), $filters,
             fn () => $this->buildPayload($scope, $filters));
         $payload['filters'] = $filters;
-        $payload['scope']   = ['label' => $scope['label'] ?? '—', 'level' => $scope['scope_level'] ?? 'SELF'];
+        $payload['scope']   = $this->scopeBlock($scope);
         return $this->ok($payload);
     }
 
@@ -91,8 +91,14 @@ final class ScreeningVolumeController extends BaseQuickReportController
             $code = (string) $filters['poe'];
             if (in_array($code, $allowedCodes, true)) {
                 $allowedCodes = [$code]; $allowedPoes = [$code => $allowedPoes[$code] ?? $code];
-            } else { $allowedCodes = []; }
+            } else { $allowedCodes = []; $allowedPoes = []; } // out-of-scope filter → empty register, not all-zero
         }
+
+        // Defensive: also accept POE name in poe_code (mobile EMBEDDED_FALLBACK bug,
+        // see migration 2026_05_20_000002). Canonicalise in-loop so byPoe merges correctly.
+        $allowedCodesQ = $this->scope->expandPoeFilterToIncludeNames($allowedCodes);
+        $nameToCode = [];
+        foreach ($allowedPoes as $code => $name) { if ($name) { $nameToCode[(string) $name] = $code; } }
 
         $byPoe = []; // code => row aggregate
         foreach ($allowedPoes as $code => $name) {
@@ -115,7 +121,7 @@ final class ScreeningVolumeController extends BaseQuickReportController
             $pq = DB::table('primary_screenings')
                 ->whereNull('deleted_at')
                 ->whereBetween('captured_at', [$from, $to])
-                ->whereIn('poe_code', $allowedCodes);
+                ->whereIn('poe_code', $allowedCodesQ);
             $this->scope->apply($pq, $scope);
             // Optional gender filter
             if (! empty($filters['gender'])) {
@@ -124,6 +130,7 @@ final class ScreeningVolumeController extends BaseQuickReportController
             }
             foreach ($pq->select('id','captured_at','gender','poe_code')->cursor() as $r) {
                 $code = (string) $r->poe_code;
+                if (isset($nameToCode[$code])) { $code = $nameToCode[$code]; }
                 if (! isset($byPoe[$code])) { continue; }
                 $byPoe[$code]['primary']++;
                 $totalPrimary++;
@@ -138,7 +145,7 @@ final class ScreeningVolumeController extends BaseQuickReportController
             $sq = DB::table('secondary_screenings')
                 ->whereNull('deleted_at')
                 ->whereBetween('opened_at', [$from, $to])
-                ->whereIn('poe_code', $allowedCodes);
+                ->whereIn('poe_code', $allowedCodesQ);
             $this->scope->apply($sq, $scope);
             if (! empty($filters['gender'])) {
                 $g = strtoupper((string) $filters['gender']);
@@ -147,6 +154,7 @@ final class ScreeningVolumeController extends BaseQuickReportController
             $ageBandFilter = ! empty($filters['age_band']) ? (string) $filters['age_band'] : null;
             foreach ($sq->select('id','opened_at','poe_code','traveler_age_years')->cursor() as $r) {
                 $code = (string) $r->poe_code;
+                if (isset($nameToCode[$code])) { $code = $nameToCode[$code]; }
                 if (! isset($byPoe[$code])) { continue; }
                 $age = $r->traveler_age_years === null ? null : (int) $r->traveler_age_years;
                 $band = $this->ageBand($age);

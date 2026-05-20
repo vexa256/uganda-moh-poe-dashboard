@@ -179,6 +179,34 @@ final class ReportScope
     }
 
     /**
+     * Defensive POE code/name expansion.
+     *
+     * Some legacy operational rows captured by the mobile app stored the
+     * human-readable POE name (e.g. "Entebbe International Airport") in the
+     * `poe_code` column instead of the canonical code (e.g. "UG-WAKISO-001").
+     * Root cause: stale EMBEDDED_FALLBACK in src/POEs.js — see migration
+     * 2026_05_20_000002_normalize_poe_name_stored_as_code.
+     *
+     * Returns the input codes PLUS the matching `ref_poes.poe_name` for each
+     * code, so a `whereIn('poe_code', expandPoeFilterToIncludeNames($codes))`
+     * catches both clean and legacy-corrupt rows in one query.
+     *
+     * After the cleanup migration runs, this is a no-op for live data but
+     * remains a safety belt for any future sync that re-introduces bad codes
+     * before the mobile-side fallback is rebuilt.
+     */
+    public function expandPoeFilterToIncludeNames(array $codes): array
+    {
+        if (! $codes) { return []; }
+        $names = DB::table('ref_poes')
+            ->whereNull('deleted_at')
+            ->whereIn('poe_code', $codes)
+            ->pluck('poe_name')
+            ->all();
+        return array_values(array_unique(array_merge($codes, $names)));
+    }
+
+    /**
      * Restrict a user-supplied poe filter to those they may query.
      * Returns an array of allowed names actually requested.
      */

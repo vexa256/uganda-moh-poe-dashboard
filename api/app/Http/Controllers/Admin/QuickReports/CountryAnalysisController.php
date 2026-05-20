@@ -61,7 +61,7 @@ final class CountryAnalysisController extends BaseQuickReportController
         $payload = $this->memoise((int) ($scope['user_id'] ?? 0), $filters,
             fn () => $this->buildPayload($scope, $filters));
         $payload['filters'] = $filters;
-        $payload['scope']   = ['label' => $scope['label'] ?? '—', 'level' => $scope['scope_level'] ?? 'SELF'];
+        $payload['scope']   = $this->scopeBlock($scope);
         return $this->ok($payload);
     }
 

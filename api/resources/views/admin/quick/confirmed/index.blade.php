@@ -114,7 +114,7 @@
                 <span class="status-dot status-dot-live"></span>
                 <span x-text="payload.window?.label || ''"></span>
             </span>
-            <span class="topbar-chip" x-show="ready && payload.scope?.label" x-cloak x-text="payload.scope?.label"></span>
+            <span class="topbar-chip" x-show="ready && payload.scope?.label" x-cloak x-text="payload.scope?.access_label || payload.scope?.label"></span>
             <button type="button" class="btn btn-outline btn-xs" @click="exportCsvFull()" :disabled="!ready" aria-label="Export full CSV">
                 Export
             </button>

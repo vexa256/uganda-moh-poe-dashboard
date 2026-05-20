@@ -82,7 +82,7 @@ final class UserAnalysisController extends BaseQuickReportController
         $payload = $this->memoise((int) ($scope['user_id'] ?? 0), $filters,
             fn () => $this->buildPayload($scope, $filters));
         $payload['filters'] = $filters;
-        $payload['scope']   = ['label' => $scope['label'] ?? '—', 'level' => $scope['scope_level'] ?? 'SELF'];
+        $payload['scope']   = $this->scopeBlock($scope);
         return $this->ok($payload);
     }
 
@@ -119,8 +119,12 @@ final class UserAnalysisController extends BaseQuickReportController
             $code = (string) $filters['poe'];
             if (in_array($code, $allowedCodes, true)) {
                 $allowedCodes = [$code]; $allowedPoes = [$code => $allowedPoes[$code] ?? $code];
-            } else { $allowedCodes = []; }
+            } else { $allowedCodes = []; $allowedPoes = []; } // out-of-scope filter → empty register, not all-zero
         }
+
+        // Defensive POE expansion for operational-table reads (mobile EMBEDDED_FALLBACK bug,
+        // see migration 2026_05_20_000002). user_assignments stores canonical codes only.
+        $allowedCodesQ = $this->scope->expandPoeFilterToIncludeNames($allowedCodes);
 
         // ── Cohort: users who have an active assignment in the allowed POEs,
         //     PLUS the scope owner. NATIONAL has no POE filter; everyone else
@@ -158,7 +162,7 @@ final class UserAnalysisController extends BaseQuickReportController
                 ->whereNull('deleted_at')
                 ->whereBetween('captured_at', [$from, $to])
                 ->whereIn('captured_by_user_id', $userIds);
-            if (! empty($allowedCodes)) { $pq->whereIn('poe_code', $allowedCodes); }
+            if (! empty($allowedCodes)) { $pq->whereIn('poe_code', $allowedCodesQ); }
             $this->scope->apply($pq, $scope);
             foreach ($pq->select('captured_by_user_id','captured_at')->cursor() as $r) {
                 $uid = (int) $r->captured_by_user_id;
@@ -170,7 +174,7 @@ final class UserAnalysisController extends BaseQuickReportController
                 ->whereNull('deleted_at')
                 ->whereBetween('opened_at', [$from, $to])
                 ->whereIn('opened_by_user_id', $userIds);
-            if (! empty($allowedCodes)) { $sq->whereIn('poe_code', $allowedCodes); }
+            if (! empty($allowedCodes)) { $sq->whereIn('poe_code', $allowedCodesQ); }
             $this->scope->apply($sq, $scope);
             foreach ($sq->select('opened_by_user_id','opened_at')->cursor() as $r) {
                 $uid = (int) $r->opened_by_user_id;
@@ -182,7 +186,7 @@ final class UserAnalysisController extends BaseQuickReportController
                 ->whereNull('deleted_at')
                 ->whereBetween('created_at', [$from, $to])
                 ->whereIn('current_owner_user_id', $userIds);
-            if (! empty($allowedCodes)) { $aq->whereIn('poe_code', $allowedCodes); }
+            if (! empty($allowedCodes)) { $aq->whereIn('poe_code', $allowedCodesQ); }
             $this->scope->apply($aq, $scope);
             foreach ($aq->select('current_owner_user_id','created_at')->cursor() as $r) {
                 $uid = (int) $r->current_owner_user_id;

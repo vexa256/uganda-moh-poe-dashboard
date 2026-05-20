@@ -50,7 +50,7 @@ final class DailyScreeningController extends BaseQuickReportController
         $payload = $this->memoise((int) ($scope['user_id'] ?? 0), $filters,
             fn () => $this->buildPayload($scope, $filters));
         $payload['filters'] = $filters;
-        $payload['scope']   = ['label' => $scope['label'] ?? '—', 'level' => $scope['scope_level'] ?? 'SELF'];
+        $payload['scope']   = $this->scopeBlock($scope);
         return $this->ok($payload);
     }
 
@@ -87,8 +87,13 @@ final class DailyScreeningController extends BaseQuickReportController
             $code = (string) $filters['poe'];
             if (in_array($code, $allowedCodes, true)) {
                 $allowedCodes = [$code]; $allowedPoes = [$code => $allowedPoes[$code] ?? $code];
-            } else { $allowedCodes = []; }
+            } else { $allowedCodes = []; $allowedPoes = []; } // out-of-scope filter → empty register, not all-zero
         }
+
+        // Defensive POE expansion (mobile EMBEDDED_FALLBACK bug, see migration 2026_05_20_000002).
+        $allowedCodesQ = $this->scope->expandPoeFilterToIncludeNames($allowedCodes);
+        $nameToCode = [];
+        foreach ($allowedPoes as $code => $name) { if ($name) { $nameToCode[(string) $name] = $code; } }
 
         // Build per-day buckets across the window (inclusive). Empty days count as 0.
         $days = [];
@@ -116,7 +121,7 @@ final class DailyScreeningController extends BaseQuickReportController
             $pq = DB::table('primary_screenings')
                 ->whereNull('deleted_at')
                 ->whereBetween('captured_at', [$from, $to])
-                ->whereIn('poe_code', $allowedCodes);
+                ->whereIn('poe_code', $allowedCodesQ);
             $this->scope->apply($pq, $scope);
             if (! empty($filters['gender'])) {
                 $pq->whereRaw('UPPER(gender) = ?', [strtoupper((string) $filters['gender'])]);
@@ -128,6 +133,7 @@ final class DailyScreeningController extends BaseQuickReportController
                 $g = $this->genderBucket($r->gender);
                 $days[$key]['gender'][$g]++;
                 $code = (string) $r->poe_code;
+                if (isset($nameToCode[$code])) { $code = $nameToCode[$code]; }
                 $days[$key]['poe_counts'][$code] = ($days[$key]['poe_counts'][$code] ?? 0) + 1;
                 $primaryIdsByDay[$key][] = (int) $r->id;
                 $primaryDayByPid[(int) $r->id] = $key;
@@ -137,7 +143,7 @@ final class DailyScreeningController extends BaseQuickReportController
             $sq = DB::table('secondary_screenings')
                 ->whereNull('deleted_at')
                 ->whereBetween('opened_at', [$from, $to])
-                ->whereIn('poe_code', $allowedCodes);
+                ->whereIn('poe_code', $allowedCodesQ);
             $this->scope->apply($sq, $scope);
             if (! empty($filters['gender'])) {
                 $sq->whereRaw('UPPER(traveler_gender) = ?', [strtoupper((string) $filters['gender'])]);
@@ -157,7 +163,7 @@ final class DailyScreeningController extends BaseQuickReportController
             $aq = DB::table('alerts')
                 ->whereNull('deleted_at')
                 ->whereBetween('created_at', [$from, $to])
-                ->whereIn('poe_code', $allowedCodes);
+                ->whereIn('poe_code', $allowedCodesQ);
             $this->scope->apply($aq, $scope);
             foreach ($aq->select('id','created_at','secondary_screening_id')->cursor() as $r) {
                 $sid = $r->secondary_screening_id ? (int) $r->secondary_screening_id : null;

@@ -57,7 +57,7 @@ final class PoeAnalysisController extends BaseQuickReportController
         $payload = $this->memoise((int) ($scope['user_id'] ?? 0), $filters,
             fn () => $this->buildPayload($scope, $filters));
         $payload['filters'] = $filters;
-        $payload['scope']   = ['label' => $scope['label'] ?? '—', 'level' => $scope['scope_level'] ?? 'SELF'];
+        $payload['scope']   = $this->scopeBlock($scope);
         return $this->ok($payload);
     }
 
@@ -96,9 +96,17 @@ final class PoeAnalysisController extends BaseQuickReportController
         // Optional single-POE filter
         if (! empty($filters['poe'])) {
             $code = (string) $filters['poe'];
-            if (! in_array($code, $allowedCodes, true)) { $allowedCodes = []; }
+            if (! in_array($code, $allowedCodes, true)) { $allowedCodes = []; $allowedPoes = []; }
             else { $allowedCodes = [$code]; $allowedPoes = [$code => $allowedPoes[$code] ?? $code]; }
         }
+
+        // Defensive: also match operational rows whose poe_code was written as the POE NAME
+        // (mobile EMBEDDED_FALLBACK bug — see migration 2026_05_20_000002). Canonicalise back
+        // to the code so per-POE rollups merge correctly.
+        $allowedCodesQ = $this->scope->expandPoeFilterToIncludeNames($allowedCodes);
+        $nameToCode = [];
+        foreach ($allowedPoes as $code => $name) { if ($name) { $nameToCode[(string) $name] = $code; } }
+        $canon = fn (string $raw) => $nameToCode[$raw] ?? $raw;
 
         // ── Activity counts in the window ──────────────────────────────────
         $primaryByPoe = []; $secondaryByPoe = []; $alertsByPoe = [];
@@ -109,10 +117,10 @@ final class PoeAnalysisController extends BaseQuickReportController
             $primaryQ = DB::table('primary_screenings')
                 ->whereNull('deleted_at')
                 ->whereBetween('captured_at', [$from, $to])
-                ->whereIn('poe_code', $allowedCodes);
+                ->whereIn('poe_code', $allowedCodesQ);
             $this->scope->apply($primaryQ, $scope);
             foreach ($primaryQ->select('poe_code', 'captured_at')->cursor() as $r) {
-                $code = (string) $r->poe_code;
+                $code = $canon((string) $r->poe_code);
                 $primaryByPoe[$code] = ($primaryByPoe[$code] ?? 0) + 1;
                 $this->bump($lastActivity, $code, (string) $r->captured_at);
                 $this->bumpDay($dayBuckets, (string) $r->captured_at);
@@ -121,10 +129,10 @@ final class PoeAnalysisController extends BaseQuickReportController
             $secQ = DB::table('secondary_screenings')
                 ->whereNull('deleted_at')
                 ->whereBetween('opened_at', [$from, $to])
-                ->whereIn('poe_code', $allowedCodes);
+                ->whereIn('poe_code', $allowedCodesQ);
             $this->scope->apply($secQ, $scope);
             foreach ($secQ->select('poe_code', 'opened_at')->cursor() as $r) {
-                $code = (string) $r->poe_code;
+                $code = $canon((string) $r->poe_code);
                 $secondaryByPoe[$code] = ($secondaryByPoe[$code] ?? 0) + 1;
                 $this->bump($lastActivity, $code, (string) $r->opened_at);
                 $this->bumpDay($dayBuckets, (string) $r->opened_at);
@@ -133,10 +141,10 @@ final class PoeAnalysisController extends BaseQuickReportController
             $alertQ = DB::table('alerts')
                 ->whereNull('deleted_at')
                 ->whereBetween('created_at', [$from, $to])
-                ->whereIn('poe_code', $allowedCodes);
+                ->whereIn('poe_code', $allowedCodesQ);
             $this->scope->apply($alertQ, $scope);
             foreach ($alertQ->select('poe_code', 'created_at')->cursor() as $r) {
-                $code = (string) $r->poe_code;
+                $code = $canon((string) $r->poe_code);
                 $alertsByPoe[$code] = ($alertsByPoe[$code] ?? 0) + 1;
                 $this->bump($lastActivity, $code, (string) $r->created_at);
                 $this->bumpDay($dayBuckets, (string) $r->created_at);
