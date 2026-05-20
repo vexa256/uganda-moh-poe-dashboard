@@ -6104,6 +6104,101 @@ async function _doInitPage(source) {
   }
 
   L.info(`[${source}] Starting full load for uuid="${uuid}"`)
+
+  // 2026-05-20 — HARD RESET of all reactive state before loading a new case.
+  // Without this, opening case B after case A would inherit case A's profile /
+  // vitals / suspected diseases / etc. because Ionic page-caches the view and
+  // reactive refs are not auto-cleared. Visible symptom: "I clicked Adam's
+  // referral but the form pre-populated with a different traveller's name."
+  // Source of truth = the IDB / server-fetched record for THIS uuid.
+  Object.assign(profile, {
+    traveler_full_name:                '',
+    traveler_gender:                   '',
+    traveler_age_years:                null,
+    _birth_year:                       null,
+    _age_months:                       null,
+    travel_document_type:              '',
+    travel_document_number:            '',
+    traveler_nationality_country_code: '',
+    residence_country_code:            '',
+    phone_number:                      '',
+    journey_start_country_code:        '',
+    conveyance_type:                   '',
+    conveyance_identifier:             '',
+    arrival_datetime_input:            '',
+    purpose_of_travel:                 '',
+    destination_district_code:         '',
+  })
+  // Drop the runtime-attached fields that aren't in the reactive declaration
+  // (traveler_dob etc. set by computeAgeFromBirthYear or passport scan).
+  delete profile.traveler_dob
+  Object.assign(vitals, {
+    temperature_value:       null,
+    temperature_unit:        'C',
+    pulse_rate:              null,
+    respiratory_rate:        null,
+    bp_systolic:             null,
+    bp_diastolic:            null,
+    oxygen_saturation:       null,
+    triage_category:         '',
+    emergency_signs_present: 0,
+    general_appearance:      '',
+    syndrome_classification: '',
+  })
+  showVitals.value = false
+  Object.assign(caseDecision, {
+    syndrome_classification: '',
+    risk_level:              '',
+    final_disposition:       '',
+    officer_notes:           '',
+    followup_required:       true,        // intentional default — see _enforceFollowupOn
+    followup_assigned_level: 'DISTRICT',
+  })
+  Object.assign(clusterFlags, {
+    cluster_deaths_in_community: false,
+    cluster_similar_illness:     false,
+    unusual_event_flag:          false,
+  })
+  // Per-row child collections — clearing the refs prevents the previous
+  // case's suspected diseases / actions / travel countries / engine output
+  // from being rendered in the new case's UI.
+  suspectedDiseases.value = []
+  actions.value           = []
+  travelCountries.value   = []
+  analysisResult.value    = null
+  // Symptom + exposure maps are re-seeded from their catalogs by the load
+  // path below, but we wipe any details/onset_date stuck from the previous
+  // case so a fresh notification starts truly blank.
+  for (const k of Object.keys(symptomsMap)) {
+    symptomsMap[k].is_present = null
+    symptomsMap[k].onset_date = null
+    symptomsMap[k].details    = null
+  }
+  for (const k of Object.keys(exposuresMap)) {
+    exposuresMap[k].response = 'UNKNOWN'
+    exposuresMap[k].details  = null
+  }
+  // Wizard navigation — back to step 1, hide field errors from the
+  // previous case so the new case doesn't open with red borders.
+  step.value           = 1
+  maxStepReached.value = 1
+  Object.keys(fieldErrors).forEach(k => { fieldErrors[k] = '' })
+  // Officer override state — engine output from previous case must not
+  // bleed into the new analysis.
+  Object.assign(officerOverride, {
+    syndromeOverridden: false,
+    riskOverridden:     false,
+    overrideNonCase:    false,
+    overrideNote:       '',
+    customDiseaseInput: '',
+    addedDiseases:      [],
+  })
+  // Local refs that hold the previous case's identity. These get re-set by
+  // the load path below — clearing here prevents a brief frame where the
+  // template renders the old case while the new one loads.
+  caseRecord.value      = null
+  caseUuid.value        = null
+  notification.value    = null
   notificationUuid.value = uuid
   loading.value          = true
   notFound.value         = false
@@ -6415,8 +6510,13 @@ async function _doInitPage(source) {
       caseRecord.value = { ...existing, id: existing.id ?? existing.server_id ?? null }
 
       Object.assign(profile, {
-        traveler_full_name:                existing.traveler_full_name                || profile.traveler_full_name,
-        traveler_gender:                   existing.traveler_gender                   || profile.traveler_gender,
+        // Source of truth is the IDB record for THIS case. We deliberately do
+        // NOT fall back to `profile.traveler_full_name` here — that "|| profile.X"
+        // pattern was the bug that made Adam's name show up on Mary's case when
+        // Mary's record had a null name. Reactive state is hard-reset at the
+        // top of _doInitPage so falling back to "" is the correct behaviour.
+        traveler_full_name:                existing.traveler_full_name                || '',
+        traveler_gender:                   existing.traveler_gender                   || '',
         traveler_age_years:                existing.traveler_age_years                || null,
         travel_document_type:              existing.travel_document_type              || '',
         travel_document_number:            existing.travel_document_number            || '',
