@@ -444,12 +444,24 @@ final class CaseFileController extends Controller
         return 'TRACE';
     }
 
-    private function ihrTierLabel(?string $raw): ?string
+    /**
+     * Normalise IHR tier to the long-form string used everywhere downstream.
+     *
+     * Accepts int (ref_diseases.ihr_tier = 1|2|3) OR string (alerts.ihr_tier
+     * = varchar holding 'TIER_1_ALWAYS_NOTIFIABLE' etc.). Previous `?string`
+     * type hint crashed with a TypeError when called from $d->ihr_tier
+     * (decimal/int from ref_diseases). All callers protected; output is
+     * always ?string for the downstream JSON encoder.
+     *
+     * @param int|string|null $raw
+     */
+    private function ihrTierLabel($raw): ?string
     {
-        if ($raw === null) return null;
+        if ($raw === null || $raw === '') return null;
         $r = (string) $raw;
         if (str_contains($r, 'TIER_1') || $r === '1') return 'TIER_1_ALWAYS_NOTIFIABLE';
         if (str_contains($r, 'TIER_2') || $r === '2') return 'TIER_2_ANNEX2';
+        if (str_contains($r, 'TIER_3') || $r === '3') return 'TIER_3_ROUTINE';
         return $r;
     }
 
