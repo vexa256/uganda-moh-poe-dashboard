@@ -161,7 +161,7 @@
                             </td>
                             <td>
                                 <div class="qr-cell-primary" x-text="row.alert_title || row.alert_code || ('#' + row.alert_id)"></div>
-                                <div class="qr-cell-mono" x-show="row.alert_code" x-text="row.alert_code"></div>
+                                <div class="qr-cell-mono" x-show="row.alert_title && row.alert_code" x-text="row.alert_code"></div>
                             </td>
                             <td>
                                 <div class="qr-cell-primary" x-text="row.traveller_name"></div>

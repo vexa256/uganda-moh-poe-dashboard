@@ -282,7 +282,7 @@ final class CountryAnalysisController extends BaseQuickReportController
             [$labels, $values, $colors] = $build($nat, 'nat');
             return [
                 'kind' => 'nationalities',
-                'title' => sprintf('Top traveller nationalities · %s', $windowLabel),
+                'title' => 'Top traveller nationalities',
                 'subtitle' => 'Where the travellers are passport-holders. Red bars = nationality matches a country with endemic disease activity (immediate epi risk).',
                 'labels' => $labels, 'values' => $values, 'colors' => $colors, 'unit' => 'cases',
             ];
@@ -292,7 +292,7 @@ final class CountryAnalysisController extends BaseQuickReportController
             [$labels, $values, $colors] = $build($visited, 'visited');
             return [
                 'kind' => 'visited',
-                'title' => sprintf('Top visited countries · %s', $windowLabel),
+                'title' => 'Top visited countries',
                 'subtitle' => 'Where travellers had been before screening. Red bars = country has endemic disease activity.',
                 'labels' => $labels, 'values' => $values, 'colors' => $colors, 'unit' => 'visits',
             ];
@@ -302,7 +302,7 @@ final class CountryAnalysisController extends BaseQuickReportController
             [$labels, $values, $colors] = $build($transit, 'transit');
             return [
                 'kind' => 'transit',
-                'title' => sprintf('Top transit countries · %s', $windowLabel),
+                'title' => 'Top transit countries',
                 'subtitle' => 'Where travellers stopped en route. Red bars = endemic-disease country.',
                 'labels' => $labels, 'values' => $values, 'colors' => $colors, 'unit' => 'transits',
             ];
@@ -310,7 +310,7 @@ final class CountryAnalysisController extends BaseQuickReportController
 
         return [
             'kind' => 'empty',
-            'title' => sprintf('No country data · %s', $windowLabel),
+            'title' => 'No country data',
             'subtitle' => 'No cases with traveller country information in this window.',
             'labels' => [], 'values' => [], 'colors' => [], 'unit' => 'cases',
         ];

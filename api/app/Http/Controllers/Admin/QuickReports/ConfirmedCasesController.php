@@ -424,8 +424,7 @@ final class ConfirmedCasesController extends BaseQuickReportController
             }
             return [
                 'kind'     => 'confirmed_diseases',
-                'title'    => sprintf('Lab-confirmed diseases · %d %s · %s',
-                                $confirmedCount, $confirmedCount === 1 ? 'case' : 'cases', $windowLabel),
+                'title'    => sprintf('Lab-confirmed diseases · %d %s', $confirmedCount, $confirmedCount === 1 ? 'case' : 'cases'),
                 'subtitle' => 'What the laboratory said about cases closed with a CONFIRMED classification.',
                 'labels'   => $labels,
                 'values'   => $values,
@@ -446,7 +445,7 @@ final class ConfirmedCasesController extends BaseQuickReportController
             }
             return [
                 'kind'     => 'classification',
-                'title'    => sprintf('Lab pipeline by classification · %s', $windowLabel),
+                'title'    => 'Lab pipeline by classification',
                 'subtitle' => 'Every alert in the window, grouped by what the laboratory has told us so far.',
                 'labels'   => $labels,
                 'values'   => $values,
@@ -467,7 +466,7 @@ final class ConfirmedCasesController extends BaseQuickReportController
             }
             return [
                 'kind'     => 'poe',
-                'title'    => sprintf('Alerts by point of entry · %s', $windowLabel),
+                'title'    => 'Alerts by point of entry',
                 'subtitle' => 'Where the alerts came from. The lab pipeline has not yet produced classifications.',
                 'labels'   => $labels,
                 'values'   => $values,
@@ -480,7 +479,7 @@ final class ConfirmedCasesController extends BaseQuickReportController
         if (! empty($dayBuckets)) {
             return [
                 'kind'     => 'day',
-                'title'    => sprintf('Alerts per day · %s', $windowLabel),
+                'title'    => 'Alerts per day',
                 'subtitle' => 'When the alerts were opened, day by day.',
                 'labels'   => array_keys($dayBuckets),
                 'values'   => array_values($dayBuckets),
@@ -491,7 +490,7 @@ final class ConfirmedCasesController extends BaseQuickReportController
 
         return [
             'kind'     => 'empty',
-            'title'    => sprintf('No alerts · %s', $windowLabel),
+            'title'    => 'No alerts',
             'subtitle' => 'No alerts were opened in this window. Widen the date range or clear a filter.',
             'labels'   => [], 'values' => [], 'colors' => [], 'unit' => 'cases',
         ];

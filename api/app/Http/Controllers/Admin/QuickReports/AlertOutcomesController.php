@@ -294,7 +294,7 @@ final class AlertOutcomesController extends BaseQuickReportController
             }
             return [
                 'kind'     => 'closure',
-                'title'    => sprintf('Closure outcomes · %s', $windowLabel),
+                'title'    => 'Closure outcomes',
                 'subtitle' => 'How alerts ended. Red bars = confirmed cases. Green = ruled-out / no case. Blue = false positive. Click any row to read the closure note.',
                 'labels'   => $labels, 'values' => $values, 'colors' => $colors, 'unit' => 'alerts',
             ];
@@ -311,7 +311,7 @@ final class AlertOutcomesController extends BaseQuickReportController
             }
             return [
                 'kind'     => 'ack',
-                'title'    => sprintf('Time to acknowledge · %s', $windowLabel),
+                'title'    => 'Time to acknowledge',
                 'subtitle' => 'How quickly officers picked up the alert. Green is fast, red is slow, blue-grey is still waiting.',
                 'labels'   => $labels, 'values' => $values, 'colors' => $colors, 'unit' => 'alerts',
             ];
@@ -328,7 +328,7 @@ final class AlertOutcomesController extends BaseQuickReportController
             }
             return [
                 'kind'     => 'status',
-                'title'    => sprintf('Alert status mix · %d %s · %s', $total, $total === 1 ? 'alert' : 'alerts', $windowLabel),
+                'title'    => sprintf('Alert status mix · %d %s', $total, $total === 1 ? 'alert' : 'alerts'),
                 'subtitle' => 'Where alerts sit right now. No closures have happened yet in this window.',
                 'labels'   => $labels, 'values' => $values, 'colors' => $colors, 'unit' => 'alerts',
             ];
@@ -336,7 +336,7 @@ final class AlertOutcomesController extends BaseQuickReportController
 
         return [
             'kind' => 'empty',
-            'title' => sprintf('No alerts · %s', $windowLabel),
+            'title' => 'No alerts',
             'subtitle' => 'Nothing to report on. Widen the date range or clear a filter.',
             'labels' => [], 'values' => [], 'colors' => [], 'unit' => 'alerts',
         ];

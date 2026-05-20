@@ -291,7 +291,7 @@ final class AlertDatabaseController extends BaseQuickReportController
             }
             return [
                 'kind'     => 'risk',
-                'title'    => sprintf('Alerts by risk level · %d %s · %s', $total, $total === 1 ? 'alert' : 'alerts', $windowLabel),
+                'title'    => sprintf('Alerts by risk level · %d %s', $total, $total === 1 ? 'alert' : 'alerts'),
                 'subtitle' => 'Severity tier the alert was opened with. Critical and High demand same-day attention.',
                 'labels'   => $labels, 'values' => $values, 'colors' => $colors, 'unit' => 'alerts',
             ];
@@ -306,7 +306,7 @@ final class AlertDatabaseController extends BaseQuickReportController
             }
             return [
                 'kind'     => 'status',
-                'title'    => sprintf('Alerts by status · %s', $windowLabel),
+                'title'    => 'Alerts by status',
                 'subtitle' => 'Pipeline position right now: Open / Acknowledged / Closed / Reopened.',
                 'labels'   => $labels, 'values' => $values, 'colors' => $colors, 'unit' => 'alerts',
             ];
@@ -322,7 +322,7 @@ final class AlertDatabaseController extends BaseQuickReportController
             }
             return [
                 'kind'     => 'poe',
-                'title'    => sprintf('Alerts by point of entry · %s', $windowLabel),
+                'title'    => 'Alerts by point of entry',
                 'subtitle' => 'Where the alerts came from.',
                 'labels'   => $labels, 'values' => $values, 'colors' => $this->cyclePalette(count($labels)), 'unit' => 'alerts',
             ];
@@ -331,7 +331,7 @@ final class AlertDatabaseController extends BaseQuickReportController
         if ($day) {
             return [
                 'kind'     => 'day',
-                'title'    => sprintf('Alerts per day · %s', $windowLabel),
+                'title'    => 'Alerts per day',
                 'subtitle' => 'When the alerts were opened.',
                 'labels'   => array_keys($day), 'values' => array_values($day),
                 'colors'   => $this->cyclePalette(count($day)), 'unit' => 'alerts',
@@ -340,7 +340,7 @@ final class AlertDatabaseController extends BaseQuickReportController
 
         return [
             'kind' => 'empty',
-            'title' => sprintf('No alerts · %s', $windowLabel),
+            'title' => 'No alerts',
             'subtitle' => 'Widen the date range or clear a filter.',
             'labels' => [], 'values' => [], 'colors' => [], 'unit' => 'alerts',
         ];

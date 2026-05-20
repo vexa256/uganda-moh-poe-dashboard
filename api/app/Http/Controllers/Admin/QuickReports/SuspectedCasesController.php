@@ -448,8 +448,7 @@ final class SuspectedCasesController extends BaseQuickReportController
             if ($other > 0) { $labels[] = 'Other'; $values[] = $other; }
             return [
                 'kind'     => 'diseases',
-                'title'    => sprintf('Top suspected diseases · %d %s · %s',
-                                $totalCohort, $totalCohort === 1 ? 'case' : 'cases', $windowLabel),
+                'title'    => sprintf('Top suspected diseases · %d %s', $totalCohort, $totalCohort === 1 ? 'case' : 'cases'),
                 'subtitle' => 'How many cases flagged each suspected disease as a possibility.',
                 'labels'   => $labels,
                 'values'   => $values,
@@ -477,7 +476,7 @@ final class SuspectedCasesController extends BaseQuickReportController
             }
             return [
                 'kind'     => 'risk',
-                'title'    => sprintf('Suspected cases by risk level · %s', $windowLabel),
+                'title'    => 'Suspected cases by risk level',
                 'subtitle' => 'Risk tier assigned by the screening officer. Diseases were not yet attached to these cases.',
                 'labels'   => $labels,
                 'values'   => $values,
@@ -509,7 +508,7 @@ final class SuspectedCasesController extends BaseQuickReportController
             if ($other > 0) { $labels[] = 'Other'; $values[] = $other; }
             return [
                 'kind'     => 'poe',
-                'title'    => sprintf('Suspected cases by point of entry · %s', $windowLabel),
+                'title'    => 'Suspected cases by point of entry',
                 'subtitle' => 'Where the cases were opened. Diseases and risk were not yet recorded for this window.',
                 'labels'   => $labels,
                 'values'   => $values,
@@ -534,7 +533,7 @@ final class SuspectedCasesController extends BaseQuickReportController
             $values = array_values($dayBuckets);
             return [
                 'kind'     => 'day',
-                'title'    => sprintf('Suspected cases per day · %s', $windowLabel),
+                'title'    => 'Suspected cases per day',
                 'subtitle' => 'When the cases were opened, day by day.',
                 'labels'   => $labels,
                 'values'   => $values,
@@ -547,7 +546,7 @@ final class SuspectedCasesController extends BaseQuickReportController
         // ── No data anywhere ───────────────────────────────────────────
         return [
             'kind'     => 'empty',
-            'title'    => sprintf('No suspected cases · %s', $windowLabel),
+            'title'    => 'No suspected cases',
             'subtitle' => 'Nothing to plot in this window. Widen the date range or clear a filter.',
             'labels'   => [],
             'values'   => [],

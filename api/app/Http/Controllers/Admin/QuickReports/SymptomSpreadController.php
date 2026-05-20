@@ -279,7 +279,7 @@ final class SymptomSpreadController extends BaseQuickReportController
             }
             return [
                 'kind'     => 'symptoms',
-                'title'    => sprintf('Top reported symptoms · %d %s · %s', $caseCount, $caseCount === 1 ? 'case' : 'cases', $windowLabel),
+                'title'    => sprintf('Top reported symptoms · %d %s', $caseCount, $caseCount === 1 ? 'case' : 'cases'),
                 'subtitle' => 'How often each symptom was marked YES. Red bars are red-flag symptoms (immediate clinical action warranted).',
                 'labels'   => $labels, 'values' => $values, 'colors' => $colors, 'unit' => 'reports',
             ];
@@ -296,7 +296,7 @@ final class SymptomSpreadController extends BaseQuickReportController
             }
             return [
                 'kind'     => 'poe',
-                'title'    => sprintf('YES symptoms per point of entry · %s', $windowLabel),
+                'title'    => 'YES symptoms per point of entry',
                 'subtitle' => 'Where the symptom reports came from.',
                 'labels'   => $labels, 'values' => $values,
                 'colors'   => array_map(fn ($_, $idx) => self::MATERIAL_PALETTE[$idx % count(self::MATERIAL_PALETTE)], $labels, array_keys($labels)),
@@ -306,7 +306,7 @@ final class SymptomSpreadController extends BaseQuickReportController
 
         return [
             'kind' => 'empty',
-            'title' => sprintf('No symptoms recorded · %s', $windowLabel),
+            'title' => 'No symptoms recorded',
             'subtitle' => 'No YES symptoms in this window. Widen the date range or clear a filter.',
             'labels' => [], 'values' => [], 'colors' => [], 'unit' => 'reports',
         ];

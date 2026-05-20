@@ -74,6 +74,9 @@ final class ReportScope
         'qr-symptoms',
         'qr-poe',
         'qr-country',
+        'qr-daily',
+        'qr-volume',
+        'qr-users',
     ];
 
     public function __construct(protected PheocScope $pheoc)

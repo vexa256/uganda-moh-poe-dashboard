@@ -61,33 +61,34 @@
                 },
                 colors: {
                     // ── shadcn base ────────────────────────────────────────
-                    border:     'hsl(var(--border))',
-                    input:      'hsl(var(--input))',
-                    ring:       'hsl(var(--ring))',
-                    background: 'hsl(var(--background))',
-                    foreground: 'hsl(var(--foreground))',
-                    primary:    { DEFAULT: 'hsl(var(--primary))',    foreground: 'hsl(var(--primary-foreground))' },
-                    secondary:  { DEFAULT: 'hsl(var(--secondary))',  foreground: 'hsl(var(--secondary-foreground))' },
-                    destructive:{ DEFAULT: 'hsl(var(--destructive))',foreground: 'hsl(var(--destructive-foreground))' },
-                    muted:      { DEFAULT: 'hsl(var(--muted))',      foreground: 'hsl(var(--muted-foreground))' },
-                    accent:     { DEFAULT: 'hsl(var(--accent))',     foreground: 'hsl(var(--accent-foreground))' },
-                    popover:    { DEFAULT: 'hsl(var(--popover))',    foreground: 'hsl(var(--popover-foreground))' },
-                    card:       { DEFAULT: 'hsl(var(--card))',       foreground: 'hsl(var(--card-foreground))' },
+                    // <alpha-value> placeholder makes slash-opacity (bg-x/12, ring-x/30, …) work on the Tailwind Play CDN
+                    border:     'hsl(var(--border) / <alpha-value>)',
+                    input:      'hsl(var(--input) / <alpha-value>)',
+                    ring:       'hsl(var(--ring) / <alpha-value>)',
+                    background: 'hsl(var(--background) / <alpha-value>)',
+                    foreground: 'hsl(var(--foreground) / <alpha-value>)',
+                    primary:    { DEFAULT: 'hsl(var(--primary) / <alpha-value>)',    foreground: 'hsl(var(--primary-foreground) / <alpha-value>)' },
+                    secondary:  { DEFAULT: 'hsl(var(--secondary) / <alpha-value>)',  foreground: 'hsl(var(--secondary-foreground) / <alpha-value>)' },
+                    destructive:{ DEFAULT: 'hsl(var(--destructive) / <alpha-value>)',foreground: 'hsl(var(--destructive-foreground) / <alpha-value>)' },
+                    muted:      { DEFAULT: 'hsl(var(--muted) / <alpha-value>)',      foreground: 'hsl(var(--muted-foreground) / <alpha-value>)' },
+                    accent:     { DEFAULT: 'hsl(var(--accent) / <alpha-value>)',     foreground: 'hsl(var(--accent-foreground) / <alpha-value>)' },
+                    popover:    { DEFAULT: 'hsl(var(--popover) / <alpha-value>)',    foreground: 'hsl(var(--popover-foreground) / <alpha-value>)' },
+                    card:       { DEFAULT: 'hsl(var(--card) / <alpha-value>)',       foreground: 'hsl(var(--card-foreground) / <alpha-value>)' },
 
                     // ── Semantic risk tones ────────────────────────────────
-                    low:        { DEFAULT: 'hsl(var(--low))',        foreground: 'hsl(var(--low-foreground))',        soft: 'hsl(var(--low-soft))' },
-                    medium:     { DEFAULT: 'hsl(var(--medium))',     foreground: 'hsl(var(--medium-foreground))',     soft: 'hsl(var(--medium-soft))' },
-                    high:       { DEFAULT: 'hsl(var(--high))',       foreground: 'hsl(var(--high-foreground))',       soft: 'hsl(var(--high-soft))' },
-                    critical:   { DEFAULT: 'hsl(var(--critical))',   foreground: 'hsl(var(--critical-foreground))',   soft: 'hsl(var(--critical-soft))' },
+                    low:        { DEFAULT: 'hsl(var(--low) / <alpha-value>)',        foreground: 'hsl(var(--low-foreground) / <alpha-value>)',        soft: 'hsl(var(--low-soft) / <alpha-value>)' },
+                    medium:     { DEFAULT: 'hsl(var(--medium) / <alpha-value>)',     foreground: 'hsl(var(--medium-foreground) / <alpha-value>)',     soft: 'hsl(var(--medium-soft) / <alpha-value>)' },
+                    high:       { DEFAULT: 'hsl(var(--high) / <alpha-value>)',       foreground: 'hsl(var(--high-foreground) / <alpha-value>)',       soft: 'hsl(var(--high-soft) / <alpha-value>)' },
+                    critical:   { DEFAULT: 'hsl(var(--critical) / <alpha-value>)',   foreground: 'hsl(var(--critical-foreground) / <alpha-value>)',   soft: 'hsl(var(--critical-soft) / <alpha-value>)' },
 
                     // ── Status tones ───────────────────────────────────────
-                    info:       { DEFAULT: 'hsl(var(--info))',       foreground: 'hsl(var(--info-foreground))',       soft: 'hsl(var(--info-soft))' },
-                    success:    { DEFAULT: 'hsl(var(--success))',    foreground: 'hsl(var(--success-foreground))',    soft: 'hsl(var(--success-soft))' },
-                    warning:    { DEFAULT: 'hsl(var(--warning))',    foreground: 'hsl(var(--warning-foreground))',    soft: 'hsl(var(--warning-soft))' },
-                    danger:     { DEFAULT: 'hsl(var(--danger))',     foreground: 'hsl(var(--danger-foreground))',     soft: 'hsl(var(--danger-soft))' },
+                    info:       { DEFAULT: 'hsl(var(--info) / <alpha-value>)',       foreground: 'hsl(var(--info-foreground) / <alpha-value>)',       soft: 'hsl(var(--info-soft) / <alpha-value>)' },
+                    success:    { DEFAULT: 'hsl(var(--success) / <alpha-value>)',    foreground: 'hsl(var(--success-foreground) / <alpha-value>)',    soft: 'hsl(var(--success-soft) / <alpha-value>)' },
+                    warning:    { DEFAULT: 'hsl(var(--warning) / <alpha-value>)',    foreground: 'hsl(var(--warning-foreground) / <alpha-value>)',    soft: 'hsl(var(--warning-soft) / <alpha-value>)' },
+                    danger:     { DEFAULT: 'hsl(var(--danger) / <alpha-value>)',     foreground: 'hsl(var(--danger-foreground) / <alpha-value>)',     soft: 'hsl(var(--danger-soft) / <alpha-value>)' },
 
                     // ── Brand accents ──────────────────────────────────────
-                    brand:      { DEFAULT: 'hsl(var(--brand))',      soft: 'hsl(var(--brand-soft))', ink: 'hsl(var(--brand-ink))' },
+                    brand:      { DEFAULT: 'hsl(var(--brand) / <alpha-value>)',      soft: 'hsl(var(--brand-soft) / <alpha-value>)', ink: 'hsl(var(--brand-ink) / <alpha-value>)' },
                 },
                 borderRadius: {
                     lg:  'var(--radius)',

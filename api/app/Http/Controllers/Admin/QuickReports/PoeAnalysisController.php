@@ -225,7 +225,7 @@ final class PoeAnalysisController extends BaseQuickReportController
             }
             return [
                 'kind'     => 'alerts',
-                'title'    => sprintf('Alerts per point of entry · %s', $windowLabel),
+                'title'    => 'Alerts per point of entry',
                 'subtitle' => 'Which entry points generated the most alerts. Tall bars = supervisor outreach + staffing review.',
                 'labels'   => $labels, 'values' => $values, 'colors' => $this->cycle(count($labels)), 'unit' => 'alerts',
             ];
@@ -241,7 +241,7 @@ final class PoeAnalysisController extends BaseQuickReportController
             }
             return [
                 'kind'     => 'secondary',
-                'title'    => sprintf('Secondary screenings per POE · %s', $windowLabel),
+                'title'    => 'Secondary screenings per POE',
                 'subtitle' => 'Where screening officers are escalating to a clinician. No alerts opened yet.',
                 'labels'   => $labels, 'values' => $values, 'colors' => $this->cycle(count($labels)), 'unit' => 'screenings',
             ];
@@ -257,7 +257,7 @@ final class PoeAnalysisController extends BaseQuickReportController
             }
             return [
                 'kind'     => 'primary',
-                'title'    => sprintf('Primary screenings per POE · %s', $windowLabel),
+                'title'    => 'Primary screenings per POE',
                 'subtitle' => 'Where the throughput is. No escalations to secondary or alerts yet.',
                 'labels'   => $labels, 'values' => $values, 'colors' => $this->cycle(count($labels)), 'unit' => 'screenings',
             ];
@@ -268,7 +268,7 @@ final class PoeAnalysisController extends BaseQuickReportController
             ksort($day);
             return [
                 'kind'     => 'day',
-                'title'    => sprintf('POE activity per day · %s', $windowLabel),
+                'title'    => 'POE activity per day',
                 'subtitle' => 'Combined daily volume across every event type.',
                 'labels'   => array_keys($day), 'values' => array_values($day),
                 'colors'   => $this->cycle(count($day)), 'unit' => 'events',
@@ -277,7 +277,7 @@ final class PoeAnalysisController extends BaseQuickReportController
 
         return [
             'kind' => 'empty',
-            'title' => sprintf('No POE activity · %s', $windowLabel),
+            'title' => 'No POE activity',
             'subtitle' => 'Every POE in scope is dark for this window. Widen the date range.',
             'labels' => [], 'values' => [], 'colors' => [], 'unit' => 'events',
         ];

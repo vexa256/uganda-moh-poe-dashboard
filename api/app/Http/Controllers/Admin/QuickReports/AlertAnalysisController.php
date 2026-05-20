@@ -257,7 +257,7 @@ final class AlertAnalysisController extends BaseQuickReportController
             }
             return [
                 'kind'     => 'day_risk',
-                'title'    => sprintf('Alerts per day · %s', $windowLabel),
+                'title'    => 'Alerts per day',
                 'subtitle' => 'Bar height is the count for that day. Bar colour is the dominant risk on that day — red for Critical, deep orange for High, orange for Medium, green for Low.',
                 'labels'   => $labels, 'values' => $values, 'colors' => $colors, 'unit' => 'alerts',
             ];
@@ -273,7 +273,7 @@ final class AlertAnalysisController extends BaseQuickReportController
             }
             return [
                 'kind'     => 'risk',
-                'title'    => sprintf('Alerts by risk level · %d %s · %s', $total, $total === 1 ? 'alert' : 'alerts', $windowLabel),
+                'title'    => sprintf('Alerts by risk level · %d %s', $total, $total === 1 ? 'alert' : 'alerts'),
                 'subtitle' => 'Critical and High share = same-day clinical attention. Low / Not-set lean toward routine review.',
                 'labels'   => $labels, 'values' => $values, 'colors' => $colors, 'unit' => 'alerts',
             ];
@@ -290,7 +290,7 @@ final class AlertAnalysisController extends BaseQuickReportController
             if (! empty($tier[0])) { $labels[] = 'Not classified'; $values[] = $tier[0]; $colors[] = '#546E7A'; }
             return [
                 'kind'     => 'tier',
-                'title'    => sprintf('Alerts by IHR tier · %s', $windowLabel),
+                'title'    => 'Alerts by IHR tier',
                 'subtitle' => 'How the WHO classifies each alert. Tier 1 always notifiable; Tier 2 review against Annex 2; Tier 3 routine.',
                 'labels'   => $labels, 'values' => $values, 'colors' => $colors, 'unit' => 'alerts',
             ];
@@ -298,7 +298,7 @@ final class AlertAnalysisController extends BaseQuickReportController
 
         return [
             'kind' => 'empty',
-            'title' => sprintf('No alerts · %s', $windowLabel),
+            'title' => 'No alerts',
             'subtitle' => 'Nothing to analyse in this window. Widen the date range or clear a filter.',
             'labels' => [], 'values' => [], 'colors' => [], 'unit' => 'alerts',
         ];

@@ -53,7 +53,7 @@
             <div class="qr-kpi"><p class="qr-kpi-label">Countries visited</p><p class="qr-kpi-value" x-text="fmt(payload.kpis?.distinct_visited)"></p><p class="qr-kpi-hint">Pre-arrival travel history</p></div>
             <div class="qr-kpi"><p class="qr-kpi-label">Transit countries</p><p class="qr-kpi-value" x-text="fmt(payload.kpis?.distinct_transit)"></p><p class="qr-kpi-hint">Stops en route</p></div>
             <div class="qr-kpi" :class="(payload.kpis?.endemic_cases ?? 0) > 0 && 'qr-kpi-warn'"><p class="qr-kpi-label">Endemic-linked cases</p><p class="qr-kpi-value" x-text="fmt(payload.kpis?.endemic_cases)"></p><p class="qr-kpi-hint">Touched a country with active disease</p></div>
-            <div class="qr-kpi"><p class="qr-kpi-label">Top nationality</p><p class="qr-kpi-value text-[14px]" x-text="payload.kpis?.top_nationality || '—'"></p><p class="qr-kpi-hint">Most-frequent passport</p></div>
+            <div class="qr-kpi"><p class="qr-kpi-label">Top nationality</p><p class="qr-kpi-value !text-[15px] !font-semibold leading-snug truncate" x-text="payload.kpis?.top_nationality || '—'"></p><p class="qr-kpi-hint">Most-frequent passport</p></div>
         </div>
     </section>
 

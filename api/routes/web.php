@@ -1035,6 +1035,24 @@ Route::prefix('admin')->name('admin.')
             Route::get ('/data',   [$c, 'data'])  ->name('data');
             Route::get ('/export', [$c, 'export'])->name('export');
         });
+        Route::prefix('daily-screening')->name('daily.')->group(function () {
+            $c = \App\Http\Controllers\Admin\QuickReports\DailyScreeningController::class;
+            Route::get ('/',       [$c, 'index']) ->name('index');
+            Route::get ('/data',   [$c, 'data'])  ->name('data');
+            Route::get ('/export', [$c, 'export'])->name('export');
+        });
+        Route::prefix('screening-volume')->name('volume.')->group(function () {
+            $c = \App\Http\Controllers\Admin\QuickReports\ScreeningVolumeController::class;
+            Route::get ('/',       [$c, 'index']) ->name('index');
+            Route::get ('/data',   [$c, 'data'])  ->name('data');
+            Route::get ('/export', [$c, 'export'])->name('export');
+        });
+        Route::prefix('user-analysis')->name('users.')->group(function () {
+            $c = \App\Http\Controllers\Admin\QuickReports\UserAnalysisController::class;
+            Route::get ('/',       [$c, 'index']) ->name('index');
+            Route::get ('/data',   [$c, 'data'])  ->name('data');
+            Route::get ('/export', [$c, 'export'])->name('export');
+        });
     });
 
     // clin-exposures — ref_exposures + ref_exposure_mappings.
