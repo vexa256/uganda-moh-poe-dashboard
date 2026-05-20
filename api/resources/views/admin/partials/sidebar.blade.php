@@ -109,7 +109,12 @@
 
     $menuSections = [
 
-        // ── 00 · SITUATION ROOM ───────────────────────────────────────────
+        // ── 00 · SITUATION ROOM ─── HIDDEN 2026-05-20 ────────────────────
+        // Removed from the rail per training-team request. Screening Volume
+        // is now the post-login landing (see ff5b3ca). The Situation Room
+        // route itself is intact and reachable via direct URL — only the
+        // sidebar entry is suppressed. Restore by un-commenting this block.
+        /*
         [
             'section' => 'Situation Room',
             'caption' => 'The single-screen PHEOC cockpit.',
@@ -121,6 +126,7 @@
                     url('/admin/reports/rpt-national-dashboard'), true),
             ],
         ],
+        */
 
         // ══════════════════════════════════════════════════════════════════
         // 01 · QUICK REPORTS · top-of-rail shortcuts (added 2026-05-19)

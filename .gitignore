@@ -107,6 +107,8 @@ tests/screenshots/
 # README.md is published.
 *.md
 !README.md
+# Training deliverables — agenda, ToT guide, facilitator quick reference.
+!docs/training/*.md
 .claude/
 .cursor/
 .aider*
@@ -130,7 +132,12 @@ scripts/local-*
 # ─── AI / collaboration notes directories ────────────────────────────────
 # These dirs contain handoffs, plans, runbooks, and architecture notes
 # written for internal/AI consumption. Not for the public repo.
-docs/
+# docs/ is ignored except for the training/ subtree (facilitator-
+# distributed assets: agendas, ToT guide, PPTX, capture & build scripts).
+# Screenshots remain ignored — regenerable, would bloat the repo.
+/docs/*
+!/docs/training/
+/docs/training/screenshots/
 api/docs/
 
 # stray prod dump — never commit
