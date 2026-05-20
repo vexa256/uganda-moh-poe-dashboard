@@ -1603,6 +1603,137 @@ function sameCountry(a, b) {
   return false
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+//  STALE-DATA PURGE — runs after a COMPLETE server pull.
+//
+//  Problem solved: after the server cleared records (admin wipe, expiry,
+//  manual delete), the mobile IDB kept the orphan rows around forever
+//  because no code path actively deleted them. They showed up in the queue
+//  list and made cases appear "open" to officers even though the server
+//  had already removed them.
+//
+//  Trigger: only when the device is online AND we've successfully fetched
+//  EVERY page from /referral-queue (serverItems.length >= data.total).
+//  A partial pull (network blip mid-page) MUST NOT trigger this — we'd
+//  delete valid local data we just didn't see.
+//
+//  What is kept (NEVER purged):
+//    • sync_status === UNSYNCED  → user's local-only edit, not yet pushed
+//    • synced_at IS NULL         → never been on the server, can't be stale
+//    • already soft-deleted      → idempotent skip
+//    • client_uuid in server set → server knows this record
+//    • id (server integer) in server set → server knows this record
+//
+//  What is purged (soft-delete cascade):
+//    • Notification: deleted_at = now
+//    • Linked secondary_screening (by id OR client_uuid): deleted_at = now
+//    • Child rows of that case (symptoms / exposures / actions / samples /
+//      travel_countries / suspected_diseases): deleted_at = now
+//  Soft-delete keeps an audit trail and survives later sync engine queries.
+// ─────────────────────────────────────────────────────────────────────────
+async function purgeStaleAgainstServer(serverItems, totalOnServer) {
+  try {
+    if (!Array.isArray(serverItems)) return
+    // Guard: we must have fetched the FULL set, not a partial page slice.
+    // If totalOnServer is unset (0) and serverItems is empty → server says
+    // there are zero records → every IDB row that was previously synced
+    // is stale. If totalOnServer > serverItems.length → partial pull → bail.
+    if (totalOnServer > serverItems.length) {
+      console.log('[NQ] purgeStaleAgainstServer: partial pull (' + serverItems.length + '/' + totalOnServer + ') — skipping stale purge')
+      return
+    }
+
+    // Build server-known identifier sets.
+    const serverUuids = new Set()
+    const serverIds   = new Set()
+    for (const s of serverItems) {
+      if (s?.notification_uuid) serverUuids.add(String(s.notification_uuid))
+      if (s?.notification_id)   serverIds.add(Number(s.notification_id))
+    }
+
+    const allNotifs = await dbGetAll(STORE.NOTIFICATIONS) || []
+    const now = serverIsoNow()
+    let purgedNotifs = 0
+    let purgedCases  = 0
+    let purgedKids   = 0
+
+    for (const n of allNotifs) {
+      if (n.deleted_at) continue
+      // Never touch local-only edits that haven't been pushed yet.
+      if (n.sync_status === SYNC.UNSYNCED) continue
+      if (!n.synced_at) continue
+      // Identifier match — server still knows this record.
+      const localUuid = n.client_uuid ? String(n.client_uuid) : null
+      const localId   = n.id ? Number(n.id) : null
+      if (localUuid && serverUuids.has(localUuid)) continue
+      if (localId   && serverIds.has(localId))     continue
+
+      // Stale — server doesn't know about it any more. Soft-delete the
+      // notification, the linked secondary case, and that case's child
+      // rows so the queue / case-file pages stop rendering it.
+      await safeDbPut(STORE.NOTIFICATIONS, {
+        ...n,
+        deleted_at: now,
+        updated_at: now,
+      }).catch(() => {})
+      purgedNotifs++
+
+      // Find any linked secondary screening — try every key shape we may
+      // have written ('notification_id' indexed by uuid OR server int).
+      const lookupKeys = Array.from(new Set([n.client_uuid, n.id, n.server_id].filter(Boolean)))
+      const secs = []
+      for (const k of lookupKeys) {
+        const rows = await dbGetByIndex(STORE.SECONDARY_SCREENINGS, 'notification_id', k).catch(() => [])
+        if (rows && rows.length) secs.push(...rows)
+      }
+      // De-dup by client_uuid in case both id-shapes returned the same row.
+      const seen = new Set()
+      const uniqueSecs = secs.filter(s => {
+        const k = s.client_uuid
+        if (!k || seen.has(k)) return false
+        seen.add(k); return true
+      })
+      for (const sec of uniqueSecs) {
+        if (sec.deleted_at) continue
+        await safeDbPut(STORE.SECONDARY_SCREENINGS, {
+          ...sec,
+          deleted_at: now,
+          updated_at: now,
+        }).catch(() => {})
+        purgedCases++
+
+        // Cascade to child tables. Keyed by the case's client_uuid in IDB.
+        const childStores = [
+          STORE.SECONDARY_SYMPTOMS,
+          STORE.SECONDARY_EXPOSURES,
+          STORE.SECONDARY_ACTIONS,
+          STORE.SECONDARY_SAMPLES,
+          STORE.SECONDARY_TRAVEL_COUNTRIES,
+          STORE.SECONDARY_SUSPECTED_DISEASES,
+        ]
+        for (const childStore of childStores) {
+          const kids = await dbGetByIndex(childStore, 'secondary_screening_id', sec.client_uuid).catch(() => [])
+          for (const kid of (kids || [])) {
+            if (kid.deleted_at) continue
+            await safeDbPut(childStore, {
+              ...kid,
+              deleted_at: now,
+              updated_at: now,
+            }).catch(() => {})
+            purgedKids++
+          }
+        }
+      }
+    }
+
+    if (purgedNotifs > 0 || purgedCases > 0) {
+      console.log(`[NQ] purgeStaleAgainstServer: soft-deleted ${purgedNotifs} notification(s), ${purgedCases} secondary case(s), ${purgedKids} child row(s) absent from server snapshot (n=${serverItems.length})`)
+    }
+  } catch (e) {
+    console.warn('[NQ] purgeStaleAgainstServer error', e?.message)
+  }
+}
+
 async function purgeForeignCountryRecords() {
   // Mandate 2026-05-06 (rwanda1 bug fix): only purge records whose country
   // is UNAMBIGUOUSLY foreign relative to the current user's country.
@@ -1792,6 +1923,24 @@ async function load() {
         markUiSynced()
         await refreshIdbStats()
       }
+
+      // ── Stale-data purge against the server snapshot ──────────────────
+      // After a complete server pull we have an authoritative list of what
+      // the server still knows about. Anything in the local IDB that was
+      // previously SYNCED but is no longer in that list is stale (admin
+      // wipe, expiry, manual delete) — soft-delete it so the queue stops
+      // rendering ghost cases. UNSYNCED local-only edits are preserved.
+      // Only fires when totalItems.length >= server's total (full pull).
+      await purgeStaleAgainstServer(totalItems, totalOnServer.value)
+      // Re-read the visible window from IDB so the freshly-purged ghosts
+      // disappear from the queue without waiting for the next poll.
+      try {
+        const refreshed = await readIdbPage(0)
+        allItems.value      = refreshed
+        idbPageOffset.value = IDB_PAGE_SIZE
+        hasMoreIdb.value    = refreshed.length === IDB_PAGE_SIZE
+        await refreshIdbStats()
+      } catch (_) { /* non-fatal — next poll will reconcile */ }
 
       // ── Reconcile against tenant snapshot ───────────────────────────
       // After a full pull we know the server's authoritative view. Use
