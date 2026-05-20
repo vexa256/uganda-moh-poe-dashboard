@@ -38,7 +38,7 @@ final class ProvincesController extends Controller
         return view('admin.geo.provinces.index', [
             'page_title'    => 'Provincial PHEOCs',
             'page_eyebrow'  => 'Geography · Provinces',
-            'page_subtitle' => 'Zambia\'s ten provincial Public Health Emergency Operations Centres.',
+            'page_subtitle' => "Uganda's regional Public Health Emergency Operations Centres (PHEOCs).",
         ]);
     }
 

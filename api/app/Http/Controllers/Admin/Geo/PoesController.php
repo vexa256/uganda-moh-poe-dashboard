@@ -328,7 +328,7 @@ final class PoesController extends Controller
                     'transport_mode_rule' => "Derived from poe_type='{$poeType}' (server-owned per shape contract).",
                     'border_country_rule' => $isAirport || $poeType === 'port' ? 'null for airport/port' : 'guessed from neighbouring frontier patterns; verify',
                     'osbp_rule'           => $isOSBP ? 'Name matches known commissioned OSBP list.' : 'Not in known OSBP list — leave false unless confirmed.',
-                    'external_id_rule'    => 'Deterministic RW-PROV3-DIST3-NAME3-NNN; collision-incremented.',
+                    'external_id_rule'    => 'Deterministic ' . strtoupper((string) (config('country.iso2') ?: 'UG')) . '-PROV3-DIST3-NAME3-NNN; collision-incremented.',
                 ],
             ], 'Suggestions.');
         } catch (Throwable $e) {
@@ -476,6 +476,17 @@ final class PoesController extends Controller
         try {
             if (DB::table('ref_poes')->where('external_id', $externalId)->exists()) {
                 return $this->err(409, 'PoE with that external_id exists.', ['external_id' => $externalId]);
+            }
+
+            // 2026-05-20: also pre-flight check poe_code uniqueness against the
+            // DB's composite unique index (country_code, poe_code). Without this
+            // pre-flight, MySQL throws SQLSTATE 23000 and Laravel surfaces it
+            // as a 500 — bad UX for what is really a validation failure.
+            if (DB::table('ref_poes')->where('country_code', $country)->where('poe_code', $poeCode)->exists()) {
+                return $this->err(409, 'A PoE with that code already exists in this country.', [
+                    'poe_code' => $poeCode,
+                    'hint'     => 'Pick a different name (poe_code follows poe_name) or override the poe_code field on Step 3 / Advanced.',
+                ]);
             }
 
             $districtRaw = (string) ($district->name_raw ?? preg_replace('/\s+District\s*$/u', '', $district->name));
@@ -656,6 +667,24 @@ final class PoesController extends Controller
             if (array_key_exists('latitude',      $data)) { $patch['latitude']      = $data['latitude']; }
             if (array_key_exists('longitude',     $data)) { $patch['longitude']     = $data['longitude']; }
 
+            // 2026-05-20: pre-flight poe_code uniqueness against the composite
+            // (country_code, poe_code) unique index. Skip the check when the
+            // poe_code is unchanged. Without this, MySQL throws 23000 and
+            // Laravel surfaces a 500 — better to return a clean 409.
+            if ((string) $patch['poe_code'] !== (string) $row->poe_code) {
+                $clash = DB::table('ref_poes')
+                    ->where('country_code', $row->country_code)
+                    ->where('poe_code',     $patch['poe_code'])
+                    ->where('id', '!=', $row->id)
+                    ->exists();
+                if ($clash) {
+                    return $this->err(409, 'Another PoE in this country already uses that code.', [
+                        'poe_code' => $patch['poe_code'],
+                        'hint'     => 'Change poe_name (poe_code follows it) or set a distinct poe_code override.',
+                    ]);
+                }
+            }
+
             DB::table('ref_poes')->where('id', $row->id)->update($patch);
             $this->bumpVersion((string) $row->country_code);
             $fresh = DB::table('ref_poes')->where('id', $row->id)->first();
@@ -752,8 +781,13 @@ final class PoesController extends Controller
 
     /**
      * Deterministic external_id generator matching legacy POEs.js
-     * (RW-PROV3-DIST3-NAME3-NNN). Uses the same first-3-alphanumeric
+     * (TENANT_ISO2-PROV3-DIST3-NAME3-NNN). Uses the same first-3-alphanumeric
      * convention as GeoHierarchyController so any path produces identical ids.
+     *
+     * 2026-05-20: prefix sourced from config('country.iso2') instead of a
+     * hardcoded literal. Previously hardcoded to 'RW-' (Rwanda residue) which
+     * silently stamped every NEW Uganda POE with a Rwanda-shaped id. Existing
+     * seeded rows have external_id IS NULL, so no historical data corruption.
      */
     private function nextExternalId(string $country, string $province, string $district, string $name): string
     {
@@ -762,7 +796,8 @@ final class PoesController extends Controller
             $clean = substr($clean, 0, 3);
             return $clean !== '' ? $clean : 'XXX';
         };
-        $prefix = 'RW-' . $seg($province) . '-' . $seg($district) . '-' . $seg($name) . '-';
+        $iso2   = strtoupper((string) (config('country.iso2') ?: 'UG'));
+        $prefix = $iso2 . '-' . $seg($province) . '-' . $seg($district) . '-' . $seg($name) . '-';
         for ($n = 1; $n <= 999; $n++) {
             $candidate = $prefix . str_pad((string) $n, 3, '0', STR_PAD_LEFT);
             if (!DB::table('ref_poes')->where('external_id', $candidate)->exists()) {

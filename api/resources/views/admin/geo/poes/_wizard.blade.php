@@ -79,7 +79,7 @@
                         <div>
                             <label class="label">Official PoE name <span class="text-critical">*</span></label>
                             <input type="text" class="input mt-1.5"
-                                   placeholder="e.g. Mwami, Kasumbalesa, Mfuwe International Airport"
+                                   placeholder="e.g. Busia, Malaba, Entebbe International Airport"
                                    x-model="wizard.form.poe_name"
                                    @input.debounce.300ms="scheduleSuggest()">
                             <p class="help-text mt-1.5">poe_code follows poe_name automatically. Type, transport, and source URL are server-derived.</p>
@@ -198,7 +198,7 @@
                             <div class="min-w-0 flex-1">
                                 <p class="text-[12.5px] font-semibold">Recommended OSBP</p>
                                 <p class="text-[11.5px] text-muted-foreground">
-                                    Commissioned One-Stop Border Post — Chirundu / Nakonde / Mwami / Kazungula Road today.
+                                    Commissioned One-Stop Border Post &mdash; Busia / Malaba / Mutukula / Mirama Hills / Elegu today.
                                     <span x-show="wizard.suggestions?.is_recommended_osbp" class="text-brand font-semibold">Server suggests ON.</span>
                                 </p>
                             </div>

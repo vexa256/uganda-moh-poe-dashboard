@@ -1233,9 +1233,14 @@ final class GeoHierarchyController extends Controller
 
     /**
      * Deterministic external_id generator matching the legacy POEs.js
-     * pattern (ZM-PROV3-DIST3-NAME3-NNN).  Falls back on a random suffix
-     * only if the deterministic 3-digit sequence collides 999 times —
+     * pattern (TENANT_ISO2-PROV3-DIST3-NAME3-NNN). Falls back on a random
+     * suffix only if the deterministic 3-digit sequence collides 999 times —
      * which is impossible in practice for a single country.
+     *
+     * 2026-05-20: prefix sourced from config('country.iso2'). Previously
+     * hardcoded to 'ZM-' (Zambia residue from upstream codebase). Must
+     * stay in sync with Admin\Geo\PoesController::nextExternalId so both
+     * write paths produce identical ids.
      */
     private function nextExternalId(string $country, string $province, string $district, string $name): string
     {
@@ -1245,7 +1250,8 @@ final class GeoHierarchyController extends Controller
             $clean = substr($clean, 0, 3);
             return $clean !== '' ? $clean : 'XXX';
         };
-        $prefix = 'ZM-' . $seg($province) . '-' . $seg($district) . '-' . $seg($name) . '-';
+        $iso2   = strtoupper((string) (config('country.iso2') ?: 'UG'));
+        $prefix = $iso2 . '-' . $seg($province) . '-' . $seg($district) . '-' . $seg($name) . '-';
         for ($n = 1; $n <= 999; $n++) {
             $candidate = $prefix . str_pad((string) $n, 3, '0', STR_PAD_LEFT);
             if (!DB::table('ref_poes')->where('external_id', $candidate)->exists()) {
