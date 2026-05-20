@@ -5611,7 +5611,37 @@ const syncStatus = reactive({
   error:         null,   // unhandled error message
 })
 
+// ── SYNC SERIALISATION MUTEX (per-page-load) ──────────────────────────────
+// syncCaseToServer is called from EVERY step transition (1→2, 2→3, 3→4)
+// AND twice from dispositionCase (once after alert creation, once as the
+// fire-and-forget "final" push). Each call is fire-and-forget, so without
+// serialisation:
+//
+//   • Step 3 sync starts, builds p2 from IDB (suspected_diseases = [] —
+//     the engine hasn't run yet → IDB hasn't been written).
+//   • Step 4 engine runs in-memory: suspectedDiseases.value = [3 items].
+//   • dispositionCase writes those 3 items to IDB then fires sync.
+//   • Disposition sync starts, builds p2 from IDB (suspected_diseases = [3]).
+//   • Both POSTs fly. Network reorders, server processes Step 3's payload
+//     LAST. Server stores suspected_diseases = []. The 3 diseases the
+//     operator saw on screen vanish into the void. Case stays IN_PROGRESS
+//     because Step 3's payload had case_status = 'IN_PROGRESS' too.
+//
+// Fix: a per-page-load FIFO mutex. Each call awaits its predecessor before
+// posting. Ordering preserved. Disposition sync ALWAYS lands after Step 3.
+let _syncMutex = Promise.resolve()
+
 async function syncCaseToServer(localAuth) {
+  // FIFO queue against the previous in-flight sync. Crucial for ordering:
+  // the network/server can reorder concurrent POSTs but cannot reorder
+  // sequential ones.
+  const prev = _syncMutex
+  let release
+  _syncMutex = new Promise(resolve => { release = resolve })
+  try {
+    await prev
+  } catch (_) { /* prior call's error must not poison ours */ }
+
   syncStatus.running = true
   syncStatus.error   = null
   L.info('syncCaseToServer: START', {
@@ -6047,6 +6077,9 @@ async function syncCaseToServer(localAuth) {
   } finally {
     syncStatus.running  = false
     syncStatus.lastRunAt = syncStatus.lastRunAt ?? isoNow()
+    // Release the FIFO mutex so the next queued sync can run. Must happen
+    // in finally so an uncaught throw above doesn't deadlock the queue.
+    try { release() } catch (_) { /* release is always defined here */ }
   }
 }
 
