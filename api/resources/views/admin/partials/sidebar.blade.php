@@ -41,7 +41,21 @@
     // entry whose id appears in ReportScope::REPORT_KEYS is filtered through
     // ReportAccess::canSee() at render time below — see the foreach over
     // $section['items'].
+    // ──────────────────────────────────────────────────────────────────────
+    // DEPRECATED 2026-05-20 · all 12 rpt-* legacy report sidebar entries hidden.
+    //
+    //   Replaced by the Quick Reports family (qr-* under /admin/quick-reports/*),
+    //   which covers every metric these surfaces produced and is the canonical
+    //   user-facing reporting experience going forward.
+    //
+    //   Routes + controllers remain LIVE for API back-compat and direct deep-links.
+    //   ReportScope::REPORT_KEYS still contains the rpt-* keys for RBAC parity.
+    //   ONLY the sidebar entries are removed so users don't see them.
+    //
+    //   To restore: remove the /* */ wrapper below.
+    // ──────────────────────────────────────────────────────────────────────
     $reportsItems = [
+        /*
         $nav('rpt-national-dashboard', 'National Dashboard',
             'Cross-cutting executive overview · KPIs from R1–R10 in one page · drill into any report',
             'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
@@ -90,6 +104,7 @@
             'R10 · Top origin countries · top alert-generating countries · transit routes · endemic-country flow',
             'M12 21v-1m0 0a8 8 0 100-16 8 8 0 000 16zM8 12h8M12 8v8',
             url('/admin/reports/rpt-country-travel'), true),
+        */
     ];
 
     $menuSections = [
@@ -249,9 +264,16 @@
                 // // gate to CLOSED. Cron hourlyAt(:15) fires DUE / OVERDUE.
                 // $nav('alert-followups', 'Followups',         '14 RTSL items · PENDING · IN_PROGRESS · COMPLETED · BLOCKED · NOT_APPLICABLE · blocks_closure tracker · FOLLOWUP_DUE / FOLLOWUP_OVERDUE schedule',                         'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4', url('/admin/alerts/followups'), true),
 
+                // ───── DEPRECATED 2026-05-20 · hidden from sidebar UX ─────
+                //   Routes + controllers remain LIVE for back-compat and deep-links.
+                //   Removed from sidebar per ops-team consolidation: workflow now
+                //   flows through the alert-hub tabbed table (above) + case-file.
+                //   Restore by un-commenting.
+                /*
                 $nav('alert-ownership', "Who's Handling What", 'Every active alert and who is responsible · assign or reassign with one wizard · assignment history per case',            'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',                                                                                                                                                                                                                                                                                                 url('/admin/alerts/ownership'), true),
                 $nav('alert-caseroom',  'Open Cases',          'All active cases in your scope · add notes · attach documents · see required steps · open case workspace',                               'M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2v16z',                                                                                                                                                                                                                                                                              url('/admin/alerts/case-room'), true),
                 $nav('alert-sla',       'Overdue Actions',     'Every alert that has missed its response deadline · reassign · record reason · sorted by most overdue first',                            'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',                                                                                                                                                                                                                                                                                    url('/admin/alerts/sla'), true),
+                */
             ],
         ],
 
@@ -405,12 +427,19 @@
 
     ];
 
-    $menuSections[] = [
-        'section' => 'Reports',
-        'caption' => 'Executive reporting module · 11 surfaces · wizard-driven · PNG + CSV export per graph.',
-        'icon'    => 'M9 17v-2a4 4 0 00-4-4H3m14 0h-2a4 4 0 00-4 4v2M17 20h4M19 18v4',
-        'items'   => $reportsItems,
-    ];
+    // Only register the legacy "Reports" section when it has live items.
+    // DEPRECATED 2026-05-20 — $reportsItems is intentionally empty (all 12 legacy
+    // rpt-* sidebar entries hidden in favour of Quick Reports). When non-empty
+    // (e.g. an item is uncommented above to restore it), the section header
+    // reappears automatically.
+    if (! empty($reportsItems)) {
+        $menuSections[] = [
+            'section' => 'Reports',
+            'caption' => 'Executive reporting module · wizard-driven · PNG + CSV export per graph.',
+            'icon'    => 'M9 17v-2a4 4 0 00-4-4H3m14 0h-2a4 4 0 00-4 4v2M17 20h4M19 18v4',
+            'items'   => $reportsItems,
+        ];
+    }
 
     $currentPath = trim(request()->path(), '/');
 
