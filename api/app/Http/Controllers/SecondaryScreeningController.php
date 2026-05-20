@@ -772,6 +772,154 @@ final class SecondaryScreeningController extends Controller
     }
 
     // ═════════════════════════════════════════════════════════════════════
+    // GET /secondary-screenings/{id}/verify
+    //
+    // In-app self-test for the mobile officer. Returns a compact, verification-
+    // shaped payload grouping every UI-captured field into logical sections
+    // (biodata, travel, vitals, triage, engine-generated suspected diseases,
+    // syndrome / risk / disposition, child-row counts) so the view can
+    // compare what the officer believes they sent against what the database
+    // actually stored. No side effects, read-only.
+    // ═════════════════════════════════════════════════════════════════════
+
+    public function verify(Request $request, int $id): JsonResponse
+    {
+        $userId = (int) $request->query('user_id', 0);
+        if ($userId <= 0) {
+            return $this->err(422, 'user_id query parameter is required.', [
+                'hint' => 'Append ?user_id={AUTH_DATA.id}',
+            ]);
+        }
+
+        $assignment = $this->resolvePrimaryAssignment($userId);
+        if (! $assignment) {
+            return $this->err(403, 'No active assignment.', ['user_id' => $userId]);
+        }
+
+        try {
+            $case = DB::table('secondary_screenings')
+                ->where('id', $id)->whereNull('deleted_at')->first();
+            if (! $case) {
+                return $this->err(404, 'Secondary screening case not found.', ['id' => $id]);
+            }
+
+            $scopeErr = $this->checkScope(
+                $case,
+                $assignment,
+                DB::table('users')->where('id', $userId)->first()
+            );
+            if ($scopeErr) {
+                return $scopeErr;
+            }
+
+            // Child collections — full rows for the diseases (the officer needs
+            // to see the engine output landed verbatim) and counts for the rest
+            // so the view can run row-count equality checks against IDB.
+            $diseases = DB::table('secondary_suspected_diseases')
+                ->where('secondary_screening_id', $id)
+                ->orderBy('rank_order')
+                ->get(['disease_code', 'rank_order', 'confidence', 'reasoning']);
+
+            $symptomCount         = (int) DB::table('secondary_symptoms')->where('secondary_screening_id', $id)->count();
+            $exposureCount        = (int) DB::table('secondary_exposures')->where('secondary_screening_id', $id)->count();
+            $actionCount          = (int) DB::table('secondary_actions')->where('secondary_screening_id', $id)->count();
+            $travelCountryCount   = (int) DB::table('secondary_travel_countries')->where('secondary_screening_id', $id)->count();
+            $sampleCount          = (int) DB::table('secondary_samples')->where('secondary_screening_id', $id)->count();
+            $diseaseCount         = $diseases->count();
+
+            $alert = DB::table('alerts')
+                ->where('secondary_screening_id', $id)
+                ->whereNull('deleted_at')
+                ->orderBy('id', 'desc')
+                ->first(['id', 'alert_code', 'status', 'risk_level', 'routed_to_level', 'ihr_tier']);
+
+            $payload = [
+                'case_id'        => (int) $case->id,
+                'client_uuid'    => $case->client_uuid,
+                'case_status'    => $case->case_status,
+                'sync_status'    => $case->sync_status,
+                'record_version' => (int) $case->record_version,
+                'updated_at'     => $case->updated_at,
+
+                // Group 1 — Biodata (Step 1 bio section)
+                'biodata' => [
+                    'traveler_full_name'                => $case->traveler_full_name,
+                    'traveler_gender'                   => $case->traveler_gender,
+                    'traveler_age_years'                => $case->traveler_age_years,
+                    'traveler_dob'                      => $case->traveler_dob,
+                    'travel_document_type'              => $case->travel_document_type,
+                    'travel_document_number'            => $case->travel_document_number,
+                    'traveler_nationality_country_code' => $case->traveler_nationality_country_code,
+                    'residence_country_code'            => $case->residence_country_code,
+                    'phone_number'                      => $case->phone_number,
+                ],
+
+                // Group 2 — Travel / journey (Step 1 travel section)
+                'travel' => [
+                    'journey_start_country_code' => $case->journey_start_country_code,
+                    'conveyance_type'            => $case->conveyance_type,
+                    'conveyance_identifier'      => $case->conveyance_identifier,
+                    'arrival_datetime'           => $case->arrival_datetime,
+                    'purpose_of_travel'          => $case->purpose_of_travel,
+                    'destination_district_code'  => $case->destination_district_code,
+                    'travel_countries_count'     => $travelCountryCount,
+                ],
+
+                // Group 3 — Vitals + triage (Step 2)
+                'vitals' => [
+                    'temperature_value'       => $case->temperature_value,
+                    'temperature_unit'        => $case->temperature_unit,
+                    'pulse_rate'              => $case->pulse_rate,
+                    'respiratory_rate'        => $case->respiratory_rate,
+                    'bp_systolic'             => $case->bp_systolic,
+                    'bp_diastolic'            => $case->bp_diastolic,
+                    'oxygen_saturation'       => $case->oxygen_saturation,
+                    'triage_category'         => $case->triage_category,
+                    'emergency_signs_present' => (int) ($case->emergency_signs_present ?? 0),
+                    'general_appearance'      => $case->general_appearance,
+                ],
+
+                // Group 4 — Engine output (Step 4) + Disposition (Step 5)
+                'engine' => [
+                    'syndrome_classification' => $case->syndrome_classification,
+                    'risk_level'              => $case->risk_level,
+                    'suspected_diseases'      => $diseases->map(fn ($r) => (array) $r)->values(),
+                    'suspected_diseases_count' => $diseaseCount,
+                    'alert_raised'            => $alert ? true : false,
+                    'alert'                   => $alert ? (array) $alert : null,
+                ],
+                'disposition' => [
+                    'final_disposition'       => $case->final_disposition,
+                    'officer_notes'           => $case->officer_notes,
+                    'followup_required'       => (int) ($case->followup_required ?? 0),
+                    'followup_assigned_level' => $case->followup_assigned_level,
+                    'dispositioned_at'        => $case->dispositioned_at,
+                    'closed_at'               => $case->closed_at,
+                ],
+
+                // Group 5 — Child-table row counts (the view compares these
+                // against IDB counts to catch silent sync drops)
+                'child_counts' => [
+                    'symptoms'           => $symptomCount,
+                    'exposures'          => $exposureCount,
+                    'actions'            => $actionCount,
+                    'travel_countries'   => $travelCountryCount,
+                    'suspected_diseases' => $diseaseCount,
+                    'samples'            => $sampleCount,
+                ],
+            ];
+
+            return $this->ok($payload, 'Verification snapshot retrieved.', [
+                'endpoint'   => 'GET /secondary-screenings/{id}/verify',
+                'purpose'    => 'In-app self-test: confirms every UI field landed in DB.',
+                'generated'  => now()->toIso8601String(),
+            ]);
+        } catch (Throwable $e) {
+            return $this->serverError($e, 'secondary_screenings verify');
+        }
+    }
+
+    // ═════════════════════════════════════════════════════════════════════
     // PATCH /secondary-screenings/{id}
     // Partial field update. CLOSED cases rejected. Stale writes discarded.
     // FIX 2: screening_outcome in allowed fields list.
@@ -876,6 +1024,10 @@ final class SecondaryScreeningController extends Controller
                     'hint'        => 'See valid_values in each error entry.',
                 ]);
             }
+
+            // Defensive: coerce any enum value that would truncate against
+            // the actual MySQL ENUM. See coerceForDbEnums() for rationale.
+            $updates = $this->coerceForDbEnums($updates);
 
             // FIX 2: Encode screening_outcome into disposition_details
             if (isset($updates['screening_outcome'])) {
@@ -1682,6 +1834,12 @@ final class SecondaryScreeningController extends Controller
                             ]);
                         }
 
+                        // Defensive: coerce any enum value that would truncate
+                        // against the *actual* MySQL ENUM. Prevents the entire
+                        // transaction (including child writes) from rolling
+                        // back on a stale or out-of-band enum value.
+                        $fieldUpdates = $this->coerceForDbEnums($fieldUpdates);
+
                         $newStatus = isset($fieldUpdates['case_status'])
                             ? strtoupper((string) $fieldUpdates['case_status']) : null;
 
@@ -2425,6 +2583,110 @@ final class SecondaryScreeningController extends Controller
      * Validate enum fields in an update/sync payload.
      * FIX 2: screening_outcome added to enum map.
      */
+    /**
+     * Coerce / canonicalise enum field values against the *actual MySQL ENUM*
+     * for each column so an unknown value cannot cause "Data truncated"
+     * (SQLSTATE 01000, error 1265) inside the fullSync transaction.
+     *
+     * Rationale: validateEnums() accepts the PHP-whitelist union which is
+     * intentionally wider than each MySQL ENUM (the controller has historically
+     * added new canonical codes ahead of schema migrations). That mismatch
+     * caused 35+ production rollbacks where final_disposition='RELEASED_NO_CONDITION'
+     * truncated → the whole UPDATE rolled back → syndrome / risk_level / actions /
+     * suspected_diseases were ALL silently lost even though the mobile app and
+     * the validator both reported success.
+     *
+     * After this coercion runs, every enum field is either a value MySQL
+     * accepts, or has been removed from the update payload (so the DB falls
+     * back to its prior value rather than aborting the whole transaction).
+     * The original value is logged + stashed in disposition_details when
+     * the field is final_disposition so we never silently lose the operator's
+     * intent.
+     */
+    private function coerceForDbEnums(array $updates): array
+    {
+        // Mirrors the actual MySQL ENUM definitions on secondary_screenings.
+        // KEEP IN SYNC with database migrations — these are the values the
+        // DB will actually accept. The post-2026-05-20 migration extends
+        // final_disposition to the 14 codes below.
+        $dbEnums = [
+            'final_disposition' => [
+                'RELEASED', 'DELAYED', 'QUARANTINED', 'ISOLATED', 'REFERRED',
+                'TRANSFERRED', 'DENIED_BOARDING', 'OTHER',
+                'RELEASED_NO_CONDITION', 'RELEASED_UNDER_FOLLOWUP',
+                'REFERRED_HEALTH_FACILITY', 'ISOLATED_ADMITTED',
+                'DECEASED_AT_POE', 'RETURN_TO_ORIGIN',
+            ],
+            'case_status'             => ['OPEN', 'IN_PROGRESS', 'DISPOSITIONED', 'CLOSED'],
+            'traveler_gender'         => ['MALE', 'FEMALE', 'OTHER', 'UNKNOWN'],
+            'risk_level'              => ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'],
+            'triage_category'         => ['NON_URGENT', 'URGENT', 'EMERGENCY'],
+            'general_appearance'      => ['WELL', 'UNWELL', 'SEVERELY_ILL'],
+            'conveyance_type'         => ['AIR', 'LAND', 'SEA', 'OTHER'],
+            'temperature_unit'        => ['C', 'F'],
+            'followup_assigned_level' => ['POE', 'DISTRICT', 'PHEOC', 'NATIONAL'],
+        ];
+
+        // When a value is non-empty but not DB-valid, prefer a safe fallback
+        // rather than dropping the update silently — the alternative is the
+        // case ending up with a NULL where the officer chose SOMETHING.
+        $fallbacks = [
+            'final_disposition' => 'OTHER',
+            'traveler_gender'   => 'UNKNOWN',
+            'conveyance_type'   => 'OTHER',
+            'temperature_unit'  => 'C',
+        ];
+
+        foreach ($dbEnums as $field => $validValues) {
+            if (! array_key_exists($field, $updates)) {
+                continue;
+            }
+
+            $raw = $updates[$field];
+            // Preserve nulls / empty — they mean "officer hasn't filled this in"
+            // and should not be coerced into a fake value.
+            if ($raw === null) {
+                continue;
+            }
+            if (is_string($raw) && trim($raw) === '') {
+                continue;
+            }
+
+            $val = strtoupper((string) $raw);
+            if (in_array($val, $validValues, true)) {
+                // Canonicalise case for safety (DB stores uppercase).
+                $updates[$field] = $val;
+                continue;
+            }
+
+            // Value would truncate. Log and either fallback or strip.
+            if (isset($fallbacks[$field])) {
+                Log::warning('[SecondaryScreening][coerceForDbEnums] value not in DB enum — using fallback', [
+                    'field'    => $field,
+                    'received' => $raw,
+                    'fallback' => $fallbacks[$field],
+                ]);
+                $updates[$field] = $fallbacks[$field];
+
+                // For final_disposition specifically, preserve the operator's
+                // original intent in disposition_details (a free-text column,
+                // varchar). The dashboards already render disposition_details
+                // when present, so the original code is not lost.
+                if ($field === 'final_disposition' && empty($updates['disposition_details'])) {
+                    $updates['disposition_details'] = 'ORIGINAL_DISPOSITION=' . substr((string) $raw, 0, 60);
+                }
+            } else {
+                Log::warning('[SecondaryScreening][coerceForDbEnums] value not in DB enum — stripped from update', [
+                    'field'    => $field,
+                    'received' => $raw,
+                ]);
+                unset($updates[$field]);
+            }
+        }
+
+        return $updates;
+    }
+
     private function validateEnums(array $fields): array
     {
         $enumMap = [

@@ -238,7 +238,14 @@ final class CaseFileRegistryController extends BaseReportController
      * deep links from Alert Intel / Resolution DB / etc. can land directly
      * on the full case file instead of the cramped 460px drill side-sheet.
      */
-    public function show(Request $request, int $id): \Symfony\Component\HttpFoundation\Response
+    // Return-type union: this action returns a redirect (Symfony Response)
+    // when the {id} resolves to an alert, and a view when it resolves to a
+    // secondary screening. Pinning the type to Response only made Laravel
+    // throw "Return value must be of type Response, View returned" on every
+    // happy-path render — visible as random 500s in production. View
+    // implements Renderable, not Response, so we widen the union to cover
+    // both legal return shapes.
+    public function show(Request $request, int $id): \Illuminate\Contracts\View\View|\Symfony\Component\HttpFoundation\Response
     {
         $scope = $this->ensureAccess($request);
 

@@ -1027,7 +1027,12 @@ export async function flushAll(reason = 'manual') {
     _flushing = false
     const dur = Date.now() - t0
     pushEvent('flush-end', { reason, dur, stats })
-    log('log', `flush(${reason}) done in ${dur}ms`, stats)
+    // TEMP-SILENCED 2026-05-19 — flush-completion log was spamming the console
+    // every poll tick (heartbeat-visible + NotificationsCenter:poll). The
+    // event is still emitted via pushEvent('flush-end', …) above, so any UI
+    // surface that listens through onSyncEvent() still gets the data. Restore
+    // by uncommenting the line below.
+    // log('log', `flush(${reason}) done in ${dur}ms`, stats)
   }
   return stats
 }

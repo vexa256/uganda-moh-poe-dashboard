@@ -228,26 +228,29 @@
                 </template>
 
                 {{-- PATIENT --}}
+                {{--
+                    2026-05-20 — pruned every binding the mobile secondary-screening
+                    flow does NOT capture. Columns left in the schema but never
+                    touched by the app were padding the panel with permanent
+                    "Not yet recorded" rows, which made the case file look
+                    half-empty even on fully-completed cases. Source of truth =
+                    SecondaryScreening.vue → profile reactive (Step 1).
+                    Removed: traveler_initials, traveler_anonymous_code,
+                    traveler_occupation, residence_address_text, alternative_phone,
+                    email, destination_address_text, emergency_contact_*.
+                --}}
                 <template x-if="open === 'PATIENT'">
                     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
                         <template x-for="row in [
                             { label: 'Full name',          value: data.screening?.traveler_full_name },
-                            { label: 'Initials only',      value: data.screening?.traveler_initials },
-                            { label: 'Anonymous code',     value: data.screening?.traveler_anonymous_code },
                             { label: 'Age',                value: data.screening?.traveler_age_years ? data.screening.traveler_age_years + ' years' : null },
                             { label: 'Date of birth',      value: data.screening?.traveler_dob },
                             { label: 'Gender',             value: data.screening?.traveler_gender },
                             { label: 'Nationality',        value: data.screening?.traveler_nationality_country_code },
                             { label: 'Country of residence', value: data.screening?.residence_country_code },
-                            { label: 'Occupation',         value: data.screening?.traveler_occupation },
-                            { label: 'Where they live',    value: data.screening?.residence_address_text },
                             { label: 'Phone',              value: data.screening?.phone_number },
-                            { label: 'Other phone',        value: data.screening?.alternative_phone },
-                            { label: 'Email',              value: data.screening?.email },
                             { label: 'Travel document',    value: joinNonEmpty([data.screening?.travel_document_type, data.screening?.travel_document_number]) },
                             { label: 'Going to (district)',value: data.screening?.destination_district_code },
-                            { label: 'Going to (address)', value: data.screening?.destination_address_text },
-                            { label: 'Emergency contact',  value: joinNonEmpty([data.screening?.emergency_contact_name, data.screening?.emergency_contact_phone]) },
                         ]" :key="row.label">
                             <div class="border-b border-slate-100 py-1.5 min-w-0">
                                 <dt class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold" x-text="row.label"></dt>
@@ -261,18 +264,30 @@
                 {{-- TRAVEL --}}
                 <template x-if="open === 'TRAVEL'">
                     <div class="space-y-4 min-w-0">
+                        {{--
+                            2026-05-19 — dropped four bogus column aliases that never resolved:
+                              · travel_direction        (no such column on secondary_screenings)
+                              · length_of_stay          (column is planned_length_of_stay_days)
+                              · conveyance_id           (column is conveyance_identifier)
+                              · embarkation_port        (column is embarkation_port_city)
+                              · arrived_at              (column is arrival_datetime)
+                            They forced "Not yet recorded" forever. Each row below maps 1:1 to a
+                            real column on secondary_screenings.
+                        --}}
+                        {{--
+                            2026-05-20 — pruned bindings not captured by the
+                            mobile flow: planned_length_of_stay_days, seat_number,
+                            embarkation_port_city, departure_datetime. The remaining
+                            6 rows are the exact set that Step-1 (Travel) writes
+                            to secondary_screenings.
+                        --}}
                         <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
                             <template x-for="row in [
-                                { label: 'Direction of travel', value: data.screening?.travel_direction },
                                 { label: 'Reason for travelling', value: data.screening?.purpose_of_travel },
-                                { label: 'Planned length of stay', value: data.screening?.planned_length_of_stay_days ? data.screening.planned_length_of_stay_days + ' day(s)' : (data.screening?.length_of_stay || null) },
                                 { label: 'Vehicle type',        value: data.screening?.conveyance_type },
-                                { label: 'Vehicle ID (flight, vessel, plate)', value: data.screening?.conveyance_identifier || data.screening?.conveyance_id },
-                                { label: 'Seat number',         value: data.screening?.seat_number },
-                                { label: 'Where they boarded',  value: data.screening?.embarkation_port_city || data.screening?.embarkation_port },
+                                { label: 'Vehicle ID (flight, vessel, plate)', value: data.screening?.conveyance_identifier },
                                 { label: 'Where the journey began', value: data.screening?.journey_start_country_code },
-                                { label: 'Arrived at the border',value: data.screening?.arrival_datetime || data.screening?.arrived_at },
-                                { label: 'Departed (if any)',   value: data.screening?.departure_datetime },
+                                { label: 'Arrived at the border',value: data.screening?.arrival_datetime },
                             ]" :key="row.label">
                                 <div class="border-b border-slate-100 py-1.5 min-w-0">
                                     <dt class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold" x-text="row.label"></dt>
@@ -297,33 +312,53 @@
                 </template>
 
                 {{-- CLINICAL --}}
+                {{--
+                    2026-05-19 — Step-5 (disposition) fields are tagged dispositionOnly.
+                    When the case is still OPEN or IN_PROGRESS those fields are guaranteed
+                    NULL in the database because the officer has not reached Step 5 yet.
+                    Showing them as "Not yet recorded" mid-flow misled operators into
+                    thinking sync had dropped data. We now hide them until the case is
+                    dispositioned/closed, and surface a single banner instead.
+                --}}
                 <template x-if="open === 'CLINICAL'">
-                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                        <template x-for="row in [
-                            { label: 'Triage category',    value: data.screening?.triage_category, hint: 'How urgent the screener thought this case was.' },
-                            { label: 'General appearance', value: data.screening?.general_appearance, hint: 'How the patient looked at first sight.' },
-                            { label: 'Emergency signs',    value: data.screening?.emergency_signs_present == 1 ? 'Yes — present' : (data.screening?.emergency_signs_present === 0 || data.screening?.emergency_signs_present === '0' ? 'No — none seen' : null), hint: 'Was anything urgent obvious?' },
-                            { label: 'Syndrome',           value: data.screening?.syndrome_classification, hint: 'A grouping of symptoms that points at a kind of illness.' },
-                            { label: 'Risk classification',value: data.screening?.risk_level, hint: 'How serious the case looks overall.' },
-                            { label: 'Temperature',        value: data.screening?.temperature_value ? data.screening.temperature_value + ' ' + (data.screening.temperature_unit || 'C') : null, hint: 'Body temperature.' },
-                            { label: 'Heart rate',         value: data.screening?.pulse_rate ? data.screening.pulse_rate + ' beats per minute' : null, hint: 'How fast the heart is beating.' },
-                            { label: 'Breathing rate',     value: data.screening?.respiratory_rate ? data.screening.respiratory_rate + ' breaths per minute' : null, hint: 'How fast the patient is breathing.' },
-                            { label: 'Oxygen in blood',    value: data.screening?.oxygen_saturation ? data.screening.oxygen_saturation + '%' : null, hint: 'How much oxygen is in their blood.' },
-                            { label: 'Blood pressure',     value: data.screening?.bp_systolic ? (data.screening.bp_systolic + '/' + (data.screening.bp_diastolic || '?') + ' mmHg') : null, hint: 'The pressure in their blood vessels.' },
-                            { label: 'Officer notes',      value: data.screening?.officer_notes, hint: 'What the officer wrote down.' },
-                            { label: 'Final disposition',  value: data.screening?.final_disposition, hint: 'How the officer decided to handle the case.' },
-                            { label: 'Disposition details',value: data.screening?.disposition_details, hint: 'Extra detail on the decision.' },
-                            { label: 'Outcome',            value: data.screening?.screening_outcome, hint: 'How the screening ended.' },
-                            { label: 'Follow-up needed?',  value: data.screening?.followup_required == 1 ? ('Yes' + (data.screening?.followup_assigned_level ? ' — ' + data.screening.followup_assigned_level : '')) : (data.screening?.followup_required === 0 || data.screening?.followup_required === '0' ? 'No' : null), hint: 'Does someone need to follow up?' },
-                        ]" :key="row.label">
-                            <div class="border-b border-slate-100 py-1.5 min-w-0">
-                                <dt class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold" x-text="row.label"></dt>
-                                <dd class="text-[14px] text-slate-900 break-words whitespace-pre-line" x-text="row.value || ''"></dd>
-                                <dd class="text-[12px] text-slate-400 italic" x-show="!row.value">Not yet recorded</dd>
-                                <dd class="text-[11px] text-slate-400 break-words" x-show="row.hint && row.value" x-text="row.hint"></dd>
-                            </div>
-                        </template>
-                    </dl>
+                    <div>
+                        <div x-show="data.screening?.case_status === 'OPEN' || data.screening?.case_status === 'IN_PROGRESS'"
+                             class="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] text-amber-900">
+                            Case is still <span class="font-semibold" x-text="data.screening?.case_status"></span>.
+                            Syndrome, risk classification, officer notes, disposition and follow-up are filled in at Step&nbsp;5
+                            (disposition) and are not shown until the officer completes that step.
+                        </div>
+                        <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                            <template x-for="row in [
+                                { label: 'Triage category',    value: data.screening?.triage_category, hint: 'How urgent the screener thought this case was.', dispositionOnly: false },
+                                { label: 'General appearance', value: data.screening?.general_appearance, hint: 'How the patient looked at first sight.', dispositionOnly: false },
+                                { label: 'Emergency signs',    value: data.screening?.emergency_signs_present == 1 ? 'Yes — present' : (data.screening?.emergency_signs_present === 0 || data.screening?.emergency_signs_present === '0' ? 'No — none seen' : null), hint: 'Was anything urgent obvious?', dispositionOnly: false },
+                                { label: 'Temperature',        value: data.screening?.temperature_value ? data.screening.temperature_value + ' ' + (data.screening.temperature_unit || 'C') : null, hint: 'Body temperature.', dispositionOnly: false },
+                                { label: 'Heart rate',         value: data.screening?.pulse_rate ? data.screening.pulse_rate + ' beats per minute' : null, hint: 'How fast the heart is beating.', dispositionOnly: false },
+                                { label: 'Breathing rate',     value: data.screening?.respiratory_rate ? data.screening.respiratory_rate + ' breaths per minute' : null, hint: 'How fast the patient is breathing.', dispositionOnly: false },
+                                { label: 'Oxygen in blood',    value: data.screening?.oxygen_saturation ? data.screening.oxygen_saturation + '%' : null, hint: 'How much oxygen is in their blood.', dispositionOnly: false },
+                                { label: 'Blood pressure',     value: data.screening?.bp_systolic ? (data.screening.bp_systolic + '/' + (data.screening.bp_diastolic || '?') + ' mmHg') : null, hint: 'The pressure in their blood vessels.', dispositionOnly: false },
+                                { label: 'Syndrome',           value: data.screening?.syndrome_classification, hint: 'A grouping of symptoms that points at a kind of illness.', dispositionOnly: true },
+                                { label: 'Risk classification',value: data.screening?.risk_level, hint: 'How serious the case looks overall.', dispositionOnly: true },
+                                { label: 'Officer notes',      value: data.screening?.officer_notes, hint: 'What the officer wrote down.', dispositionOnly: true },
+                                { label: 'Final disposition',  value: data.screening?.final_disposition, hint: 'How the officer decided to handle the case.', dispositionOnly: true },
+                                {{-- 2026-05-20 — pruned disposition_details + screening_outcome.
+                                     They are not captured by the mobile UI; the server
+                                     derives them server-side. Showing them as "Not yet
+                                     recorded" misled operators into thinking the officer
+                                     skipped a field that doesn't exist in the app. --}}
+                                { label: 'Follow-up needed?',  value: data.screening?.followup_required == 1 ? ('Yes' + (data.screening?.followup_assigned_level ? ' — ' + data.screening.followup_assigned_level : '')) : (data.screening?.followup_required === 0 || data.screening?.followup_required === '0' ? 'No' : null), hint: 'Does someone need to follow up?', dispositionOnly: true },
+                            ]" :key="row.label">
+                                <div class="border-b border-slate-100 py-1.5 min-w-0"
+                                     x-show="!row.dispositionOnly || (data.screening?.case_status !== 'OPEN' && data.screening?.case_status !== 'IN_PROGRESS')">
+                                    <dt class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold" x-text="row.label"></dt>
+                                    <dd class="text-[14px] text-slate-900 break-words whitespace-pre-line" x-text="row.value || ''"></dd>
+                                    <dd class="text-[12px] text-slate-400 italic" x-show="!row.value">Not yet recorded</dd>
+                                    <dd class="text-[11px] text-slate-400 break-words" x-show="row.hint && row.value" x-text="row.hint"></dd>
+                                </div>
+                            </template>
+                        </dl>
+                    </div>
                 </template>
 
                 {{-- SYMPTOMS --}}

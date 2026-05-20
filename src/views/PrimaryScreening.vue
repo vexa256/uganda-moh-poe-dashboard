@@ -2075,24 +2075,32 @@ async function _syncOne(store, uuid, url) {
   return null
 }
 
+// Kept in lockstep with services/syncEngine.js → buildPrimaryPayload(). When
+// these two diverge, the foreground retry path (this function) and the
+// background sync path produce slightly-different bodies for the same record
+// — which is exactly how a record can pass one server validation and fail
+// the other depending on which path it took. Defaults below match the
+// syncEngine version line-for-line.
 function buildPayload(r) {
   return {
     client_uuid:            r.client_uuid,
-    reference_data_version: r.reference_data_version,
-    captured_by_user_id:    r.created_by_user_id,
+    reference_data_version: r.reference_data_version || APP.REFERENCE_DATA_VER,
+    // Fall back to captured_by_user_id in case a legacy IDB record has it
+    // under the canonical name rather than the local created_by_user_id helper.
+    captured_by_user_id:    r.created_by_user_id || r.captured_by_user_id,
     traveler_direction:     r.traveler_direction || null,
     gender:                 r.gender,
     traveler_full_name:     r.traveler_full_name || null,
     // ?? not || — a literal 0.0 reading must not collapse to null.
     temperature_value:      r.temperature_value  ?? null,
     temperature_unit:       r.temperature_unit   ?? null,
-    symptoms_present:       r.symptoms_present,
+    symptoms_present:       r.symptoms_present   ?? 0,
     captured_at:            r.captured_at,
     captured_timezone:      r.captured_timezone  || null,
-    device_id:              r.device_id,
+    device_id:              r.device_id || 'unknown',
     app_version:            r.app_version || APP.VERSION,
     platform:               r.platform    || 'ANDROID',
-    record_version:         r.record_version,
+    record_version:         r.record_version || 1,
     country_code:           r.country_code,
     province_code:          r.province_code,
     pheoc_code:             r.pheoc_code,

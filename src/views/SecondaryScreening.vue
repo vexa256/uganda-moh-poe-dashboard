@@ -313,7 +313,7 @@
           <div class="sc-section-hdr" style="margin-top:16px">
             <span class="sc-sec-num sc-sec-num--orange">3</span>
             <span class="sc-sec-title">{{ t('Journey Information') }}</span>
-            <span class="sc-sec-badge sc-sec-badge--opt">Optional</span>
+            <span class="sc-sec-badge sc-sec-badge--req">Required</span>
           </div>
 
           <div class="sc-card">
@@ -1499,6 +1499,18 @@
          FOOTER — Navigation buttons
     ══════════════════════════════════════════════════════════════════ -->
     <IonFooter v-if="!loading && !notFound" class="sc-footer">
+      <!-- Inline summary of exactly which Step-1 fields are blocking advance.
+           Shown only when on step 1 with outstanding problems so the officer
+           can see at a glance what to fix instead of guessing. -->
+      <div v-if="step === 1 && step1ProblemList.length" class="sc-footer-problems" role="alert" aria-live="polite">
+        <div class="sc-footer-problems-hdr">
+          <svg viewBox="0 0 14 14" fill="none" stroke="#B71C1C" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="5.5"/><line x1="7" y1="4.5" x2="7" y2="7.5"/><circle cx="7" cy="9.5" r="0.6" fill="#B71C1C"/></svg>
+          <span>{{ step1ProblemList.length }} field{{ step1ProblemList.length === 1 ? '' : 's' }} missing — please complete:</span>
+        </div>
+        <ul class="sc-footer-problems-list">
+          <li v-for="(p, i) in step1ProblemList" :key="i">{{ p }}</li>
+        </ul>
+      </div>
       <div class="sc-footer-inner">
         <!-- Back button (steps 2-4) -->
         <button
@@ -1520,9 +1532,9 @@
           type="button"
           @click="saveStep1AndNext"
           :disabled="saving || !step1Valid"
-          :title="step1Valid ? 'Continue to symptoms' : 'Complete traveller name + bio first'"
+          :title="step1Valid ? 'Continue to symptoms' : ('Missing: ' + step1ProblemList.join(' · '))"
         >
-          {{ saving ? 'Saving…' : (step1Valid ? 'Next' : 'Complete bio to continue') }}
+          {{ saving ? 'Saving…' : (step1Valid ? 'Next' : ('Fix ' + step1ProblemList.length + ' field' + (step1ProblemList.length === 1 ? '' : 's') + ' to continue')) }}
           <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="5 3 9 7 5 11"/></svg>
         </button>
 
@@ -2474,17 +2486,25 @@ function bioProblems() {
 // — the international epidemiology bare minimum.
 function travelProblems() {
   const problems = []
-  if (!profile.arrival_datetime)         problems.push('Arrival date & time is required.')
+  if (!profile.arrival_datetime_input)   problems.push('Arrival date & time is required.')
   if (!profile.conveyance_type)          problems.push('Conveyance type (Flight, Vehicle, etc.) is required.')
-  if (!profile.conveyance_identifier || String(profile.conveyance_identifier).trim().length < 1) {
-    problems.push('Flight / vehicle / vessel number is required.')
+  // Only AIR/SEA render the identifier input — requiring it for LAND/OTHER
+  // trapped officers in a state with no UI control to satisfy the rule.
+  if ((profile.conveyance_type === 'AIR' || profile.conveyance_type === 'SEA')
+      && (!profile.conveyance_identifier || String(profile.conveyance_identifier).trim().length < 1)) {
+    problems.push(profile.conveyance_type === 'AIR' ? 'Flight number is required.' : 'Vessel name is required.')
   }
   if (!profile.journey_start_country_code) problems.push('Journey-start country is required.')
   return problems
 }
 
 function step1Problems() { return [...bioProblems(), ...travelProblems()] }
-const step1Valid = computed(() => step1Problems().length === 0)
+// Reactive list used by the footer panel + Next-button tooltip so the
+// officer can see exactly which fields are blocking advance. Wrapping in
+// a computed (not just calling step1Problems() from the template) keeps
+// it reactive to every profile/* change without manual re-evaluation.
+const step1ProblemList = computed(() => step1Problems())
+const step1Valid = computed(() => step1ProblemList.value.length === 0)
 
 // Step 2 — symptoms are MANDATORY. The officer must have explicitly
 // assessed at least one symptom (YES or NO). Unrecorded (null) does
@@ -4333,6 +4353,11 @@ async function saveStep1AndNext() {
       traveler_full_name:                profile.traveler_full_name   || null,
       traveler_gender:                   profile.traveler_gender,
       traveler_age_years:                profile.traveler_age_years   || null,
+      // traveler_dob is captured by computeAgeFromBirthYear() (age → YYYY-01-01)
+      // and by the passport-scan flow. Previously omitted from the persisted
+      // record, so the DOB silently dropped at sync time even though the
+      // server's $updateableFields accepts it. Surface it through every save.
+      traveler_dob:                      profile.traveler_dob         || null,
       travel_document_type:              profile.travel_document_type || null,
       travel_document_number:            profile.travel_document_number || null,
       traveler_nationality_country_code: profile.traveler_nationality_country_code || null,
@@ -5254,6 +5279,9 @@ const notifVerify = reactive({
   running: false, ran: false,
   idb: null, server: null, error: null, checks: [],
   _serverCase: null, _serverFetchStatus: null,
+  // Holds the response from GET /verify (the dedicated self-test endpoint).
+  // null until the first run; null after the run when the endpoint errored.
+  _verifyPayload: null, _verifyFetchStatus: null,
 })
 
 async function verifyNotificationState() {
@@ -5288,6 +5316,7 @@ async function verifyNotificationState() {
   const caseServerId = caseRecord.value?.id ?? caseRecord.value?.server_id ?? null
   const userId       = getAuth()?.id ?? null
   if (caseServerId && userId && navigator.onLine) {
+    // Existing fetch — used to populate the notification panel.
     try {
       const ctrl = new AbortController()
       const tid  = setTimeout(() => ctrl.abort(), APP.SYNC_TIMEOUT_MS)
@@ -5304,6 +5333,27 @@ async function verifyNotificationState() {
         notifVerify._serverCase = body?.data ?? null
       } else {
         notifVerify._serverFetchStatus = res.status
+      }
+    } catch { /* non-critical */ }
+
+    // Dedicated self-test fetch — GET /verify returns a compact, verification-
+    // shaped payload (biodata / travel / vitals / engine / disposition + child
+    // counts) so we can run per-group field equality checks against IDB. This
+    // is the "did the DB actually receive what I entered?" probe.
+    try {
+      const ctrl2 = new AbortController()
+      const tid2  = setTimeout(() => ctrl2.abort(), APP.SYNC_TIMEOUT_MS)
+      const res2  = await fetch(
+        `${window.SERVER_URL}/secondary-screenings/${caseServerId}/verify?user_id=${userId}`,
+        { headers: { Accept: 'application/json' }, signal: ctrl2.signal }
+      )
+      clearTimeout(tid2)
+      if (res2.ok) {
+        const body2 = await res2.json().catch(() => ({}))
+        notifVerify._verifyPayload = body2?.data ?? null
+      } else {
+        notifVerify._verifyPayload = null
+        notifVerify._verifyFetchStatus = res2.status
       }
     } catch { /* non-critical */ }
   }
@@ -5368,6 +5418,156 @@ async function verifyNotificationState() {
       pass:  notifVerify._serverCase.sync_status === SYNC.SYNCED,
       detail: `server_case.sync_status="${notifVerify._serverCase.sync_status}"`,
     })
+
+    // ── PER-FIELD DB CHECKS — driven by GET /verify ─────────────────────
+    // The /verify endpoint returns a compact, grouped payload (biodata,
+    // travel, vitals, engine, disposition, child_counts). For each field
+    // we compare the locally-believed value (caseRecord / suspectedDiseases)
+    // against what the database actually stored. A failing check means
+    // either (a) the field never reached the sync payload, (b) the server
+    // controller didn't persist it, or (c) the local cache is stale.
+    // This is the "did the DB receive what I entered" self-test the officer
+    // can run any time before walking away from a case.
+    const vp = notifVerify._verifyPayload
+    const eq = (a, b) => {
+      // Normalise so a check doesn't fail merely because the server
+      // returned an int "23" while the client held a number 23 (or trim ws).
+      const norm = (v) => (v === undefined || v === null || v === '') ? null
+        : (typeof v === 'number' ? String(v) : String(v).trim())
+      return norm(a) === norm(b)
+    }
+    const pushCheck = (label, localVal, serverVal) => {
+      // Skip rows neither side ever touched — keeps the panel readable.
+      if ((localVal === undefined || localVal === null || localVal === '') &&
+          (serverVal === undefined || serverVal === null || serverVal === '')) {
+        return
+      }
+      const pass = eq(localVal, serverVal)
+      checks.push({
+        label,
+        pass,
+        detail: pass
+          ? `DB stored "${serverVal ?? 'null'}"`
+          : `MISMATCH — local="${localVal ?? 'null'}" server="${serverVal ?? 'null'}"`,
+      })
+    }
+
+    if (vp) {
+      // Biodata
+      pushCheck('Biodata · traveler_full_name',                cr?.traveler_full_name,                vp.biodata?.traveler_full_name)
+      pushCheck('Biodata · traveler_gender',                   cr?.traveler_gender,                   vp.biodata?.traveler_gender)
+      pushCheck('Biodata · traveler_age_years',                cr?.traveler_age_years,                vp.biodata?.traveler_age_years)
+      pushCheck('Biodata · traveler_dob',                      cr?.traveler_dob,                      vp.biodata?.traveler_dob)
+      pushCheck('Biodata · travel_document_type',              cr?.travel_document_type,              vp.biodata?.travel_document_type)
+      pushCheck('Biodata · travel_document_number',            cr?.travel_document_number,            vp.biodata?.travel_document_number)
+      pushCheck('Biodata · nationality_country_code',          cr?.traveler_nationality_country_code, vp.biodata?.traveler_nationality_country_code)
+      pushCheck('Biodata · residence_country_code',            cr?.residence_country_code,            vp.biodata?.residence_country_code)
+      pushCheck('Biodata · phone_number',                      cr?.phone_number,                      vp.biodata?.phone_number)
+
+      // Travel
+      pushCheck('Travel · journey_start_country_code',         cr?.journey_start_country_code,        vp.travel?.journey_start_country_code)
+      pushCheck('Travel · conveyance_type',                    cr?.conveyance_type,                   vp.travel?.conveyance_type)
+      pushCheck('Travel · conveyance_identifier',              cr?.conveyance_identifier,             vp.travel?.conveyance_identifier)
+      pushCheck('Travel · arrival_datetime',                   cr?.arrival_datetime,                  vp.travel?.arrival_datetime)
+      pushCheck('Travel · purpose_of_travel',                  cr?.purpose_of_travel,                 vp.travel?.purpose_of_travel)
+      pushCheck('Travel · destination_district_code',          cr?.destination_district_code,         vp.travel?.destination_district_code)
+
+      // Vitals + triage
+      pushCheck('Vitals · temperature_value',                  cr?.temperature_value,                 vp.vitals?.temperature_value)
+      pushCheck('Vitals · temperature_unit',                   cr?.temperature_unit,                  vp.vitals?.temperature_unit)
+      pushCheck('Vitals · pulse_rate',                         cr?.pulse_rate,                        vp.vitals?.pulse_rate)
+      pushCheck('Vitals · respiratory_rate',                   cr?.respiratory_rate,                  vp.vitals?.respiratory_rate)
+      pushCheck('Vitals · bp_systolic',                        cr?.bp_systolic,                       vp.vitals?.bp_systolic)
+      pushCheck('Vitals · bp_diastolic',                       cr?.bp_diastolic,                      vp.vitals?.bp_diastolic)
+      pushCheck('Vitals · oxygen_saturation',                  cr?.oxygen_saturation,                 vp.vitals?.oxygen_saturation)
+      pushCheck('Triage · triage_category',                    cr?.triage_category,                   vp.vitals?.triage_category)
+      pushCheck('Triage · emergency_signs_present',            cr?.emergency_signs_present,           vp.vitals?.emergency_signs_present)
+      pushCheck('Triage · general_appearance',                 cr?.general_appearance,                vp.vitals?.general_appearance)
+
+      // Engine output + disposition
+      pushCheck('Engine · syndrome_classification',            cr?.syndrome_classification,           vp.engine?.syndrome_classification)
+      pushCheck('Engine · risk_level',                         cr?.risk_level,                        vp.engine?.risk_level)
+      pushCheck('Disposition · final_disposition',             cr?.final_disposition,                 vp.disposition?.final_disposition)
+      pushCheck('Disposition · officer_notes',                 cr?.officer_notes,                     vp.disposition?.officer_notes)
+      pushCheck('Disposition · followup_required',             cr?.followup_required,                 vp.disposition?.followup_required)
+      pushCheck('Disposition · followup_assigned_level',       cr?.followup_assigned_level,           vp.disposition?.followup_assigned_level)
+      pushCheck('Disposition · dispositioned_at',              cr?.dispositioned_at,                  vp.disposition?.dispositioned_at)
+      pushCheck('Disposition · closed_at',                     cr?.closed_at,                         vp.disposition?.closed_at)
+
+      // ── ENGINE-GENERATED SUSPECTED DISEASES (the column that started this) ──
+      // This is the high-leverage check: it confirms that the engine output
+      // shown to the officer in Step 4 actually landed in the DB. We compare
+      // both row count AND each disease_code so a silent rename / strip can't
+      // hide.
+      const localDiseaseCount = Array.isArray(suspectedDiseases.value) ? suspectedDiseases.value.length : 0
+      const serverDiseaseCount = vp.engine?.suspected_diseases_count ?? 0
+      checks.push({
+        label: 'Engine · suspected disease count matches DB',
+        pass: localDiseaseCount === serverDiseaseCount,
+        detail: localDiseaseCount === serverDiseaseCount
+          ? `${serverDiseaseCount} disease(s) recorded`
+          : `MISMATCH — engine produced ${localDiseaseCount}, DB has ${serverDiseaseCount} (sync dropped engine output)`,
+      })
+      const localCodes  = (suspectedDiseases.value || []).map(d => d.disease_code).filter(Boolean).sort()
+      const serverCodes = (vp.engine?.suspected_diseases || []).map(d => d.disease_code).filter(Boolean).sort()
+      const codesEqual  = localCodes.length === serverCodes.length && localCodes.every((c, i) => c === serverCodes[i])
+      if (localCodes.length > 0 || serverCodes.length > 0) {
+        checks.push({
+          label: 'Engine · disease_code list matches DB',
+          pass: codesEqual,
+          detail: codesEqual
+            ? `[${serverCodes.join(', ')}]`
+            : `MISMATCH — local=[${localCodes.join(', ')}] server=[${serverCodes.join(', ')}]`,
+        })
+      }
+
+      // ── CHILD-TABLE COUNT CHECKS ────────────────────────────────────────
+      // For each child collection, compare the IDB-side count with the
+      // server-side count. A non-zero local count that drops to zero on the
+      // server is the exact failure mode that produced "No diagnosis recorded"
+      // for dispositioned cases in the dashboards.
+      const sid = caseUuid.value
+      const childChecks = [
+        { store: STORE.SECONDARY_SYMPTOMS,         dbKey: 'symptoms',         label: 'symptoms' },
+        { store: STORE.SECONDARY_EXPOSURES,        dbKey: 'exposures',        label: 'exposures' },
+        { store: STORE.SECONDARY_ACTIONS,          dbKey: 'actions',          label: 'actions' },
+        { store: STORE.SECONDARY_TRAVEL_COUNTRIES, dbKey: 'travel_countries', label: 'travel countries' },
+      ]
+      for (const c of childChecks) {
+        let idbCount = 0
+        try {
+          const rows = sid ? await dbGetByIndex(c.store, 'secondary_screening_id', sid).catch(() => []) : []
+          idbCount = Array.isArray(rows) ? rows.length : 0
+        } catch { /* keep idbCount=0 */ }
+        const srvCount = vp.child_counts?.[c.dbKey] ?? 0
+        const pass = idbCount === srvCount
+        checks.push({
+          label: `Child · ${c.label} count IDB → DB`,
+          pass,
+          detail: pass
+            ? `${srvCount} row(s) on server`
+            : `MISMATCH — idb=${idbCount} server=${srvCount}${idbCount > 0 && srvCount === 0 ? ' (sync dropped this child table)' : ''}`,
+        })
+      }
+
+      // Alert check — when the engine raised an alert in the wizard, confirm
+      // the alerts table received it.
+      if (analysisResult.value?.ihr_notification_required || alertPreview.value) {
+        checks.push({
+          label: 'Engine · IHR alert reached alerts table',
+          pass: !!vp.engine?.alert_raised,
+          detail: vp.engine?.alert_raised
+            ? `alert_code=${vp.engine?.alert?.alert_code} status=${vp.engine?.alert?.status}`
+            : 'Engine expected an alert but the DB has none for this case',
+        })
+      }
+    } else if (navigator.onLine) {
+      checks.push({
+        label: 'Self-test endpoint /verify reachable',
+        pass: false,
+        detail: `GET /secondary-screenings/${caseServerId}/verify returned HTTP ${notifVerify._verifyFetchStatus ?? 'error'}`,
+      })
+    }
   } else if (navigator.onLine) {
     const hint = !caseServerId
       ? 'Case has no server id yet — run Force Sync first'
@@ -5567,40 +5767,71 @@ async function syncCaseToServer(localAuth) {
     }
 
     const cr = caseRecord.value
+    // ── ENUM SAFETY NET (belt-and-suspenders with server coerceForDbEnums) ──
+    // Mirrors the actual MySQL ENUM definitions so a stale local cache can
+    // never POST a value that would truncate on the server (which used to
+    // roll back the whole transaction — see incident 2026-05-19). Unknown
+    // values are logged and stripped from the payload so the server keeps
+    // the previously-stored value rather than rejecting the entire write.
+    const DB_ENUMS = Object.freeze({
+      case_status:             ['OPEN','IN_PROGRESS','DISPOSITIONED','CLOSED'],
+      traveler_gender:         ['MALE','FEMALE','OTHER','UNKNOWN'],
+      risk_level:              ['LOW','MEDIUM','HIGH','CRITICAL'],
+      triage_category:         ['NON_URGENT','URGENT','EMERGENCY'],
+      general_appearance:      ['WELL','UNWELL','SEVERELY_ILL'],
+      conveyance_type:         ['AIR','LAND','SEA','OTHER'],
+      temperature_unit:        ['C','F'],
+      followup_assigned_level: ['POE','DISTRICT','PHEOC','NATIONAL'],
+      final_disposition: [
+        'RELEASED','DELAYED','QUARANTINED','ISOLATED','REFERRED','TRANSFERRED','DENIED_BOARDING','OTHER',
+        'RELEASED_NO_CONDITION','RELEASED_UNDER_FOLLOWUP','REFERRED_HEALTH_FACILITY','ISOLATED_ADMITTED',
+        'DECEASED_AT_POE','RETURN_TO_ORIGIN',
+      ],
+    })
+    const _normEnum = (field, raw) => {
+      if (raw === null || raw === undefined || raw === '') return raw
+      const allowed = DB_ENUMS[field]
+      if (!allowed) return raw
+      const up = String(raw).trim().toUpperCase()
+      if (allowed.includes(up)) return up
+      L.warn(`syncCaseToServer: enum out of range — stripping`, { field, received: raw, allowed })
+      return undefined  // drop the key (handled below)
+    }
     const p2 = {
       user_id:                           userId,
       record_version:                    cr.record_version ?? 1,
-      case_status:                       cr.case_status,
+      case_status:                       _normEnum('case_status', cr.case_status),
       traveler_full_name:                cr.traveler_full_name                ?? null,
-      traveler_gender:                   cr.traveler_gender                   ?? 'UNKNOWN',
+      traveler_gender:                   _normEnum('traveler_gender', cr.traveler_gender) ?? 'UNKNOWN',
       traveler_age_years:                cr.traveler_age_years                ?? null,
+      traveler_dob:                      cr.traveler_dob                      ?? null,
       travel_document_type:              cr.travel_document_type              ?? null,
       travel_document_number:            cr.travel_document_number            ?? null,
       traveler_nationality_country_code: cr.traveler_nationality_country_code ?? null,
       residence_country_code:            cr.residence_country_code            ?? null,
       phone_number:                      cr.phone_number                      ?? null,
       journey_start_country_code:        cr.journey_start_country_code        ?? null,
-      conveyance_type:                   cr.conveyance_type                   ?? null,
+      conveyance_type:                   _normEnum('conveyance_type', cr.conveyance_type) ?? null,
       conveyance_identifier:             cr.conveyance_identifier             ?? null,
       arrival_datetime:                  cr.arrival_datetime                  ?? null,
       purpose_of_travel:                 cr.purpose_of_travel                 ?? null,
       destination_district_code:         cr.destination_district_code         ?? null,
       temperature_value:                 cr.temperature_value                 ?? null,
-      temperature_unit:                  cr.temperature_unit                  ?? null,
+      temperature_unit:                  _normEnum('temperature_unit', cr.temperature_unit) ?? null,
       pulse_rate:                        cr.pulse_rate                        ?? null,
       respiratory_rate:                  cr.respiratory_rate                  ?? null,
       bp_systolic:                       cr.bp_systolic                       ?? null,
       bp_diastolic:                      cr.bp_diastolic                      ?? null,
       oxygen_saturation:                 cr.oxygen_saturation                 ?? null,
-      triage_category:                   cr.triage_category                   ?? null,
+      triage_category:                   _normEnum('triage_category', cr.triage_category) ?? null,
       emergency_signs_present:           cr.emergency_signs_present           ?? 0,
-      general_appearance:                cr.general_appearance                ?? null,
+      general_appearance:                _normEnum('general_appearance', cr.general_appearance) ?? null,
       syndrome_classification:           cr.syndrome_classification           ?? null,
-      risk_level:                        cr.risk_level                        ?? null,
+      risk_level:                        _normEnum('risk_level', cr.risk_level) ?? null,
       officer_notes:                     cr.officer_notes                     ?? null,
-      final_disposition:                 cr.final_disposition                 ?? null,
+      final_disposition:                 _normEnum('final_disposition', cr.final_disposition) ?? null,
       followup_required:                 cr.followup_required                 ?? 0,
-      followup_assigned_level:           cr.followup_assigned_level           ?? null,
+      followup_assigned_level:           _normEnum('followup_assigned_level', cr.followup_assigned_level) ?? null,
       dispositioned_at:                  cr.dispositioned_at                  ?? null,
       closed_at:                         cr.closed_at                         ?? null,
       symptoms:          idbSymptoms.map(s  => ({ symptom_code:  s.symptom_code,  is_present: s.is_present, onset_date: s.onset_date ?? null, details: s.details ?? null })),
@@ -7694,6 +7925,26 @@ async function dictateInto() { /* removed — no-op */ }
   border-top: 1px solid rgba(0,0,0,.06);
   box-shadow: 0 -2px 12px rgba(0,30,80,.06);
 }
+/* Step-1 inline missing-fields panel — sits above the Next button so the
+   officer can see exactly which fields are blocking advance. */
+.sc-footer-problems {
+  background: linear-gradient(180deg, #FFF5F5 0%, #FFECEC 100%);
+  border-top: 1px solid rgba(183,28,28,.12);
+  border-bottom: 1px solid rgba(183,28,28,.08);
+  padding: 10px 16px 8px;
+  color: #7F1010;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.sc-footer-problems-hdr {
+  display: flex; align-items: center; gap: 6px;
+  font-weight: 700; color: #B71C1C; margin-bottom: 4px;
+}
+.sc-footer-problems-hdr svg { width: 14px; height: 14px; flex-shrink: 0; }
+.sc-footer-problems-list {
+  margin: 0; padding-left: 22px; list-style: disc;
+}
+.sc-footer-problems-list li { margin: 1px 0; }
 .sc-footer-inner {
   display: flex; align-items: center; justify-content: space-between;
   padding: 10px 16px 10px; gap: 10px;

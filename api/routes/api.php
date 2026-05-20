@@ -89,6 +89,11 @@ Route::post('/secondary-screenings/{id}/samples', [SSC::class, 'syncSamples']);
 Route::post('/secondary-screenings/{id}/travel', [SSC::class, 'syncTravel']);
 Route::post('/secondary-screenings/{id}/diseases', [SSC::class, 'syncDiseases']);
 Route::post('/secondary-screenings/{id}/sync', [SSC::class, 'fullSync']);
+// In-app self-test endpoint. Returns a compact, verification-shaped payload
+// (scalar fields + child counts grouped by Biodata / Travel / Vitals / Engine /
+// Disposition) so the mobile view can confirm every UI-captured field actually
+// landed in the database after a sync. Read-only, no side effects.
+Route::get('/secondary-screenings/{id}/verify', [SSC::class, 'verify']);
 
 // ── Secondary Screening Records (case register read) ──────────────────────
 // ⚠ /stats BEFORE /{id}

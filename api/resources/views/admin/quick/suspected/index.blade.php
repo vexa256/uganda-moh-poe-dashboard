@@ -62,6 +62,12 @@
                             text-[10.5px] font-medium px-1.5 py-0.5 mr-1 mb-0.5 whitespace-nowrap leading-tight; }
     .qr-disease-more{ @apply inline-flex items-center rounded-full bg-muted text-muted-foreground
                             text-[10.5px] font-medium px-1.5 py-0.5 mr-1 mb-0.5 whitespace-nowrap leading-tight; }
+    /* Fallback chips when the engine didn't pin a specific disease but the
+       case still carries clinical signal (syndrome or alert). Visually muted
+       so they read as "context, not a confirmed diagnosis". */
+    .qr-disease--syndrome { @apply bg-amber-50 text-amber-900 border border-amber-200; }
+    .qr-disease--alert    { @apply bg-rose-50 text-rose-900 border border-rose-200 font-mono; }
+    .qr-no-dx-hint  { @apply text-[10px] text-muted-foreground italic leading-tight; }
     .qr-no-dx       { @apply text-[11px] text-muted-foreground italic; }
 
     /* Risk + status pills — tint with semantic colours, always include text */
@@ -358,6 +364,7 @@
                                 <div class="qr-cell-secondary" x-text="rowDemographics(row)"></div>
                             </td>
                             <td>
+                                {{-- Tier 1 — Engine pinned specific diseases (preferred display). --}}
                                 <template x-if="(row.diseases?.length || 0) > 0">
                                     <div class="flex flex-wrap max-w-[280px]">
                                         <template x-for="(d, i) in (row.diseases || []).slice(0, 3)" :key="i">
@@ -368,7 +375,31 @@
                                               x-text="`+${(row.diseases.length - 3)} more`"></span>
                                     </div>
                                 </template>
-                                <span class="qr-no-dx" x-show="(row.diseases?.length || 0) === 0">No diagnosis recorded</span>
+                                {{-- Tier 2 — Engine didn't pin a disease but the officer recorded a
+                                     specific syndrome (e.g. ILI, ACUTE_HAEMORRHAGIC_FEVER). That is
+                                     the clinically meaningful summary; surfacing it prevents the
+                                     misleading "No diagnosis recorded" copy when in fact a syndrome
+                                     classification + alert exist in the case file. --}}
+                                <template x-if="(row.diseases?.length || 0) === 0 && row.classification && row.classification !== 'OTHER'">
+                                    <div class="flex flex-col gap-0.5 max-w-[280px]">
+                                        <span class="qr-disease qr-disease--syndrome" x-text="prettyClassification(row.classification)"></span>
+                                        <span class="qr-no-dx-hint">Syndrome (no specific disease pinned)</span>
+                                    </div>
+                                </template>
+                                {{-- Tier 3 — No syndrome (or syndrome=OTHER) but the case raised an
+                                     alert. Surface the alert code so the operator sees the case
+                                     carried clinical signal even without a syndrome classification. --}}
+                                <template x-if="(row.diseases?.length || 0) === 0 && (!row.classification || row.classification === 'OTHER') && row.alert_code">
+                                    <div class="flex flex-col gap-0.5 max-w-[280px]">
+                                        <span class="qr-disease qr-disease--alert" x-text="row.alert_code"></span>
+                                        <span class="qr-no-dx-hint">Alert raised · open case file</span>
+                                    </div>
+                                </template>
+                                {{-- Tier 4 — Genuinely nothing captured. --}}
+                                <span class="qr-no-dx"
+                                      x-show="(row.diseases?.length || 0) === 0 && (!row.classification || row.classification === 'OTHER') && !row.alert_code">
+                                    No diagnosis recorded
+                                </span>
                             </td>
                             <td><span :class="riskPill(row.risk)" x-text="prettyRisk(row.risk)"></span></td>
                             <td><span class="qr-pill qr-pill-muted" x-text="prettyStatus(row.status)"></span></td>
