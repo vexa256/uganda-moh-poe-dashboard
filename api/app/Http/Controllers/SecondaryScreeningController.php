@@ -1819,6 +1819,7 @@ final class SecondaryScreeningController extends Controller
                 ];
 
                 $fieldUpdates = [];
+                $staleWrite   = false;
                 if ($incomingVer === 0 || $incomingVer > (int) $case->record_version) {
                     foreach ($updateableFields as $field) {
                         if ($request->has($field)) {
@@ -1879,6 +1880,19 @@ final class SecondaryScreeningController extends Controller
                         $caseUpdated = true;
                     }
                 } else {
+                    // STALE-WRITE — the device sent record_version equal to or below
+                    // the server's stored version. We silently skip case-field
+                    // updates so we don't clobber a newer authoritative state.
+                    //
+                    // Why this matters: previously the mobile saw a success
+                    // response, marked the case SYNCED, and assumed the close
+                    // (or any field change) had landed. On the next case-open
+                    // the cross-device hydrate pulled the server's older state
+                    // BACK onto IDB, silently undoing the user's close. The
+                    // $staleWrite flag below surfaces this so the mobile can
+                    // pull the canonical server state and reconcile instead of
+                    // pretending the close succeeded.
+                    $staleWrite = true;
                     Log::info('[SecondaryScreening][fullSync] Case fields skipped — incoming version not newer', [
                         'case_id'          => $id,
                         'stored_version'   => $case->record_version,
@@ -2116,6 +2130,14 @@ final class SecondaryScreeningController extends Controller
                     'ihr_notification_required' => $ihrTier1 || $ihrTier2,
                     'ihr_tier'                  => $ihrTier1 ? 'TIER_1_ALWAYS_NOTIFIABLE' : ($ihrTier2 ? 'TIER_2_ANNEX2' : null),
                     'top_disease'               => $topDisease,
+                    // Surfaces "your record_version was not ahead of the server
+                    // so we did NOT apply your case-field updates" so the mobile
+                    // can reconcile against the canonical server state instead
+                    // of trusting its locally-modified copy. Without this flag,
+                    // closes silently regress to the server's older state on
+                    // the next cross-device hydrate.
+                    'stale_write'               => $staleWrite,
+                    'stored_version'            => (int) $updatedCase->record_version,
                 ]);
             });
         } catch (Throwable $e) {

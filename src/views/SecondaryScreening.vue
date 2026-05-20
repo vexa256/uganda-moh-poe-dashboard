@@ -464,7 +464,7 @@
                   aria-label="Destination district in Uganda"
                 >
                   <option value="">— Select destination district —</option>
-                  <optgroup v-for="grp in RWANDA_DISTRICT_GROUPS" :key="grp.label" :label="grp.label">
+                  <optgroup v-for="grp in DESTINATION_DISTRICT_GROUPS" :key="grp.label" :label="grp.label">
                     <option v-for="d in grp.districts" :key="d" :value="d">{{ d }}</option>
                   </optgroup>
                 </select>
@@ -1756,7 +1756,7 @@
         <!-- IDSR thresholds + incubation (Uganda IDSR Annex 1A) -->
         <div v-if="selectedDiseaseModal.alert_threshold || selectedDiseaseModal.epidemic_threshold || selectedDiseaseModal.incubation_period_days"
              class="sc-dm-section">
-          <div class="sc-dm-section-lbl">RWANDA IDSR THRESHOLDS</div>
+          <div class="sc-dm-section-lbl">UGANDA IDSR THRESHOLDS</div>
           <div v-if="selectedDiseaseModal.alert_threshold" class="sc-dm-bd-row">
             <span class="sc-dm-bd-k">Alert threshold</span>
             <span class="sc-dm-bd-v">{{ selectedDiseaseModal.alert_threshold }}</span>
@@ -2528,7 +2528,10 @@ const step3Valid = computed(() => step3Problems().length === 0)
 // ─── REFERENCE DATA ───────────────────────────────────────────────────────
 // Uganda at the top, then East African Community neighbours, then alphabetical.
 // Request 14: prioritise high-frequency selections; add search in template.
-const EA_PRIORITY = ['RW','UG','KE','TZ','BI','SS','CD','ET']
+// Uganda deployment: host country first, then EAC neighbours in
+// geographic-proximity order. Rwanda is kept because cross-border land
+// arrivals are common but it's no longer the first item.
+const EA_PRIORITY = ['UG','KE','TZ','RW','BI','SS','CD','ET']
 const COUNTRY_LIST = computed(() => {
   try {
     const raw = window.COUNTRIES?.[0] ?? window.COUNTRIES ?? []
@@ -2546,13 +2549,15 @@ const COUNTRY_LIST = computed(() => {
 })
 // Country search is now handled internally by SearchableSelect components.
 
-// ── RWANDA DISTRICT CATALOG ─────────────────────────────────────────────
-// Built from window.POE_MAIN.administrative_groups. 30 districts across 5
-// PHEOCs (Central, Eastern, Northern, Western). Two
-// shapes are exposed:
-//   • RWANDA_DISTRICT_GROUPS — array of { label: PHEOC, districts: [...] }
+// ── DESTINATION DISTRICT CATALOG ────────────────────────────────────────
+// Built from window.POE_MAIN.administrative_groups — the live POE bundle
+// from the tenant's server. Despite the legacy name baggage, this is NOT
+// hardcoded Rwanda data: in the Uganda deployment the bundle ships Uganda
+// districts; in Rwanda it ships Rwandan districts; etc. Two shapes are
+// exposed:
+//   • DESTINATION_DISTRICT_GROUPS — array of { label: PHEOC, districts:[…] }
 //     used by the native <optgroup>-based <select>.
-//   • RWANDA_DISTRICT_LIST   — flat alphabetised array (kept for any
+//   • DESTINATION_DISTRICT_LIST   — flat alphabetised array (kept for any
 //     existing consumer; safe to remove later).
 // Reactive on `poe-main-updated` so the dropdown self-heals when the
 // async server bundle refresh resolves after Step 1 is already mounted.
@@ -2566,7 +2571,7 @@ function _readPoeRoot() {
             (window.POE_MAIN || (Array.isArray(window.POEs) ? window.POEs[0] : window.POEs))) || {}
   } catch { return {} }
 }
-const RWANDA_DISTRICT_GROUPS = computed(() => {
+const DESTINATION_DISTRICT_GROUPS = computed(() => {
   void _poeBundleVersion.value
   const groups = _readPoeRoot().administrative_groups || []
   return groups.map(g => ({
@@ -2574,14 +2579,19 @@ const RWANDA_DISTRICT_GROUPS = computed(() => {
     districts: Array.isArray(g.districts) ? g.districts.slice().sort((a, b) => a.localeCompare(b)) : [],
   })).filter(g => g.districts.length > 0)
 })
-const RWANDA_DISTRICT_LIST = computed(() => {
+const DESTINATION_DISTRICT_LIST = computed(() => {
   const all = []
-  for (const grp of RWANDA_DISTRICT_GROUPS.value) {
+  for (const grp of DESTINATION_DISTRICT_GROUPS.value) {
     for (const d of grp.districts) all.push({ code: d, label: d })
   }
   all.sort((a, b) => a.code.localeCompare(b.code))
   return all
 })
+// Back-compat aliases — kept so any other file referring to the legacy
+// names doesn't break before the next build. Remove once
+// `grep -rn RWANDA_DISTRICT` is empty across the repo.
+const RWANDA_DISTRICT_GROUPS = DESTINATION_DISTRICT_GROUPS
+const RWANDA_DISTRICT_LIST   = DESTINATION_DISTRICT_LIST
 
 const autoDistrictApplied = ref(false)
 
@@ -5863,25 +5873,68 @@ async function syncCaseToServer(localAuth) {
       L.info('syncCaseToServer: Phase 2 response', { http: res2.status, success: body2?.success, meta: body2?.meta, error: body2?.error })
 
       if (res2.ok && body2?.success) {
-        const sc = body2.data ?? {}
-        const synced = {
-          ...toPlain(caseRecord.value),
-          id: sc.id ?? serverId, server_id: sc.id ?? serverId,
-          sync_status: SYNC.SYNCED, synced_at: isoNow(),
-          // The unified syncEngine recognises a fully-synced secondary by
-          // sync_status===SYNCED + case_status terminal + last_synced_record_version
-          // catching up to record_version. We set the version stamp here so a
-          // re-flush sees no work to do (idempotent no-op).
-          last_synced_record_version: (caseRecord.value.record_version || 1) + 1,
-          record_version: (caseRecord.value.record_version || 1) + 1,
-          updated_at: isoNow(),
+        const sc          = body2.data ?? {}
+        const staleWrite  = body2.meta?.stale_write === true
+        const storedVer   = Number(body2.meta?.stored_version ?? sc.record_version ?? caseRecord.value.record_version ?? 1)
+
+        if (staleWrite) {
+          // The server SILENTLY skipped our case-field updates because our
+          // record_version was not ahead of stored. This used to be the root
+          // cause of "I closed the case but it reopens as IN_PROGRESS on the
+          // next load" — the close never landed.
+          //
+          // Resolution: KEEP the user's intent (their CLOSED / DISPOSITIONED /
+          // any field they changed) but RE-STAMP record_version one above the
+          // server's stored version so the next push is guaranteed to be
+          // ahead. Also flip sync_status back to UNSYNCED so the engine
+          // retries the push immediately. We do NOT overlay the server's
+          // older case data onto local — that would silently destroy the
+          // user's close.
+          L.warn('syncCaseToServer: Phase 2 stale-write — bumping record_version and re-queueing', {
+            stored_version:        storedVer,
+            attempted_version:     caseRecord.value.record_version,
+            local_case_status:     caseRecord.value.case_status,
+            server_case_status:    sc.case_status,
+          })
+          const reattempted = {
+            ...toPlain(caseRecord.value),
+            // Keep local case fields (the user's intent). Bump version.
+            id: sc.id ?? serverId, server_id: sc.id ?? serverId,
+            record_version: storedVer + 1,
+            sync_status: SYNC.UNSYNCED,
+            updated_at: isoNow(),
+          }
+          await safeDbPut(STORE.SECONDARY_SCREENINGS, reattempted)
+          caseRecord.value = reattempted
+          syncStatus.phase2 = 'fail'
+          syncStatus.phase2Msg = `Stale write detected — re-queued at v${storedVer + 1} (engine will retry)`
+          syncStatus.lastRunAt = isoNow()
+          // Kick the unified sync engine so the retry happens immediately.
+          try {
+            if (typeof window !== 'undefined' && typeof window.__SYNC_NOW__ === 'function') {
+              window.__SYNC_NOW__('stale-write-reattempt')
+            }
+          } catch (_) { /* engine optional */ }
+        } else {
+          const synced = {
+            ...toPlain(caseRecord.value),
+            id: sc.id ?? serverId, server_id: sc.id ?? serverId,
+            sync_status: SYNC.SYNCED, synced_at: isoNow(),
+            // The unified syncEngine recognises a fully-synced secondary by
+            // sync_status===SYNCED + case_status terminal + last_synced_record_version
+            // catching up to record_version. We set the version stamp here so a
+            // re-flush sees no work to do (idempotent no-op).
+            last_synced_record_version: (caseRecord.value.record_version || 1) + 1,
+            record_version: (caseRecord.value.record_version || 1) + 1,
+            updated_at: isoNow(),
+          }
+          await safeDbPut(STORE.SECONDARY_SCREENINGS, synced)
+          caseRecord.value = synced
+          syncStatus.phase2 = 'ok'
+          syncStatus.phase2Msg = `Synced — status=${sc.case_status} child_tables=${JSON.stringify(body2.meta?.child_tables_sync ?? {})}`
+          syncStatus.lastRunAt = isoNow()
+          L.ok('syncCaseToServer: Phase 2 OK', body2.meta)
         }
-        await safeDbPut(STORE.SECONDARY_SCREENINGS, synced)
-        caseRecord.value = synced
-        syncStatus.phase2 = 'ok'
-        syncStatus.phase2Msg = `Synced — status=${sc.case_status} child_tables=${JSON.stringify(body2.meta?.child_tables_sync ?? {})}`
-        syncStatus.lastRunAt = isoNow()
-        L.ok('syncCaseToServer: Phase 2 OK', body2.meta)
       } else {
         // ── 409 Conflict: server case is in a state the sync can't transition ──
         // Two flavours:
