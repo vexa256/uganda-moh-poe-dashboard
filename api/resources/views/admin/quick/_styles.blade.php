@@ -43,7 +43,7 @@
     .qr-pill-crit      { @apply bg-critical text-critical-foreground; }
     .qr-pill-muted     { @apply bg-muted text-foreground/75 ring-1 ring-border/60; }
     .qr-pill-info      { @apply bg-info/10 text-info ring-1 ring-info/30; }
-    .qr-pill-success   { @apply bg-success/12 text-success ring-1 ring-success/30; }
+    .qr-pill-success   { @apply bg-success/10 text-success ring-1 ring-success/30; }
 
     .qr-icon-btn {
         @apply inline-flex h-7 w-7 items-center justify-center rounded-md

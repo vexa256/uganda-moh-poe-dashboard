@@ -50,12 +50,12 @@
     /* Classification pills — semantic, loud where it matters. */
     .qr-pill          { @apply inline-flex items-center rounded-full px-2 py-0.5 text-[10.5px] font-semibold whitespace-nowrap; }
     .qr-pill-confirmed{ @apply bg-critical text-critical-foreground; }
-    .qr-pill-probable { @apply bg-critical/12 text-critical ring-1 ring-critical/30; }
+    .qr-pill-probable { @apply bg-critical/10 text-critical ring-1 ring-critical/30; }
     .qr-pill-suspect  { @apply bg-warning/15 text-warning ring-1 ring-warning/30; }
-    .qr-pill-ruled    { @apply bg-success/12 text-success ring-1 ring-success/30; }
+    .qr-pill-ruled    { @apply bg-success/10 text-success ring-1 ring-success/30; }
     .qr-pill-pending  { @apply bg-muted text-foreground/75 ring-1 ring-border/60; }
     .qr-pill-ihr      { @apply inline-flex items-center rounded bg-info/10 text-info ring-1 ring-info/25 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums; }
-    .qr-pill-tier1    { @apply inline-flex items-center rounded bg-critical/12 text-critical ring-1 ring-critical/35 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums; }
+    .qr-pill-tier1    { @apply inline-flex items-center rounded bg-critical/10 text-critical ring-1 ring-critical/35 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums; }
 
     .qr-icon-btn {
         @apply inline-flex h-7 w-7 items-center justify-center rounded-md

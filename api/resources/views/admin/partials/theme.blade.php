@@ -61,7 +61,8 @@
                 },
                 colors: {
                     // ── shadcn base ────────────────────────────────────────
-                    // <alpha-value> placeholder makes slash-opacity (bg-x/12, ring-x/30, …) work on the Tailwind Play CDN
+                    // <alpha-value> placeholder makes slash-opacity (bg-x/10, ring-x/30, …) work on the Tailwind Play CDN
+                    //   note: only opacity steps in Tailwind's default scale (0,5,10,15,…,100) compile — /12 et al will not.
                     border:     'hsl(var(--border) / <alpha-value>)',
                     input:      'hsl(var(--input) / <alpha-value>)',
                     ring:       'hsl(var(--ring) / <alpha-value>)',
