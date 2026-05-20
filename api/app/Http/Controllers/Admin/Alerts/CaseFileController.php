@@ -275,9 +275,11 @@ final class CaseFileController extends Controller
     private function loadSamples(int $screeningId)
     {
         try {
+            // secondary_samples has NO deleted_at column (verified 2026-05-20).
+            // Earlier whereNull('deleted_at') silently threw and was swallowed
+            // by the catch — the SAMPLES panel was permanently empty.
             return DB::table('secondary_samples')
                 ->where('secondary_screening_id', $screeningId)
-                ->whereNull('deleted_at')
                 ->orderByDesc('id')->get();
         } catch (Throwable $e) {
             return collect();
@@ -367,8 +369,10 @@ final class CaseFileController extends Controller
             ];
         })->values()->all();
 
-        $isNonCase = strtoupper((string) ($screening?->final_disposition ?? '')) === 'NON_CASE'
-            || strtoupper((string) ($screening?->screening_outcome ?? '')) === 'NON_CASE';
+        // final_disposition is a tight enum (RELEASED/DELAYED/QUARANTINED/ISOLATED/REFERRED/
+        // TRANSFERRED/DENIED_BOARDING/OTHER) and CANNOT equal 'NON_CASE'.
+        // screening_outcome is varchar(40) and is where the engine writes 'NON_CASE'.
+        $isNonCase = strtoupper((string) ($screening?->screening_outcome ?? '')) === 'NON_CASE';
 
         $whoCriteriaMet = [];
         if ($sc !== '') $whoCriteriaMet[] = 'Syndrome classified: ' . $sc;
@@ -656,19 +660,31 @@ final class CaseFileController extends Controller
             return null;
         }
 
-        // Closure event(s) — the most recent ALERT_CLOSED* gives us the actor.
+        // Closure event(s) — match the codes canonical writers actually emit.
+        // Canonical AlertsController::close writes 'CLOSED'; the admin override
+        // path writes 'CLOSURE_OVERRIDE_USED' alongside. Legacy ALERT_CLOSED*
+        // codes are kept in the union for back-compat with any pre-refactor rows.
         $closureEvents = $this->collect($timeline)
             ->filter(fn ($e) => in_array((string) $e->event_code, [
+                'CLOSED', 'CLOSURE_OVERRIDE_USED',
                 'ALERT_CLOSED', 'ALERT_CLOSED_FALSE_ALARM', 'ALERT_MASTER_CLOSED',
             ], true))
             ->values();
 
+        // Pick the most recent CLOSED (or override) as the authoritative close.
+        // Sort newest-first so we get the actor of the LATEST close in the case
+        // a reopen → reclose happened.
+        $closureEvents = $closureEvents->sortByDesc(
+            fn ($e) => (string) ($e->created_at ?? '')
+        )->values();
+
         $primaryClose = $closureEvents->first();
         $closedByName = $primaryClose?->actor_name ?: null;
         $closedByRole = $primaryClose?->actor_role ?: null;
-        $closeMode    = match ((string) ($primaryClose?->event_code ?? 'ALERT_CLOSED')) {
+        $closeMode    = match ((string) ($primaryClose?->event_code ?? 'CLOSED')) {
             'ALERT_MASTER_CLOSED'      => 'on_behalf_of_team',
             'ALERT_CLOSED_FALSE_ALARM' => 'false_alarm',
+            'CLOSURE_OVERRIDE_USED'    => 'override',
             default                    => 'normal',
         };
 

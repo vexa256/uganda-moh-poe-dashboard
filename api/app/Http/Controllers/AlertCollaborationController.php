@@ -720,19 +720,28 @@ final class AlertCollaborationController extends Controller
             }
             $now = now();
             DB::table('alerts')->where('id', $id)->update([
-                'status'       => 'ACKNOWLEDGED',
-                'closed_at'    => null,
-                'reopened_at'  => $now,
-                'reopen_count' => (int) ($alert->reopen_count ?? 0) + 1,
-                'updated_at'   => $now,
+                'status'              => 'ACKNOWLEDGED',
+                'closed_at'           => null,
+                'reopened_at'         => $now,
+                'reopen_count'        => (int) ($alert->reopen_count ?? 0) + 1,
+                'updated_at'          => $now,
+                // Clear closure metadata — previously left on the row so the timeline
+                // had context, but downstream readers (qr-alert-out, qr-alert-intel,
+                // master row "Closed" tab, case-file closure panel) were aggregating
+                // STALE close_category / close_note on currently-OPEN alerts. The
+                // timeline payload below preserves the full before-state for audit.
+                'close_category'      => null,
+                'close_note'          => null,
+                'merged_into_alert_id'=> null,
             ]);
             $this->emitTimeline($id, 'ALERT_REOPENED', 'WORKFLOW', $actorId,
                 'Alert reopened — ' . $data['reason'],
                 [
                     'reason' => $data['reason'],
-                    'previous_close_category' => $alert->close_category,
-                    'previous_close_note' => $alert->close_note,
-                    'previous_closed_at' => $alert->closed_at,
+                    'previous_close_category'        => $alert->close_category,
+                    'previous_close_note'            => $alert->close_note,
+                    'previous_closed_at'             => $alert->closed_at,
+                    'previous_merged_into_alert_id'  => $alert->merged_into_alert_id,
                     'reopen_count' => (int) ($alert->reopen_count ?? 0) + 1,
                 ],
                 'ALERT', $id, 'WARN');

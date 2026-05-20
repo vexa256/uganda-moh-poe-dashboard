@@ -173,36 +173,17 @@ final class FollowupsController extends Controller
             $r->merge(['user_id' => $userId]);
             $resp = app(ApiFollowupsController::class)->update($r, $id);
 
-            // If the canonical call succeeded and the status changed, emit a
-            // timeline event. Distinguish FOLLOWUP_COMPLETED / BLOCKED /
-            // IN_PROGRESS to mirror dashboard.txt event-code coverage.
+            // Canonical AlertFollowupsController::update already emits a timeline
+            // event for every status transition (FOLLOWUP_STARTED / COMPLETED /
+            // BLOCKED / NOT_APPLICABLE / UPDATED). Emitting again here produced
+            // DOUBLE timeline rows for COMPLETED/BLOCKED/NOT_APPLICABLE/UPDATED
+            // and TWO DIFFERENT rows (FOLLOWUP_STARTED + FOLLOWUP_IN_PROGRESS)
+            // for IN_PROGRESS — inflating event counts and confusing audit views.
+            // Source of truth = canonical. Side-effects (email fan-out) still run.
             $body = json_decode($resp->getContent(), true);
             if (($body['success'] ?? false) === true) {
                 $after = DB::table('alert_followups')->where('id', $id)->first();
                 if ($after && $after->status !== $before->status) {
-                    $event = match ($after->status) {
-                        'COMPLETED'      => 'FOLLOWUP_COMPLETED',
-                        'BLOCKED'        => 'FOLLOWUP_BLOCKED',
-                        'IN_PROGRESS'    => 'FOLLOWUP_IN_PROGRESS',
-                        'NOT_APPLICABLE' => 'FOLLOWUP_NOT_APPLICABLE',
-                        default          => 'FOLLOWUP_UPDATED',
-                    };
-                    $severity = $after->status === 'BLOCKED' ? 'WARN' : 'INFO';
-                    $this->emitTimeline(
-                        (int) $after->alert_id, $event, 'WORKFLOW', $userId,
-                        sprintf('Followup [%s] %s → %s%s',
-                            $after->action_code, $before->status, $after->status,
-                            $after->blocks_closure ? ' (blocks closure)' : ''),
-                        [
-                            'followup_id'    => (int) $id,
-                            'action_code'    => $after->action_code,
-                            'before_status'  => $before->status,
-                            'after_status'   => $after->status,
-                            'blocks_closure' => (bool) $after->blocks_closure,
-                            'notes'          => $after->notes,
-                        ],
-                        'FOLLOWUP', (int) $id, $severity
-                    );
 
                     // §3.2 — fan-out user email when a follow-up changes state.
                     // BLOCKED is the highest-impact state (it freezes closure)

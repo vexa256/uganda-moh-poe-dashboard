@@ -189,6 +189,16 @@
                         </template>
                     </div>
                     <div class="flex-1"></div>
+                    {{-- Risk-level selector (controller honours risk_level filter). --}}
+                    <select class="text-xs h-8 rounded-md border border-slate-300 bg-white px-2 py-1"
+                            x-model="filters.risk_level" @change="loadData()">
+                        <option value="">Any risk</option>
+                        <option value="CRITICAL">Critical</option>
+                        <option value="HIGH">High</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="LOW">Low</option>
+                    </select>
+                    {{-- Response-team / level selector (was the only one rendered before) --}}
                     <select class="text-xs h-8 rounded-md border border-slate-300 bg-white px-2 py-1"
                             x-model="filters.routed_to_level" @change="loadData()">
                         <option value="">Any response team</option>
@@ -203,6 +213,19 @@
                             <option :value="d" x-text="d"></option>
                         </template>
                     </select>
+                    {{-- POE selector (controller honours poe filter). Resolves to poe_code on submit. --}}
+                    <select class="text-xs h-8 rounded-md border border-slate-300 bg-white px-2 py-1"
+                            x-model="filters.poe" @change="loadData()" x-show="(meta?.poes || []).length > 0">
+                        <option value="">Any POE</option>
+                        <template x-for="p in (meta?.poes || [])" :key="(p.code || p)">
+                            <option :value="(p.code || p)" x-text="(p.name || p.code || p)"></option>
+                        </template>
+                    </select>
+                    {{-- Clear-filters: surfaces visibly when any filter is non-default. --}}
+                    <button type="button"
+                            class="text-xs h-8 rounded-md border border-slate-300 bg-white px-2 py-1 text-slate-600 hover:bg-slate-50"
+                            x-show="hasActiveFilters()"
+                            @click="resetFilters(); loadData()">Clear filters</button>
                 </div>
             </div>
 
@@ -239,12 +262,14 @@
                                       class="inline-flex items-center gap-1 rounded-full bg-slate-900 text-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap shrink-0">Closed</span>
                             </div>
                             <div class="mt-1 flex flex-wrap gap-1.5">
+                                {{-- Risk pill --}}
                                 <span :class="{
                                     'inline-flex items-center rounded-full px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide': true,
                                     'bg-rose-100 text-rose-700':       row.human?.risk_tone === 'urgent',
                                     'bg-amber-100 text-amber-700':     row.human?.risk_tone === 'watch',
                                     'bg-slate-100 text-slate-600':     row.human?.risk_tone === 'info',
                                 }" x-text="row.human?.risk_label || ''"></span>
+                                {{-- Status pill --}}
                                 <span :class="{
                                     'inline-flex items-center rounded-full px-2 py-0.5 text-[10.5px] font-semibold': true,
                                     'bg-rose-100 text-rose-700':     row.human?.status_tone === 'urgent',
@@ -252,16 +277,73 @@
                                     'bg-emerald-100 text-emerald-700': row.human?.status_tone === 'done',
                                     'bg-slate-100 text-slate-600':   row.human?.status_tone === 'info' || row.human?.status_tone === 'skipped',
                                 }" x-text="row.human?.status_label || ''"></span>
+
+                                {{-- Suspected-disease chips: up to 3 ranked diseases from the engine.
+                                     Rank-1 chip is solid (the headline); ranks 2-3 are softer outlines. --}}
+                                <template x-for="(d, i) in (row.suspected_diseases || []).slice(0, 3)" :key="d.disease_code + i">
+                                    <span :class="{
+                                        'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10.5px] font-medium whitespace-nowrap': true,
+                                        'bg-indigo-100 text-indigo-700':    i === 0,
+                                        'border border-indigo-200 text-indigo-700 bg-white': i > 0,
+                                    }">
+                                        <span class="text-[8.5px] font-bold opacity-70" x-show="(row.suspected_diseases || []).length > 1" x-text="`#${d.rank_order}`"></span>
+                                        <span x-text="prettyDisease(d.disease_code)"></span>
+                                        <span class="text-[9px] opacity-70" x-show="d.confidence != null" x-text="`${Math.round(d.confidence)}%`"></span>
+                                    </span>
+                                </template>
+
+                                {{-- Blocking-followups chip: red, conspicuous, replaces buried prose --}}
+                                <span class="inline-flex items-center gap-1 rounded-full bg-rose-600 text-white px-2 py-0.5 text-[10.5px] font-semibold whitespace-nowrap"
+                                      x-show="(row.blocking_followups_count || 0) > 0"
+                                      :title="`${row.blocking_followups_count} blocking step(s) must be COMPLETED or NOT_APPLICABLE before close.`">
+                                    <span>⛔</span>
+                                    <span x-text="`${row.blocking_followups_count} blocking`"></span>
+                                </span>
+
+                                {{-- Owner chip: who's holding this --}}
+                                <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 px-2 py-0.5 text-[10.5px] font-medium whitespace-nowrap"
+                                      x-show="row.current_owner_name"
+                                      :title="`Owner: ${row.current_owner_name} (${row.current_owner_role || '—'})`">
+                                    <span>👤</span>
+                                    <span x-text="row.current_owner_name"></span>
+                                </span>
                             </div>
+
                             <p class="mt-1 text-[12.5px] text-muted-foreground break-words" x-text="rowSubtitle(row)"></p>
-                            <p class="mt-1 text-[11px] text-amber-700 font-medium break-words" x-show="(row.blocking_followups_count || 0) > 0"
-                               x-text="`${row.blocking_followups_count} step(s) still need attention`"></p>
+
+                            {{-- CLOSED rows: surface close_category + close_note inline so operators
+                                 reading the Closed tab actually see WHY it was closed. --}}
+                            <div class="mt-1 text-[11.5px] text-slate-600 break-words" x-show="row.status === 'CLOSED' && row.close_category">
+                                <span class="font-semibold">Closed as</span>
+                                <span class="inline-flex items-center rounded-full bg-slate-900 text-white px-1.5 py-0 text-[10px] font-semibold uppercase tracking-wide mx-1"
+                                      x-text="(row.close_category || '').replace(/_/g, ' ')"></span>
+                                <span x-show="row.close_note" x-text="`— ${row.close_note}`"></span>
+                            </div>
                         </div>
 
-                        {{-- Right column - time + arrow --}}
-                        <div class="text-right shrink-0">
+                        {{-- Right column - time + inline actions --}}
+                        <div class="text-right shrink-0 flex flex-col items-end gap-1.5">
                             <p class="text-[11px] text-muted-foreground tabular-nums" x-text="row.human?.created_human || ''"></p>
-                            <span class="text-muted-foreground text-sm">→</span>
+
+                            {{-- Inline action row. Gated by role + alert state. Click stops bubbling
+                                 so the row's openGateway doesn't also fire. ≤2 clicks to acknowledge / view. --}}
+                            <div class="flex items-center gap-1.5" @click.stop>
+                                {{-- Acknowledge: only on OPEN, if user role is permitted --}}
+                                <button type="button"
+                                        x-show="row.status === 'OPEN' && canActOn(row, 'acknowledge')"
+                                        @click.stop="quickAcknowledge(row)"
+                                        class="inline-flex items-center justify-center w-7 h-7 rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-[11px] font-semibold"
+                                        :title="`Acknowledge alert #${row.id}`">✓</button>
+
+                                {{-- Open case file: always available --}}
+                                <a :href="`/admin/alerts/${row.id}/case-file`"
+                                   @click.stop
+                                   class="inline-flex items-center justify-center w-7 h-7 rounded-md bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 text-[11px]"
+                                   :title="`Open the case file for alert #${row.id}`">📋</a>
+
+                                {{-- Arrow → gateway (existing behaviour) --}}
+                                <span class="text-muted-foreground text-sm">→</span>
+                            </div>
                         </div>
                     </button>
                 </template>
@@ -386,7 +468,19 @@ function alertHub(opts) {
             outcomes: { CONFIRMED: 0, PROBABLE: 0, SUSPECTED: 0, DISCARDED: 0, LOST_TO_FOLLOWUP: 0, UNKNOWN: 0 },
         },
 
-        filters: { status: 'open', q: '', group: null, date_window: 'all', routed_to_level: '', district: '', province: '' },
+        // risk_level + poe filters added 2026-05-20 — controller already honours them,
+        // selectors are now rendered above. owner_user_id stays in the controller layer
+        // until we add an owner-picker UI in a follow-up.
+        filters: {
+            status: 'open', q: '', group: null,
+            date_window: 'all', routed_to_level: '',
+            district: '', province: '', risk_level: '', poe: '',
+        },
+
+        // Default filter snapshot — used by resetFilters() so we don't drift.
+        get _defaultFilters() {
+            return { status: 'open', q: '', group: null, date_window: 'all', routed_to_level: '', district: '', province: '', risk_level: '', poe: '' };
+        },
 
         tabs: [
             { key: 'open',         label: 'New' },
@@ -411,8 +505,96 @@ function alertHub(opts) {
         toast: { show: false, message: '', tone: 'ok', timer: null },
 
         async boot() {
+            this.readFiltersFromUrl();
             await Promise.all([this.loadMeta(), this.loadInsights()]);
             await this.loadData();
+            // Re-run insights when filters that change cohort fire (window / risk / level / district / poe / status).
+            // The KPI strip otherwise shows all-time totals against a filtered list — confusing.
+            for (const k of ['date_window','risk_level','routed_to_level','district','poe','status']) {
+                this.$watch(`filters.${k}`, () => this.loadInsights().catch(() => {}));
+            }
+        },
+
+        // URL state ── persist filter selections so links are bookmarkable + shareable.
+        // Same pattern used by every Quick Report. Keeps things in sync with bookmarks.
+        readFiltersFromUrl() {
+            try {
+                const u = new URL(window.location.href);
+                for (const k of Object.keys(this.filters)) {
+                    const v = u.searchParams.get(k);
+                    if (v !== null) this.filters[k] = v;
+                }
+            } catch (_) { /* SSR / bad URL — fail silently */ }
+        },
+        writeFiltersToUrl() {
+            try {
+                const u = new URL(window.location.href);
+                for (const [k, v] of Object.entries(this.filters)) {
+                    if (v === '' || v == null || v === 'all' || k === 'group') {
+                        u.searchParams.delete(k);
+                    } else {
+                        u.searchParams.set(k, v);
+                    }
+                }
+                window.history.replaceState({}, '', u);
+            } catch (_) { /* ignore */ }
+        },
+
+        hasActiveFilters() {
+            const d = this._defaultFilters;
+            for (const k of Object.keys(this.filters)) {
+                if (k === 'status') continue; // status is the tab, handled separately
+                if ((this.filters[k] ?? '') !== (d[k] ?? '')) return true;
+            }
+            return false;
+        },
+
+        resetFilters() {
+            const d = this._defaultFilters;
+            for (const k of Object.keys(d)) this.filters[k] = d[k];
+            this.writeFiltersToUrl();
+        },
+
+        // Convert disease_code (e.g. 'ebola_virus_disease') to a human label.
+        // We don't have a server lookup here — best-effort string transform that
+        // also strips a leading "(suspected) " prefix the engine occasionally emits.
+        prettyDisease(code) {
+            if (!code) return '';
+            const s = String(code).replace(/^\(suspected\)\s*/i, '').replace(/[_\-]+/g, ' ');
+            return s.replace(/\b\w/g, c => c.toUpperCase());
+        },
+
+        // RBAC: which actions can the current user fire on this alert?
+        // The actual server-side guard is authoritative (per /admin/alerts route
+        // middleware: NATIONAL_ADMIN, PHEOC_OFFICER, PHEOC_ADMIN,
+        // DISTRICT_SUPERVISOR, DISTRICT_ADMIN may acknowledge). This UI gate
+        // hides the button so users don't see options they can't fire.
+        canActOn(row, action) {
+            const role = (this.meta?.actor?.role_key || '').toUpperCase();
+            if (action === 'acknowledge') {
+                return ['NATIONAL_ADMIN','PHEOC_OFFICER','PHEOC_ADMIN','DISTRICT_SUPERVISOR','DISTRICT_ADMIN'].includes(role)
+                    && row.status === 'OPEN';
+            }
+            return false;
+        },
+
+        async quickAcknowledge(row) {
+            if (!confirm(`Acknowledge alert #${row.id} for ${row.human?.traveller_name || 'this case'}?`)) return;
+            try {
+                const r = await this.fetchJson(`/admin/alerts/${row.id}/acknowledge`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({}),
+                });
+                if (r) {
+                    this.showToast('Alert acknowledged.', 'ok');
+                    // Refresh row data + insights so KPI strip stays honest.
+                    this.loadData();
+                    this.loadInsights();
+                }
+            } catch (e) {
+                this.showToast(e.message || 'Could not acknowledge.', 'error');
+            }
         },
 
         csrfToken() { return document.querySelector('meta[name="csrf-token"]').content; },
@@ -488,6 +670,7 @@ function alertHub(opts) {
 
         async loadData(append=false) {
             this.loading = !append;
+            if (!append) this.writeFiltersToUrl();
             const params = new URLSearchParams();
             params.set('status', this.filters.status);
             if (this.filters.q)               params.set('q', this.filters.q);
@@ -495,6 +678,8 @@ function alertHub(opts) {
             if (this.filters.routed_to_level) params.set('routed_to_level', this.filters.routed_to_level);
             if (this.filters.district)        params.set('district', this.filters.district);
             if (this.filters.province)        params.set('province', this.filters.province);
+            if (this.filters.risk_level)      params.set('risk_level', this.filters.risk_level);
+            if (this.filters.poe)             params.set('poe', this.filters.poe);
             if (append && this.nextCursor)    params.set('cursor', this.nextCursor);
 
             const body = await this.fetchJson(`${this.endpoints.data}?${params.toString()}`);

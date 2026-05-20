@@ -637,6 +637,34 @@ final class AlertsController extends Controller
                 'updated_at'              => $now,
             ]);
 
+            // Timeline event — additive, parallels close() / reopen() / reassign() / escalate().
+            // Best-effort: failure to write the audit row must NOT block the FSM transition.
+            // Downstream readers (OwnershipController stream, qr-alert-out audit) need this
+            // to compute median-ack-time and to render the lifecycle lineage correctly.
+            try {
+                DB::table('alert_timeline_events')->insert([
+                    'alert_id'       => $id,
+                    'event_code'     => 'ACKNOWLEDGED',
+                    'event_category' => 'WORKFLOW',
+                    'actor_user_id'  => $userId,
+                    'actor_name'     => (string) ($user->full_name ?? $user->username ?? ''),
+                    'actor_role'     => $userRole,
+                    'summary'        => mb_substr(
+                        "Alert acknowledged by {$userRole} at the {$routedTo} level.",
+                        0, 500
+                    ),
+                    'payload_json'   => json_encode([
+                        'routed_to_level' => $routedTo,
+                        'from_status'     => $alert->status,
+                        'alert_code'      => $alert->alert_code,
+                    ]),
+                    'severity'       => 'INFO',
+                    'created_at'     => $now,
+                ]);
+            } catch (Throwable $e) {
+                Log::warning('[Alerts][acknowledge] timeline insert failed: ' . $e->getMessage());
+            }
+
             $updated = DB::table('alerts')->where('id', $id)->first();
 
             Log::info('[Alerts][acknowledge] Alert acknowledged', [

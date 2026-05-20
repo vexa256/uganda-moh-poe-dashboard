@@ -48,7 +48,11 @@ final class AlertsController extends Controller
     private const TABS = ['open', 'acknowledged', 'closed', 'reopened', 'all'];
 
     private const RISKS  = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
-    private const TIERS  = ['TIER_1', 'TIER_2', 'NONE'];
+    // alerts.ihr_tier is varchar(40). CaseOutcomeRecorder + CaseFileController
+    // both work with the long-form values that the IDSR engine emits.
+    // The short forms ('TIER_1', 'NONE') match zero live rows — exposing them in
+    // the filter dropdown produced a guaranteed-empty result set.
+    private const TIERS  = ['TIER_1_ALWAYS_NOTIFIABLE', 'TIER_2_ANNEX2', 'TIER_3_ROUTINE'];
     private const LEVELS = ['DISTRICT', 'PHEOC', 'NATIONAL'];
 
     private const MAX_PER_PAGE   = 100;
@@ -124,16 +128,25 @@ final class AlertsController extends Controller
                     ->groupBy('alert_id')->pluck('c', 'alert_id')->all();
             }
 
-            // Top suspected disease + traveller name per alert (batched joins).
-            $diseaseByAlert   = $this->topDiseasesFor($alertIds);
+            // Suspected diseases (up to 3 per alert) + traveller name (batched joins).
+            // Rank-1 disease drives the headline label; ranks 2–3 surface as
+            // secondary chips on the master row so operators see all hypotheses
+            // the engine produced, not just the top one.
+            $diseasesByAlert  = $this->topDiseasesMulti($alertIds, 3);
             $travellerByAlert = $this->travellersFor($alertIds);
 
-            $castRows = $rows->map(fn ($a) => $this->castRow(
-                $a,
-                (int) ($blockingByAlert[$a->id] ?? 0),
-                $diseaseByAlert[(int) $a->id]   ?? null,
-                $travellerByAlert[(int) $a->id] ?? null
-            ))->all();
+            $castRows = $rows->map(function ($a) use ($blockingByAlert, $diseasesByAlert, $travellerByAlert) {
+                $aid = (int) $a->id;
+                $list = $diseasesByAlert[$aid] ?? [];
+                $top  = $list[0]['disease_code'] ?? null;
+                return $this->castRow(
+                    $a,
+                    (int) ($blockingByAlert[$a->id] ?? 0),
+                    $top,
+                    $travellerByAlert[$aid] ?? null,
+                    $list,
+                );
+            })->all();
 
             $tabs = $this->countTabs($base, $r);
 
@@ -165,9 +178,14 @@ final class AlertsController extends Controller
 
             $poeQ = DB::table('ref_poes')->whereNull('deleted_at');
             $poeQ = ScopeFilter::applyToPoes($poeQ, $scope);
+            // Returns {code, name, poe_code, poe_name, province, district} per row.
+            // `code`/`name` are the keys the master view's selector reads.
+            // `poe_code`/`poe_name` are kept for any consumer that still reads them.
             $poes = $poeQ->orderBy('display_order')->orderBy('poe_name')
                 ->get(['poe_code', 'poe_name', 'admin_level_1', 'district'])
                 ->map(fn ($p) => [
+                    'code'     => (string) $p->poe_code,
+                    'name'     => (string) $p->poe_name,
                     'poe_code' => (string) $p->poe_code,
                     'poe_name' => (string) $p->poe_name,
                     'province' => (string) $p->admin_level_1,
@@ -186,6 +204,16 @@ final class AlertsController extends Controller
             }
             $diseaseGroups[] = ['code' => 'syndromic_unknown', 'label' => (string) trans('alerts.disease_group.syndromic_unknown')];
 
+            // Actor profile — surfaced for the master view's role-gated action
+            // buttons (Acknowledge etc.) so we don't show options the user
+            // can't fire. Server-side route middleware remains authoritative.
+            $actor = $r->user();
+            $actorPayload = $actor ? [
+                'id'        => (int) $actor->id,
+                'full_name' => (string) ($actor->full_name ?? $actor->username ?? ''),
+                'role_key'  => (string) ($actor->role_key ?? ''),
+            ] : null;
+
             return $this->ok([
                 'risks'             => self::RISKS,
                 'tiers'             => self::TIERS,
@@ -194,6 +222,7 @@ final class AlertsController extends Controller
                 'districts'         => $districts,
                 'poes'              => $poes,
                 'tabs'              => self::TABS,
+                'actor'             => $actorPayload,
 
                 // Plain-English chip palettes — Blade renders only the human side.
                 'human' => [
@@ -412,10 +441,14 @@ final class AlertsController extends Controller
                 'dispatch_receipt'  => $dispatch->map(fn ($d) => (array) $d)->all(),
                 'sla'               => $sla,
                 'links'             => [
-                    'war_room'   => "/admin/alerts/{$id}",
+                    // case-file is the canonical user-facing dossier surface.
+                    // (Removed war_room — pointed to this JSON endpoint, misleading.
+                    //  Removed api_show — leaked the mobile API contract to admin UI.
+                    //  timeline/followups still resolve; sidebar-deprecated but kept
+                    //  here so the case-file modal can deep-link if it needs to.)
+                    'case_file'  => "/admin/alerts/{$id}/case-file",
                     'timeline'   => "/admin/alerts/timeline?alert_id={$id}",
                     'followups'  => "/admin/alerts/followups?alert_id={$id}",
-                    'api_show'   => "/api/alerts/{$id}",
                 ],
             ], 'Alert dossier.');
         } catch (Throwable $e) { return $this->serverError($e, 'show'); }
@@ -523,7 +556,10 @@ final class AlertsController extends Controller
                 // were waived and WHY.
                 $actorId = (int) ($r->user()->id ?? 0);
 
-                $this->emitTimeline($id, 'BREACH_UPDATED', 'WORKFLOW', $actorId,
+                // CLOSURE_OVERRIDE_USED is the canonical code (matches what
+                // CaseFileController::buildClosure reads). BREACH_UPDATED was
+                // semantically wrong (that code is for breach-RCA updates).
+                $this->emitTimeline($id, 'CLOSURE_OVERRIDE_USED', 'WORKFLOW', $actorId,
                     'Close override — ' . $blocking->count() . ' blocking followups overridden by NATIONAL_ADMIN.',
                     [
                         'override_reason'      => $overrideReason,
@@ -1221,8 +1257,28 @@ final class AlertsController extends Controller
         ];
     }
 
-    private function castRow(object $a, int $blockingFollowupsCount, ?string $topDiseaseCode = null, ?string $travellerName = null): array
-    {
+    /**
+     * @param object  $a                      raw alerts row with owner/ack joins
+     * @param int     $blockingFollowupsCount blocking followups still outstanding
+     * @param ?string $topDiseaseCode         rank-1 suspected disease code
+     * @param ?string $travellerName          display name (resolved upstream)
+     * @param array   $suspectedDiseases      list of up to 3 ranked diseases (see topDiseasesMulti)
+     */
+    private function castRow(
+        object $a,
+        int $blockingFollowupsCount,
+        ?string $topDiseaseCode = null,
+        ?string $travellerName = null,
+        array $suspectedDiseases = []
+    ): array {
+        // Carbon::diffInMinutes returns a positive value when args are swapped;
+        // pass $now first so future-clock-skew rows (mobile sync drift) come
+        // back NEGATIVE, which the UI can render as "just submitted" rather
+        // than "10 minutes ago" for a not-yet-existing event.
+        $now = Carbon::now();
+        $createdAt = Carbon::parse((string) $a->created_at);
+        $ageMinutes = (int) $now->diffInMinutes($createdAt, false) * -1;
+
         $base = [
             'id'                       => (int) $a->id,
             'alert_code'               => (string) $a->alert_code,
@@ -1253,7 +1309,11 @@ final class AlertsController extends Controller
             'created_at'               => $a->created_at,
             'updated_at'               => $a->updated_at,
             'blocking_followups_count' => $blockingFollowupsCount,
-            'age_minutes'              => (int) Carbon::parse($a->created_at)->diffInMinutes(Carbon::now()),
+            'age_minutes'              => $ageMinutes,
+            // Up to 3 ranked suspected diseases. Each entry: {disease_code, rank_order, confidence}.
+            // HumanLabels::wrapAlert below will inject `human.disease` (rank-1 pretty label);
+            // the view renders additional ranks as secondary chips.
+            'suspected_diseases'       => $suspectedDiseases,
         ];
 
         return HumanLabels::wrapAlert($base, $topDiseaseCode, $travellerName);
@@ -1351,25 +1411,54 @@ final class AlertsController extends Controller
 
     /**
      * Batched lookup of the top suspected disease per alert id (rank_order=1).
+     * Used by callers that only need the headline disease string.
      *
      * @param int[] $alertIds
      * @return array<int,?string>
      */
     private function topDiseasesFor(array $alertIds): array
     {
+        $multi = $this->topDiseasesMulti($alertIds, 1);
+        $out = [];
+        foreach ($multi as $aid => $list) {
+            $out[$aid] = $list[0]['disease_code'] ?? null;
+        }
+        return $out;
+    }
+
+    /**
+     * Batched lookup of up to N (default 3) ranked suspected diseases per alert.
+     * Returns array<int, list<array{disease_code:string, rank_order:int, confidence:?float}>>
+     * Ordered by rank_order asc (rank 1 first). Confidence is normalised to 0-100.
+     *
+     * @param int[] $alertIds
+     * @param int   $perAlert  cap per alert (1..3 makes sense; we ship 3 to the master row)
+     * @return array<int,list<array<string,mixed>>>
+     */
+    private function topDiseasesMulti(array $alertIds, int $perAlert = 3): array
+    {
         if (empty($alertIds)) return [];
+        $perAlert = max(1, min(5, $perAlert));
 
         $rows = DB::table('alerts as a')
             ->join('secondary_suspected_diseases as s', 's.secondary_screening_id', '=', 'a.secondary_screening_id')
             ->whereIn('a.id', $alertIds)
-            ->where('s.rank_order', 1)
-            ->orderBy('a.id')->orderBy('s.id')
-            ->get(['a.id as alert_id', 's.disease_code']);
+            ->where('s.rank_order', '<=', $perAlert)
+            ->orderBy('a.id')->orderBy('s.rank_order')->orderBy('s.id')
+            ->get(['a.id as alert_id', 's.disease_code', 's.rank_order', 's.confidence']);
 
         $out = [];
         foreach ($rows as $r) {
             $aid = (int) $r->alert_id;
-            if (!isset($out[$aid])) $out[$aid] = (string) $r->disease_code;
+            if (!isset($out[$aid])) { $out[$aid] = []; }
+            if (count($out[$aid]) >= $perAlert) { continue; }
+            // confidence is stored as decimal(5,2) — emit as float; 0-100 scale.
+            $conf = $r->confidence === null ? null : (float) $r->confidence;
+            $out[$aid][] = [
+                'disease_code' => (string) $r->disease_code,
+                'rank_order'   => (int) $r->rank_order,
+                'confidence'   => $conf,
+            ];
         }
         return $out;
     }

@@ -35,9 +35,17 @@ use Throwable;
  */
 final class OwnershipController extends Controller
 {
-    /** Codes that constitute an "ownership-change" event. */
+    /**
+     * Codes that constitute an "ownership-change" event.
+     *
+     * Aligned to what canonical writers actually emit (verified 2026-05-20):
+     *   - ALERT_CREATED       — emitted on initial alert open (was "OPENED" — dead code)
+     *   - ACKNOWLEDGED        — emitted by canonical AlertsController::acknowledge (T1.1 fix)
+     *   - ESCALATED, REASSIGNED — emitted by their canonical writers
+     *   - HANDOFF_*           — emitted by AlertCollaborationController
+     */
     public const OWNERSHIP_CODES = [
-        'OPENED',
+        'ALERT_CREATED',
         'ACKNOWLEDGED',
         'ESCALATED',
         'REASSIGNED',
