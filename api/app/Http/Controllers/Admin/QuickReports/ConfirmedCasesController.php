@@ -236,6 +236,13 @@ final class ConfirmedCasesController extends BaseQuickReportController
         if ($secIds) {
             $rows = DB::table('secondary_suspected_diseases')
                 ->whereIn('secondary_screening_id', $secIds)
+                // 2026-05-20: exclude the 'no_specific_suspicion' placeholder
+                // rows the mobile emits when the rule engine + officer override
+                // produced fewer than three hypotheses. A confirmed case must
+                // never be attributed to the padding code. If every row for a
+                // case is placeholder, $suspectedTop[$sid] stays unset and the
+                // case falls through to the lab_disease_code fallback below.
+                ->where('disease_code', '!=', 'no_specific_suspicion')
                 ->orderBy('secondary_screening_id')
                 ->orderBy('rank_order')
                 ->get(['secondary_screening_id', 'disease_code']);
