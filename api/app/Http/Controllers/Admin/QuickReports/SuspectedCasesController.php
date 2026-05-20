@@ -57,6 +57,18 @@ final class SuspectedCasesController extends BaseQuickReportController
     private const CHART_TOP_N = 12;
 
     /**
+     * 2026-05-20: placeholder code emitted by mobile when the rule engine +
+     * officer override produced fewer than three differential hypotheses
+     * (see SecondaryScreening.vue dispositionCase pad-to-3 block). Treated
+     * as an explicit "no specific suspicion captured" signal — excluded
+     * from the chart, the per-case disease list, and the "with diagnosis"
+     * KPI so the chart never shows a synthetic top-disease and the KPI
+     * stays clinically honest.
+     */
+    private const PLACEHOLDER_DISEASE_CODE = 'no_specific_suspicion';
+    private const PLACEHOLDER_DISEASE_LABEL = 'No specific suspicion';
+
+    /**
      * Material Design vivid palette (saturation ≥70%). Used for categorical
      * charts (diseases / POEs / days). Cycles in order. Yellow and lime are
      * deliberately omitted — they fail the contrast bar on a white card.
@@ -274,14 +286,30 @@ final class SuspectedCasesController extends BaseQuickReportController
 
         $diseasesByCase = [];          // [secondary_id => ["Cholera", "Measles", …]]
         $diseaseFreq    = [];          // ["Cholera" => 4, "Measles" => 1, …]
-        $caseHasDisease = [];          // [secondary_id => true]
+        $caseHasDisease = [];          // [secondary_id => true] — REAL hypotheses only
+        $caseHasPlaceholderOnly = []; // [secondary_id => true] — only padding rows
         foreach ($diseaseRows as $d) {
             $sid   = (int) $d->secondary_screening_id;
             $code  = (string) $d->disease_code;
+
+            // Placeholder rows are emitted by the mobile when neither the
+            // engine nor the officer override produced enough hypotheses to
+            // fill the always-three slots. They are recorded for audit but
+            // must not appear in the chart, the per-case disease chip list,
+            // or the "with diagnosis" KPI — otherwise a NON_CASE that was
+            // dispositioned would look like it had three suspected diseases.
+            if ($code === self::PLACEHOLDER_DISEASE_CODE) {
+                if (! isset($caseHasDisease[$sid])) {
+                    $caseHasPlaceholderOnly[$sid] = true;
+                }
+                continue;
+            }
+
             $label = $diseaseNames[$code] ?? $code;
             $diseasesByCase[$sid][] = $label;
             $diseaseFreq[$label] = ($diseaseFreq[$label] ?? 0) + 1;
             $caseHasDisease[$sid] = true;
+            unset($caseHasPlaceholderOnly[$sid]);
         }
 
         // ── 4. Alert linkage (case file deep link) ─────────────────────────

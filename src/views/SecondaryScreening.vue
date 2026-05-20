@@ -617,8 +617,13 @@
             </div>
           </div>
 
-          <!-- ── Optional Clinical Data (toggleable) ── -->
-          <div class="sc-vitals-toggle-hdr" @click="showVitals = !showVitals" role="button" :aria-expanded="showVitals">
+          <!-- ── Optional Clinical Data (toggleable) ──
+               2026-05-20: POEs do not triage. The Clinical Vitals & Triage
+               panel is permanently hidden via SHOW_CLINICAL_VITALS=false in
+               the script section. UI code preserved per directive — only the
+               render gate is flipped so future re-enable is one boolean flip.
+          -->
+          <div v-if="SHOW_CLINICAL_VITALS" class="sc-vitals-toggle-hdr" @click="showVitals = !showVitals" role="button" :aria-expanded="showVitals">
             <div class="sc-vitals-toggle-left">
               <div class="sc-vitals-toggle-ic" aria-hidden="true">
                 <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 8h2l2-6 3 10 2-6 1 2h2"/></svg>
@@ -631,7 +636,7 @@
             </svg>
           </div>
 
-          <div v-show="showVitals" class="sc-vitals-panel">
+          <div v-if="SHOW_CLINICAL_VITALS" v-show="showVitals" class="sc-vitals-panel">
             <div class="sc-vitals-note">Complete only if measurement equipment is available at this POE. Temperature is captured at the top of this step (Vital Sign) and feeds the auto-derived Fever signal.</div>
 
             <!-- Pulse + RR -->
@@ -1134,13 +1139,18 @@
         ══════════════════════════════════════════════════════════════════ -->
         <div v-show="step === 5">
 
-          <!-- ── Syndrome Classification (Change 21 — searchable, WHO-complete) ── -->
-          <div class="sc-section-hdr" style="margin-top:16px">
+          <!-- 2026-05-20: Syndrome Classification UI hidden. POEs only suspect;
+               they do not classify syndromes. The engine still computes one
+               internally (analysisResult.syndrome) and dispositionCase
+               auto-populates caseDecision.syndrome_classification from it
+               for audit, but no user input is required or possible. -->
+          <div v-if="SHOW_CLINICAL_VITALS" class="sc-section-hdr" style="margin-top:16px">
             <span class="sc-sec-num sc-sec-num--blue">1</span>
             <span class="sc-sec-title">{{ t('Syndrome Classification') }}</span>
             <span v-if="autoSyndromeApplied && caseDecision.syndrome_classification" class="sc-sec-badge sc-sec-badge--auto">Auto-set ✓</span>
             <span v-else class="sc-sec-badge sc-sec-badge--req">Required</span>
           </div>
+          <template v-if="SHOW_CLINICAL_VITALS">
 
           <!-- Engine syndrome auto-suggestion -->
           <div v-if="analysisResult?.syndrome?.syndrome" class="sc-syn-engine-hint">
@@ -1197,14 +1207,18 @@
           </div>
 
           <div v-if="fieldErrors.syndrome_classification" class="sc-field-err" role="alert">{{ fieldErrors.syndrome_classification }}</div>
+          </template>
 
-          <!-- ── Risk Level (Change 22 — read-only, system-determined) ── -->
-          <div class="sc-section-hdr" style="margin-top:16px">
+          <!-- 2026-05-20: Risk Level panel hidden. Engine still computes it
+               internally; dispositionCase pulls it from analysisResult so
+               downstream alerts can still route correctly. POE operator
+               does not see or set risk — that is a hospital function. -->
+          <div v-if="SHOW_CLINICAL_VITALS" class="sc-section-hdr" style="margin-top:16px">
             <span class="sc-sec-num sc-sec-num--red">2</span>
             <span class="sc-sec-title">{{ t('Risk Level — System Determined') }}</span>
             <span class="sc-sec-badge sc-sec-badge--auto">Auto</span>
           </div>
-          <div class="sc-risk-readonly">
+          <div v-if="SHOW_CLINICAL_VITALS" class="sc-risk-readonly">
             <div class="sc-risk-readonly-row">
               <span class="sc-risk-readonly-label">Computed risk:</span>
               <span class="sc-risk-readonly-badge" :class="'sc-risk-readonly-badge--' + (caseDecision.risk_level || 'PENDING').toLowerCase()">
@@ -2262,6 +2276,14 @@ function onDocScanResult(payload) {
 // Initialised in initSymptoms() from SYMPTOM_GROUPS
 const symptomsMap = reactive({})  // code → { symptom_code, is_present, onset_date, details }
 
+// 2026-05-20: POE staff do not conduct clinical triage. Vitals + triage UI
+// is hidden via this constant in the template (v-if="SHOW_CLINICAL_VITALS").
+// The reactive `vitals` object and `showVitals` ref are kept so any
+// computed/watcher that touches them does not crash; their values are
+// effectively dead and never reach the buildPayload because showVitals stays
+// false. To re-enable in future, set SHOW_CLINICAL_VITALS=true and remove
+// this comment block.
+const SHOW_CLINICAL_VITALS = false
 const showVitals = ref(false)
 
 const vitals = reactive({
@@ -4934,8 +4956,8 @@ async function dispositionCase() {
   fieldErrors.actions                 = ''
   fieldErrors.officer_notes           = ''
 
-  // 2026-05-07: bio-identity hard-stop removed per operations mandate. If
-  // step 1 left gaps, route the officer back silently — no alert.
+  // Bio-identity is the ONLY hard-stop. If step 1 left gaps, route the
+  // officer back silently — no alert.
   const _problems = bioProblems()
   if (_problems.length > 0) {
     hapticError()
@@ -4943,38 +4965,26 @@ async function dispositionCase() {
     return
   }
 
-  // Validate
-  let valid = true
+  // 2026-05-20: clinical-field validation removed. POEs only SUSPECT — they
+  // do not classify syndromes, assess risk, or pick clinical dispositions.
+  // The engine still computes syndrome + risk for downstream alerts; we
+  // auto-populate them from analysisResult so the audit trail stays
+  // complete. final_disposition defaults to REFERRED (POEs refer suspects
+  // to a health facility). Officer notes + manual actions remain OPTIONAL.
+  // The clinical signal of record is the 3 suspected_diseases — guaranteed
+  // below by guaranteeThreeSuspectedDiseases().
   if (!caseDecision.syndrome_classification) {
-    fieldErrors.syndrome_classification = 'Syndrome classification is required.'
-    valid = false
+    const engineSyn = analysisResult.value?.syndrome?.syndrome
+    if (engineSyn) caseDecision.syndrome_classification = normalizeSyndromeCode(engineSyn)
+    else           caseDecision.syndrome_classification = 'OTHER'
   }
   if (!caseDecision.risk_level) {
-    fieldErrors.risk_level = 'Risk level is required.'
-    valid = false
+    const engineRisk = analysisResult.value?.ihr_risk?.risk_level
+    caseDecision.risk_level = ['LOW','MEDIUM','HIGH','CRITICAL'].includes(engineRisk) ? engineRisk : 'LOW'
   }
   if (!caseDecision.final_disposition) {
-    fieldErrors.final_disposition = 'Final disposition is required.'
-    valid = false
+    caseDecision.final_disposition = 'REFERRED'
   }
-  if (actions.value.filter(a => a.is_done === 1).length === 0) {
-    fieldErrors.actions = 'At least one action must be recorded.'
-    valid = false
-  }
-  // Officer notes are mandatory (executive directive 2026-05-08).
-  // A non-empty narrative is required so that every disposition has the
-  // clinician's reasoning attached for audit + downstream review.
-  {
-    const notes = String(caseDecision.officer_notes || '').trim()
-    if (notes.length < 5) {
-      fieldErrors.officer_notes = 'Officer notes are required (minimum 5 characters).'
-      valid = false
-    }
-  }
-  // 2026-05-07: HIGH/CRITICAL action-mismatch lock removed per operations
-  // mandate. Officer judgment governs disposition; the recommendation panel
-  // already cites the suggested actions. No alert(), no proceed-blocker.
-  if (!valid) return
 
   saving.value = true
   try {
@@ -5040,6 +5050,30 @@ async function dispositionCase() {
       toPlain(doneActions.map(a => ({ ...a, secondary_screening_id: caseUuid.value })))
     )
 
+    // 2026-05-20: GUARANTEE exactly 3 suspected_diseases per directive.
+    // POEs always record three differential hypotheses, sourced from
+    // engine top_diagnoses + officer override. If the combined set has
+    // fewer than 3 (e.g. NON_CASE verdict with no override), pad with
+    // 'no_specific_suspicion' rows so the report layer always has a
+    // signal to anchor on. disease_code is varchar(80) without a FK, so
+    // a placeholder code is safe; reports fall back to the raw code when
+    // ref_diseases has no display name.
+    {
+      const _padded = [...(suspectedDiseases.value || [])]
+      while (_padded.length < 3) {
+        _padded.push({
+          disease_code: 'no_specific_suspicion',
+          rank_order:   _padded.length + 1,
+          confidence:   null,
+          reasoning:    'Auto-padded — engine + officer override produced fewer than 3 hypotheses.',
+        })
+      }
+      suspectedDiseases.value = _padded.slice(0, 3).map((d, i) => ({
+        ...d,
+        rank_order:             i + 1,
+        secondary_screening_id: caseUuid.value,
+      }))
+    }
     await dbReplaceAll(
       STORE.SECONDARY_SUSPECTED_DISEASES,
       'secondary_screening_id',

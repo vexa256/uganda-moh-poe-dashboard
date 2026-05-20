@@ -1115,8 +1115,7 @@ final class SecondaryScreeningController extends Controller
             if ($newStatus === 'DISPOSITIONED') {
                 // BIO GATE — refuse to dispose of a case that has no real
                 // traveller identity. Anonymous referrals must not reach a
-                // terminal state. Mirrors the client-side guard in
-                // SecondaryScreening.vue:saveStep1AndNext + dispositionCase.
+                // terminal state.
                 $bioMissing = [];
                 if (mb_strlen(trim((string) ($case->traveler_full_name ?? ''))) < 2) {
                     $bioMissing[] = 'traveler_full_name';
@@ -1138,73 +1137,25 @@ final class SecondaryScreeningController extends Controller
                     ]);
                 }
 
-                $missing = [];
-                if (empty($case->syndrome_classification)) {
-                    $missing[] = 'syndrome_classification';
-                }
-
-                if (empty($case->risk_level)) {
-                    $missing[] = 'risk_level';
-                }
-
-                if (empty($case->final_disposition)) {
-                    $missing[] = 'final_disposition';
-                }
-
-                if (! empty($missing)) {
-                    return $this->err(422, 'Cannot reach DISPOSITIONED status. Required clinical fields are missing.', [
-                        'missing_fields' => $missing,
-                        'hint'           => 'Set syndrome_classification, risk_level, and final_disposition via PATCH /secondary-screenings/{id} before attempting to disposition the case.',
-                    ]);
-                }
-
-                // FIX 10: NON_CASE bypasses HIGH_RISK action requirements
-                $screeningOutcome = $this->extractScreeningOutcome(
-                    $request->input('disposition_details') ?? $case->disposition_details ?? ''
-                );
-                $isNonCase = ($screeningOutcome === 'NON_CASE');
-
-                if (! $isNonCase) {
-                    $actionCount = DB::table('secondary_actions')
-                        ->where('secondary_screening_id', $id)->where('is_done', 1)->count();
-                    if ($actionCount === 0) {
-                        return $this->err(422, 'At least one completed action (is_done=1) is required before DISPOSITIONED.', [
-                            'secondary_screening_id' => $id,
-                            'actions_completed'      => 0,
-                        ]);
-                    }
-
-                    if (in_array($case->risk_level, ['HIGH', 'CRITICAL'], true)) {
-                        $critAction = DB::table('secondary_actions')
-                            ->where('secondary_screening_id', $id)
-                            ->whereIn('action_code', self::HIGH_RISK_REQUIRED_ACTIONS)
-                            ->where('is_done', 1)->exists();
-                        if (! $critAction) {
-                            return $this->err(422, "Risk level is {$case->risk_level}. ISOLATED or REFERRED_HOSPITAL required before DISPOSITIONED.", [
-                                'risk_level'       => $case->risk_level,
-                                'required_actions' => self::HIGH_RISK_REQUIRED_ACTIONS,
-                                'hint'             => 'Waived when screening_outcome = NON_CASE.',
-                            ]);
-                        }
-                    }
-                }
-
+                // 2026-05-20: clinical-field + action gating removed.
+                // POEs only SUSPECT. The 3 suspected diseases (engine +
+                // officer override) are the clinical record. Syndrome,
+                // risk_level, final_disposition, and HIGH/CRITICAL action
+                // requirements are hospital-side concerns and must not
+                // block a POE-side disposition. See incident 2026-05-20
+                // (cases #1, #2 trapped at IN_PROGRESS forever).
                 $updates['dispositioned_at'] = $request->input('dispositioned_at') ?? $now;
 
             } elseif ($newStatus === 'CLOSED') {
+                // 2026-05-20: officer_notes is no longer required to close
+                // a case directly. POEs may close cases for many reasons
+                // (re-routed elsewhere, traveller declined, etc) without a
+                // narrative — the 3 suspected diseases already provide the
+                // clinical signal of record.
                 if ($currentStatus === 'IN_PROGRESS') {
-                    $notes = $request->input('officer_notes') ?? $case->officer_notes;
-                    if (empty(trim((string) $notes))) {
-                        return $this->err(422, 'officer_notes is required when closing directly from IN_PROGRESS.', [
-                            'current_status' => $currentStatus,
-                            'hint'           => 'Provide officer_notes explaining why the case is being closed without full disposition.',
-                        ]);
-                    }
-                    if ($notes !== $case->officer_notes) {
+                    $notes = $request->input('officer_notes');
+                    if ($notes !== null && trim((string) $notes) !== '' && $notes !== $case->officer_notes) {
                         $updates['officer_notes'] = $notes;
-                    }
-                    if (empty($case->final_disposition)) {
-                        $updates['final_disposition'] = $request->input('final_disposition') ?? 'RELEASED';
                     }
                 }
                 $updates['closed_at'] = $request->input('closed_at') ?? $now;
@@ -2266,71 +2217,16 @@ final class SecondaryScreeningController extends Controller
             ]);
         }
 
-        if ($requestedStatus === 'DISPOSITIONED') {
-            $syndromeCheck = $request->input('syndrome_classification') ?? $case->syndrome_classification;
-            $riskCheck     = $request->input('risk_level') ?? $case->risk_level;
-            $disposCheck   = $request->input('final_disposition') ?? $case->final_disposition;
-
-            $missing = [];
-            if (empty($syndromeCheck)) {
-                $missing[] = 'syndrome_classification';
-            }
-
-            if (empty($riskCheck)) {
-                $missing[] = 'risk_level';
-            }
-
-            if (empty($disposCheck)) {
-                $missing[] = 'final_disposition';
-            }
-
-            if (! empty($missing)) {
-                return $this->err(422, 'Cannot sync to DISPOSITIONED. Required clinical fields missing from payload and stored case.', [
-                    'missing_fields' => $missing,
-                    'hint'           => 'Include syndrome_classification, risk_level, and final_disposition in the sync payload.',
-                ]);
-            }
-
-            // FIX 10: NON_CASE bypasses HIGH_RISK check
-            $screeningOutcomeSync = $this->extractScreeningOutcome(
-                $request->input('disposition_details') ?? $case->disposition_details ?? ''
-            );
-            $isNonCaseSync = ($screeningOutcomeSync === 'NON_CASE');
-
-            if (! $isNonCaseSync) {
-                $riskLevel = strtoupper((string) ($request->input('risk_level') ?? $case->risk_level ?? ''));
-                if (in_array($riskLevel, ['HIGH', 'CRITICAL'], true)) {
-                    $actionsInPayload = (array) $request->input('actions', []);
-                    $payloadHasAction = collect($actionsInPayload)->contains(
-                        fn($a) => in_array($a['action_code'] ?? '', self::HIGH_RISK_REQUIRED_ACTIONS, true)
-                        && (int) ($a['is_done'] ?? 0) === 1
-                    );
-                    if (! $payloadHasAction) {
-                        $serverHasAction = DB::table('secondary_actions')
-                            ->where('secondary_screening_id', $case->id)
-                            ->whereIn('action_code', self::HIGH_RISK_REQUIRED_ACTIONS)
-                            ->where('is_done', 1)->exists();
-                        if (! $serverHasAction) {
-                            return $this->err(422, "Risk level is {$riskLevel}. ISOLATED or REFERRED_HOSPITAL (is_done=1) required before DISPOSITIONED.", [
-                                'risk_level'       => $riskLevel,
-                                'required_actions' => self::HIGH_RISK_REQUIRED_ACTIONS,
-                                'hint'             => 'Waived when screening_outcome = NON_CASE.',
-                            ]);
-                        }
-                    }
-                }
-            }
-        }
-
-        if ($requestedStatus === 'CLOSED' && $currentStatus === 'IN_PROGRESS') {
-            $notes = $request->input('officer_notes') ?? $case->officer_notes;
-            if (empty(trim((string) $notes))) {
-                return $this->err(422, 'officer_notes required to sync CLOSED status from IN_PROGRESS.', [
-                    'hint' => 'Include officer_notes in the sync payload.',
-                ]);
-            }
-        }
-
+        // 2026-05-20: clinical-field gating removed. POEs only SUSPECT — they
+        // do not triage. The 3 suspected diseases (rule engine + officer
+        // override) are the clinical signal of record; everything else
+        // (syndrome_classification, risk_level, final_disposition,
+        // vitals, triage_category, HIGH/CRITICAL action requirements) is a
+        // hospital-side concern. Blocking the DISPOSITIONED transition on
+        // these fields trapped real cases in IN_PROGRESS forever (see cases
+        // #1, #2 incident, 2026-05-20). DB columns remain nullable; reports
+        // anchor on suspected_diseases. Bio-identity gate still applies via
+        // updateStatus(); fullSync trusts the device's bio capture.
         return null;
     }
 
