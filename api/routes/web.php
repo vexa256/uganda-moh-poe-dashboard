@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\Workforce\AssignmentsController as AdminWfAssignm
 use App\Http\Controllers\Admin\Workforce\RolesController as AdminWfRolesController;
 use App\Http\Controllers\Admin\Workforce\TrainingController as AdminWfTrainingController;
 use App\Http\Controllers\Admin\Workforce\UsersController as AdminWfUsersController;
+use App\Http\Controllers\Admin\Workforce\WorkforceController as AdminWfWorkforceController;
 use App\Http\Controllers\Admin\Governance\AuthEventsController as AdminGovAuthEventsController;
 use App\Http\Controllers\Admin\Governance\NotificationLogController as AdminGovNotifLogController;
 use App\Http\Controllers\Admin\Governance\RemindersController as AdminGovRemindersController;
@@ -448,7 +449,18 @@ Route::prefix('admin')->name('admin.')
         });
     });
 
-    // ─── Workforce · Users ────────────────────────────────────────────────
+    // ─── Workforce · UNIFIED (2026-05-20) ─────────────────────────────────
+    // One page, three tabs, one atomic create wizard. Legacy per-surface
+    // routes below remain for per-row operations (suspend / reset / etc.)
+    // but the sidebar collapses to a single "Workforce" entry pointing here.
+    Route::prefix('workforce')->name('workforce.')->group(function () {
+        Route::get ('/',       [AdminWfWorkforceController::class, 'index'])->name('index');
+        Route::get ('/data',   [AdminWfWorkforceController::class, 'data']) ->name('data');
+        Route::post('/wizard', [AdminWfWorkforceController::class, 'wizard'])
+            ->middleware('role:NATIONAL_ADMIN')->name('wizard');
+    });
+
+    // ─── Workforce · Users (legacy per-row operations) ────────────────────
     Route::prefix('workforce/users')->name('workforce.users.')->group(function () {
         Route::get ('/',     [AdminWfUsersController::class, 'index'])->name('index');
         Route::get ('/data', [AdminWfUsersController::class, 'data']) ->name('data');

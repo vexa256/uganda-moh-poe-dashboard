@@ -414,14 +414,17 @@
         ],
 
         // ── 12 · WORKFORCE ────────────────────────────────────────────────
+        // 2026-05-20: collapsed from 3 items (Users / Roles / Assignments) to 1.
+        // The new Workforce surface unifies people + role reference + atomic
+        // add-person wizard. Legacy sub-routes still work for power users and
+        // backward compat (PATCH /workforce/users/{id} etc.) — only the
+        // navigation entry is consolidated.
         [
             'section' => 'Workforce',
-            'caption' => 'Surveillance workforce, roles, jurisdiction assignments, training.',
+            'caption' => 'People, roles, jurisdiction assignments — one surface.',
             'icon'    => 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
             'items'   => [
-                $nav('wf-users',    'Users',       'Surveillance workforce · invite · suspend / reactivate · MFA · risk · dormancy', 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',                                                                                                                                                                                                       url('/admin/workforce/users'),       true),
-                $nav('wf-roles',    'Roles',       '7 role keys × write scopes · authoritative capability grid',                     'M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12',                                                                              url('/admin/workforce/roles'),       true),
-                $nav('wf-assigns',  'Assignments', 'user_assignments · country / region / PHEOC / district / POE scope',             'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z',                                                                                                                                                                  url('/admin/workforce/assignments'), true),
+                $nav('wf-home', 'Workforce', 'Unified view: people · roles · assignments · add-person wizard.', 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z', url('/admin/workforce'), true),
             ],
         ],
 

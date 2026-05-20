@@ -84,8 +84,8 @@
                 </template>
                 <span class="topbar-chip">
                     <span class="status-dot status-dot-live"></span>
-                    <span class="hidden sm:inline">Uganda · National</span>
-                    <span class="sm:hidden">ZM</span>
+                    <span class="hidden sm:inline">Uganda &middot; National</span>
+                    <span class="sm:hidden">UG</span>
                 </span>
             </div>
         </header>
