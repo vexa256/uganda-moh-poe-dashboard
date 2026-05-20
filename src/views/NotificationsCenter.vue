@@ -1631,13 +1631,23 @@ function sameCountry(a, b) {
 //      travel_countries / suspected_diseases): deleted_at = now
 //  Soft-delete keeps an audit trail and survives later sync engine queries.
 // ─────────────────────────────────────────────────────────────────────────
-async function purgeStaleAgainstServer(serverItems, totalOnServer) {
+async function purgeStaleAgainstServer(serverItems, totalOnServer, pullCompletedOk) {
   try {
+    // ── HARD GATE — never run unless we have a confirmed successful pull ──
+    // pullCompletedOk is set by load() only after fetchServer() returned a
+    // non-null response and the page-loop completed. Without this, a network
+    // failure on the very first page would leave serverItems=[] and
+    // totalOnServer=0 — and we'd happily soft-delete every synced local
+    // record because "the server says zero". Catastrophic. This gate makes
+    // the function a no-op when we don't actually know what the server has.
+    if (!pullCompletedOk) {
+      return
+    }
     if (!Array.isArray(serverItems)) return
     // Guard: we must have fetched the FULL set, not a partial page slice.
-    // If totalOnServer is unset (0) and serverItems is empty → server says
-    // there are zero records → every IDB row that was previously synced
-    // is stale. If totalOnServer > serverItems.length → partial pull → bail.
+    // If totalOnServer > serverItems.length → partial pull → bail. Equal or
+    // less means we have the authoritative set; the empty-server case
+    // (totalOnServer=0 + serverItems=[]) is legitimate and proceeds.
     if (totalOnServer > serverItems.length) {
       console.log('[NQ] purgeStaleAgainstServer: partial pull (' + serverItems.length + '/' + totalOnServer + ') — skipping stale purge')
       return
@@ -1892,9 +1902,15 @@ async function load() {
       // Capture server_time across pages — last successful page wins.
       // This anchors the cursor to server clock even when items is empty.
       let latestServerTime = null
+      // Tracks whether AT LEAST ONE successful page response came back AND
+      // we either reached the last page or hit FULL_FETCH_PAGES — i.e. we
+      // can trust serverItems as an authoritative snapshot. A network blip
+      // on page 1 leaves this false → purgeStaleAgainstServer is a no-op.
+      let pullCompletedOk = false
       while (pg <= FULL_FETCH_PAGES) {
         const data = await fetchServer(pg)
         if (!data) break
+        pullCompletedOk = true   // at least one page succeeded
         totalOnServer.value = data.total || 0
         lastPage = data.pages ?? 1
         if (data.server_time) latestServerTime = data.server_time
@@ -1903,6 +1919,11 @@ async function load() {
         }
         if ((data.page ?? pg) >= lastPage) break
         pg++
+      }
+      // If we bailed out via FULL_FETCH_PAGES cap and never reached lastPage,
+      // the snapshot is INCOMPLETE — flip the gate off so we don't purge.
+      if (pullCompletedOk && pg > FULL_FETCH_PAGES && pg <= lastPage) {
+        pullCompletedOk = false
       }
       serverPage.value    = pg + 1
       hasMoreServer.value = serverPage.value <= lastPage
@@ -1931,7 +1952,7 @@ async function load() {
       // wipe, expiry, manual delete) — soft-delete it so the queue stops
       // rendering ghost cases. UNSYNCED local-only edits are preserved.
       // Only fires when totalItems.length >= server's total (full pull).
-      await purgeStaleAgainstServer(totalItems, totalOnServer.value)
+      await purgeStaleAgainstServer(totalItems, totalOnServer.value, pullCompletedOk)
       // Re-read the visible window from IDB so the freshly-purged ghosts
       // disappear from the queue without waiting for the next poll.
       try {
