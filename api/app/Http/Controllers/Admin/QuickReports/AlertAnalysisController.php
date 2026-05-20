@@ -225,12 +225,16 @@ final class AlertAnalysisController extends BaseQuickReportController
             'chart'      => $chart,
             'table'      => array_slice($spotlight, 0, self::TABLE_LIMIT),
             'table_full' => $spotlight,
-            'total_rows' => $alerts->count(),
+            // The table is a curated SPOTLIGHT (HIGH/CRITICAL or IHR tier-1) — total_rows reflects what export delivers.
+            // Full-cohort size is exposed separately as kpis.total so the footer stays honest.
+            'total_rows' => count($spotlight),
             'shown_rows' => count(array_slice($spotlight, 0, self::TABLE_LIMIT)),
+            'cohort_total' => $alerts->count(),
             'meta' => [
                 'poes'     => $this->scope->allowedPoes($scope),
                 'risks'    => ['LOW','MEDIUM','HIGH','CRITICAL'],
-                'statuses' => ['OPEN','ACKNOWLEDGED','IN_PROGRESS','CLOSED','REOPENED'],
+                // alerts.status DB enum is OPEN / ACKNOWLEDGED / CLOSED only (no IN_PROGRESS / REOPENED).
+                'statuses' => ['OPEN','ACKNOWLEDGED','CLOSED'],
                 'ihr_tiers'=> [1, 2, 3],
             ],
         ];

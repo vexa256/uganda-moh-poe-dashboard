@@ -34,16 +34,15 @@ final class AlertDatabaseController extends BaseQuickReportController
     private const TABLE_LIMIT = 20;
     private const CHART_TOP_N = 12;
 
+    // alerts.status DB enum is OPEN / ACKNOWLEDGED / CLOSED only.
+    // Reopens are NOT a status — they're tracked via alerts.reopen_count.
     private const STATUS_LABELS = [
-        'OPEN' => 'Open', 'ACKNOWLEDGED' => 'Acknowledged', 'IN_PROGRESS' => 'In progress',
-        'CLOSED' => 'Closed', 'REOPENED' => 'Reopened',
+        'OPEN' => 'Open', 'ACKNOWLEDGED' => 'Acknowledged', 'CLOSED' => 'Closed',
     ];
     private const STATUS_COLORS = [
         'OPEN'         => '#E53935', // red 600 — needs attention
         'ACKNOWLEDGED' => '#FB8C00', // orange 600
-        'IN_PROGRESS'  => '#1E88E5', // blue 600
         'CLOSED'       => '#43A047', // green 600 — closed = good
-        'REOPENED'     => '#8E24AA', // purple 600
     ];
     private const RISK_COLORS = [
         'LOW'      => '#43A047',
@@ -172,12 +171,13 @@ final class AlertDatabaseController extends BaseQuickReportController
         // Build rows + facets in one pass
         $rows = [];
         $riskBuckets   = ['CRITICAL'=>0,'HIGH'=>0,'MEDIUM'=>0,'LOW'=>0,'UNKNOWN'=>0];
-        $statusBuckets = ['OPEN'=>0,'ACKNOWLEDGED'=>0,'IN_PROGRESS'=>0,'CLOSED'=>0,'REOPENED'=>0];
+        $statusBuckets = ['OPEN'=>0,'ACKNOWLEDGED'=>0,'CLOSED'=>0];
         $poeBuckets    = [];
         $dayBuckets    = [];
         $kpi24h = 0;
         $now24h = Carbon::now()->subDay();
         $kpiIhr1 = 0;
+        $kpiReopened = 0;
 
         foreach ($alerts as $a) {
             $sid = (int) ($a->secondary_screening_id ?? 0);
@@ -236,6 +236,7 @@ final class AlertDatabaseController extends BaseQuickReportController
             } catch (\Throwable $e) { /* skip */ }
 
             if ((int) ($a->ihr_tier ?? 0) === 1) { $kpiIhr1++; }
+            if ((int) ($a->reopen_count ?? 0) > 0) { $kpiReopened++; }
         }
 
         $totalShown = count($rows);
@@ -246,7 +247,7 @@ final class AlertDatabaseController extends BaseQuickReportController
             'open'         => $statusBuckets['OPEN'] ?? 0,
             'acknowledged' => $statusBuckets['ACKNOWLEDGED'] ?? 0,
             'closed'       => $statusBuckets['CLOSED'] ?? 0,
-            'reopened'     => $statusBuckets['REOPENED'] ?? 0,
+            'reopened'     => $kpiReopened,
             'ihr_tier1'    => $kpiIhr1,
             'last_24h'     => $kpi24h,
         ];

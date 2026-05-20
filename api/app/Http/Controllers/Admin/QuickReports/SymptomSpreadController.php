@@ -140,9 +140,19 @@ final class SymptomSpreadController extends BaseQuickReportController
         $poeNames = $poeCodes ? DB::table('ref_poes')->whereIn('poe_code', $poeCodes)
             ->pluck('poe_name', 'poe_code')->all() : [];
 
-        // Resolve optional symptom filter at the report level
-        $needleSymptom = ! empty($filters['disease']) ? null : null; // unused; kept for shape parity
-        $redOnly = ! empty($filters['breached']);                    // hijack "breached" as red-flag-only
+        // ── 4b. Alert id lookup per secondary (for canonical case-file URL) ─
+        //     Per project memory: /admin/alerts/{id}/case-file is the canonical
+        //     case-file deep-link. When no alert exists for a secondary, fall
+        //     back to the rpt-case-files surface keyed by secondary id.
+        $alertIdBySid = $secIds
+            ? DB::table('alerts')->whereNull('deleted_at')
+                ->whereIn('secondary_screening_id', $secIds)
+                ->orderBy('id') // smallest id wins → stable when one secondary → many alerts
+                ->pluck('id', 'secondary_screening_id')->all()
+            : [];
+
+        // "breached" filter is reused as red-flag-only (alias preserved for URL back-compat).
+        $redOnly = ! empty($filters['breached']);
 
         // ── 5. Per-case aggregation + chart facets ─────────────────────────
         $symptomsByCase  = [];   // sid => [display names]
@@ -196,7 +206,10 @@ final class SymptomSpreadController extends BaseQuickReportController
                 'red_flag_count'  => count($redFlags),
                 'symptom_count'   => count($symptoms),
                 'poe_name'        => $poeNames[$poeCode] ?? $poeCode,
-                'case_file_url'   => url("/admin/reports/rpt-case-files/{$sid}"),
+                'case_file_url'   => isset($alertIdBySid[$sid])
+                    ? url("/admin/alerts/{$alertIdBySid[$sid]}/case-file")
+                    : url("/admin/reports/rpt-case-files/{$sid}"),
+                'alert_id'        => $alertIdBySid[$sid] ?? null,
             ];
 
             // Free-text search

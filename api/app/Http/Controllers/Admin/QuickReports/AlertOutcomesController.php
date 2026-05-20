@@ -174,7 +174,7 @@ final class AlertOutcomesController extends BaseQuickReportController
         $unack           = 0;
         $ackBuckets      = ['<1h'=>0,'1–4h'=>0,'4–24h'=>0,'>24h'=>0,'Not yet'=>0];
         $closeCats       = [];
-        $statusBuckets   = ['OPEN'=>0,'ACKNOWLEDGED'=>0,'IN_PROGRESS'=>0,'CLOSED'=>0,'REOPENED'=>0];
+        $statusBuckets   = ['OPEN'=>0,'ACKNOWLEDGED'=>0,'CLOSED'=>0];
 
         $rows = [];
         foreach ($alerts as $a) {
@@ -272,7 +272,8 @@ final class AlertOutcomesController extends BaseQuickReportController
             'meta' => [
                 'poes'             => $this->scope->allowedPoes($scope),
                 'risks'            => ['LOW','MEDIUM','HIGH','CRITICAL'],
-                'statuses'         => ['OPEN','ACKNOWLEDGED','IN_PROGRESS','CLOSED','REOPENED'],
+                // alerts.status DB enum is OPEN / ACKNOWLEDGED / CLOSED only.
+                'statuses'         => ['OPEN','ACKNOWLEDGED','CLOSED'],
                 'close_categories' => array_keys(self::CLOSE_LABELS),
             ],
         ];

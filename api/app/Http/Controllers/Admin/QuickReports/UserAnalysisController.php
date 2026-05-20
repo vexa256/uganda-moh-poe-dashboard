@@ -36,30 +36,35 @@ final class UserAnalysisController extends BaseQuickReportController
         '#F4511E','#3949AB','#7CB342','#D81B60','#FFB300','#00897B',
     ];
 
+    // Pretty labels for every role_key that has ever existed in production.
+    // Live values observed in DB (2026-05-20): NATIONAL_ADMIN, PHEOC_OFFICER, DISTRICT_SUPERVISOR, SCREENER.
+    // Older role_keys retained for compat with historical user rows.
     private const ROLE_LABELS = [
-        'NATIONAL_ADMIN' => 'National admin',
-        'PHEOC'          => 'PHEOC',
-        'PHEOC_OFFICER'  => 'PHEOC officer',
-        'DISTRICT'       => 'District',
-        'DISTRICT_OFFICER'=> 'District officer',
-        'POE'            => 'POE officer',
-        'POE_OFFICER'    => 'POE officer',
-        'SCREENER'       => 'Screener',
-        'OBSERVER'       => 'Observer',
-        'SERVICE'        => 'Service account',
+        'NATIONAL_ADMIN'      => 'National admin',
+        'PHEOC'               => 'PHEOC',
+        'PHEOC_OFFICER'       => 'PHEOC officer',
+        'DISTRICT'            => 'District',
+        'DISTRICT_SUPERVISOR' => 'District supervisor',
+        'DISTRICT_OFFICER'    => 'District officer',
+        'POE'                 => 'POE officer',
+        'POE_OFFICER'         => 'POE officer',
+        'SCREENER'            => 'Screener',
+        'OBSERVER'            => 'Observer',
+        'SERVICE'             => 'Service account',
     ];
 
     private const ROLE_COLOURS = [
-        'NATIONAL_ADMIN' => '#E53935',
-        'PHEOC'          => '#FB8C00',
-        'PHEOC_OFFICER'  => '#FB8C00',
-        'DISTRICT'       => '#1E88E5',
-        'DISTRICT_OFFICER'=> '#1E88E5',
-        'POE'            => '#43A047',
-        'POE_OFFICER'    => '#43A047',
-        'SCREENER'       => '#43A047',
-        'OBSERVER'       => '#8E24AA',
-        'SERVICE'        => '#00ACC1',
+        'NATIONAL_ADMIN'      => '#E53935',
+        'PHEOC'               => '#FB8C00',
+        'PHEOC_OFFICER'       => '#FB8C00',
+        'DISTRICT'            => '#1E88E5',
+        'DISTRICT_SUPERVISOR' => '#1E88E5',
+        'DISTRICT_OFFICER'    => '#1E88E5',
+        'POE'                 => '#43A047',
+        'POE_OFFICER'         => '#43A047',
+        'SCREENER'            => '#43A047',
+        'OBSERVER'            => '#8E24AA',
+        'SERVICE'             => '#00ACC1',
     ];
 
     public function index(Request $request): View

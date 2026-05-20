@@ -118,6 +118,14 @@ final class CountryAnalysisController extends BaseQuickReportController
         $sec = collect($dedup);
         $secIds = $sec->pluck('id')->map(fn ($v) => (int) $v)->all();
 
+        // ── Alert-id lookup per secondary (for canonical case-file URL) ────
+        $alertIdBySid = $secIds
+            ? DB::table('alerts')->whereNull('deleted_at')
+                ->whereIn('secondary_screening_id', $secIds)
+                ->orderBy('id')
+                ->pluck('id', 'secondary_screening_id')->all()
+            : [];
+
         // ── 2. Travel countries per case ───────────────────────────────────
         $travelRows = $secIds ? DB::table('secondary_travel_countries')
             ->whereIn('secondary_screening_id', $secIds)
@@ -207,7 +215,10 @@ final class CountryAnalysisController extends BaseQuickReportController
                 'endemic_match'   => $isEndemic,
                 'endemic_diseases'=> array_slice(array_keys($endemicDiseases), 0, 5),
                 'poe_name'        => $poeNames[$s->poe_code] ?? $s->poe_code,
-                'case_file_url'   => url("/admin/reports/rpt-case-files/{$sid}"),
+                'case_file_url'   => isset($alertIdBySid[$sid])
+                    ? url("/admin/alerts/{$alertIdBySid[$sid]}/case-file")
+                    : url("/admin/reports/rpt-case-files/{$sid}"),
+                'alert_id'        => $alertIdBySid[$sid] ?? null,
             ];
 
             if (! empty($filters['q'])) {
@@ -235,7 +246,13 @@ final class CountryAnalysisController extends BaseQuickReportController
             'distinct_visited'    => count($visitedCodes),
             'distinct_transit'    => count($transitCodes),
             'endemic_cases'       => $endemicCases,
-            'top_nationality'     => $nationalityCodes ? array_key_first((function ($a) { arsort($a); return $a; })($nationalityCodes)) : null,
+            'top_nationality'     => (function () use ($nationalityCodes, $countryNames) {
+                if (! $nationalityCodes) { return null; }
+                $sorted = $nationalityCodes; arsort($sorted);
+                $code = (string) array_key_first($sorted);
+                $name = $countryNames[$code] ?? null;
+                return $name ? "{$name} ({$code})" : $code;
+            })(),
             'last_24h'            => $kpi24h,
         ];
 
@@ -269,8 +286,9 @@ final class CountryAnalysisController extends BaseQuickReportController
             $labels = []; $values = []; $colors = []; $i = 0;
             foreach ($bucket as $cc => $count) {
                 if ($i >= self::CHART_TOP_N) { break; }
-                $name = $countryNames[$cc] ?? $cc;
-                $labels[] = $name . ' (' . $cc . ')';
+                // Don't print "RW (RW)" when ref_countries has no entry — fall back to bare ISO code.
+                $name = $countryNames[$cc] ?? null;
+                $labels[] = $name ? "{$name} ({$cc})" : (string) $cc;
                 $values[] = (int) $count;
                 $colors[] = isset($endemicByCountry[$cc]) ? '#C62828' : self::MATERIAL_PALETTE[$i % count(self::MATERIAL_PALETTE)];
                 $i++;

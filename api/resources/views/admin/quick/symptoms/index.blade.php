@@ -66,7 +66,7 @@
             <div class="qr-kpi"><p class="qr-kpi-label">Cases with symptoms</p><p class="qr-kpi-value" x-text="fmt(payload.kpis?.cases_with_symptoms)"></p><p class="qr-kpi-hint" x-text="payload.window?.label ? 'Within ' + payload.window.label : 'Within window'"></p></div>
             <div class="qr-kpi qr-kpi-info"><p class="qr-kpi-label">YES symptoms recorded</p><p class="qr-kpi-value" x-text="fmt(payload.kpis?.total_yes_symptoms)"></p><p class="qr-kpi-hint">Total individual symptom reports</p></div>
             <div class="qr-kpi" :class="(payload.kpis?.red_flag_cases ?? 0) > 0 && 'qr-kpi-warn'"><p class="qr-kpi-label">With red-flag symptoms</p><p class="qr-kpi-value" x-text="fmt(payload.kpis?.red_flag_cases)"></p><p class="qr-kpi-hint">Bleeding, altered consciousness, etc.</p></div>
-            <div class="qr-kpi"><p class="qr-kpi-label">Top symptom</p><p class="qr-kpi-value text-[14px]" x-text="payload.kpis?.top_symptom || '—'"></p><p class="qr-kpi-hint">Most-reported</p></div>
+            <div class="qr-kpi"><p class="qr-kpi-label">Top symptom</p><p class="qr-kpi-value !text-[15px] !font-semibold leading-snug truncate" x-text="payload.kpis?.top_symptom || '—'"></p><p class="qr-kpi-hint">Most-reported</p></div>
             <div class="qr-kpi"><p class="qr-kpi-label">Median per case</p><p class="qr-kpi-value" x-text="fmt(payload.kpis?.median_symptoms)"></p><p class="qr-kpi-hint">Typical symptom count</p></div>
             <div class="qr-kpi"><p class="qr-kpi-label">In last 24 hours</p><p class="qr-kpi-value" x-text="fmt(payload.kpis?.last_24h)"></p><p class="qr-kpi-hint">Opened since yesterday</p></div>
         </div>
