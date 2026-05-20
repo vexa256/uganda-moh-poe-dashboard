@@ -176,17 +176,24 @@ final class PoesController extends Controller
                 $scope
             )->count();
 
+            // Envelope shape contract — matches PoeContacts/Capacity/Status:
+            // data.rows, data.total + meta.{tabs,version,page,per_page,sort,dir,country}
+            // The blade view reads `j.data.rows` + `j.meta.tabs` + `j.meta.version`;
+            // prior to 2026-05-20 the controller put tabs/version under data.* and
+            // used `items` (not `rows`) — the registry page rendered empty + threw
+            // `Cannot read 'tabs' of undefined` on j.meta access.
             return $this->ok([
-                'items'   => $rows->map(fn ($r) => $this->castListRow($r))->all(),
-                'total'   => $total,
-                'tabs'    => ['active' => $countActive, 'retired' => $countRetired, 'all' => $countActive + $countRetired],
-                'country' => $country,
-                'page'    => $page,
-                'per_page'=> $perPage,
-                'sort'    => $sort,
-                'dir'     => $dir,
-                'version' => $this->currentVersion($country),
-            ], 'PoEs.');
+                'rows'  => $rows->map(fn ($r) => $this->castListRow($r))->all(),
+                'total' => $total,
+            ], 'PoEs.', [
+                'tabs'     => ['active' => $countActive, 'retired' => $countRetired, 'all' => $countActive + $countRetired],
+                'version'  => $this->currentVersion($country),
+                'country'  => $country,
+                'page'     => $page,
+                'per_page' => $perPage,
+                'sort'     => $sort,
+                'dir'      => $dir,
+            ]);
         } catch (Throwable $e) {
             return $this->serverError($e, 'data');
         }
@@ -347,7 +354,7 @@ final class PoesController extends Controller
         try {
             $name = trim((string) ($request->input('poe_name') ?? $request->input('name', '')));
             if ($name === '' || mb_strlen($name) < 3) {
-                return $this->ok(['matches' => []], 'Name too short for dupe check.');
+                return $this->ok(['candidates' => []], 'Name too short for dupe check.');
             }
             $like = '%' . $name . '%';
             $sx   = soundex($name);
@@ -363,8 +370,9 @@ final class PoesController extends Controller
                 ->limit(5)
                 ->get(['id', 'external_id', 'poe_name', 'poe_type', 'admin_level_1', 'district']);
 
+            // Key is `candidates` — the wizard JS reads `dJ.data.candidates`.
             return $this->ok([
-                'matches' => $rows->map(fn ($r) => [
+                'candidates' => $rows->map(fn ($r) => [
                     'id'           => (int) $r->id,
                     'external_id'  => (string) ($r->external_id ?? ''),
                     'poe_name'     => (string) $r->poe_name,
