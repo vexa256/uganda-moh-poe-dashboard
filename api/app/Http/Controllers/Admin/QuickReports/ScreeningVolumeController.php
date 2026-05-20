@@ -275,7 +275,7 @@ final class ScreeningVolumeController extends BaseQuickReportController
             return [
                 'kind'     => 'poe',
                 'title'    => 'Primary screenings by POE',
-                'subtitle' => 'Top entry points by primary throughput.',
+                'subtitle' => 'Busiest entry points by primary screening volume.',
                 'labels'   => array_keys($poeCounts), 'values' => array_values($poeCounts),
                 'colors'   => $this->cycle(count($poeCounts)), 'unit' => 'screenings',
             ];

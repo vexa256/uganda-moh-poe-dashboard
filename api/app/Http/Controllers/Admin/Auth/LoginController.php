@@ -99,7 +99,12 @@ final class LoginController extends Controller
         // If identifier was an email, remember it for next time (cookie, 30 days).
         $cookie = cookie('admin_last_email', (string) ($user->email ?? $ident), 60 * 24 * 30);
 
-        return redirect()->intended('/admin/dashboard')->withCookie($cookie);
+        // 2026-05-20: post-login default landing changed to Screening Volume
+        // per directive — it's the "what's happening today" view. `intended()`
+        // still honours any URL the user was trying to reach before the auth
+        // bounce, so deep links keep working. /admin/dashboard URL itself is
+        // unchanged — bookmarks, PheocCopilot links, sidebar entry all stay.
+        return redirect()->intended('/admin/quick-reports/screening-volume?days=7')->withCookie($cookie);
     }
 
     /** POST /logout — tear down the session. */

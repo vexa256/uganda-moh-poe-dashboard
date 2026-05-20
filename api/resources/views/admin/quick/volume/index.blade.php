@@ -17,7 +17,7 @@
         <div class="min-w-0">
             <p class="eyebrow">Quick Reports · qr-volume</p>
             <h1 class="text-[20px] font-semibold tracking-tight">Screening Volume</h1>
-            <p class="help-text mt-1" x-text="headline()">Throughput and mix — primary vs secondary, gender, age band.</p>
+            <p class="help-text mt-1" x-text="headline()">Daily activity and mix &mdash; primary vs secondary, gender, age band.</p>
         </div>
         <div class="flex-1"></div>
         <div class="flex flex-wrap items-center gap-2">
@@ -58,7 +58,7 @@
         <div class="qr-kpi-grid" x-show="ready" x-cloak>
             <div class="qr-kpi"><p class="qr-kpi-label">Total primary</p><p class="qr-kpi-value" x-text="fmt(payload.kpis?.total_primary)"></p><p class="qr-kpi-hint">All POEs combined</p></div>
             <div class="qr-kpi qr-kpi-info"><p class="qr-kpi-label">Total secondary</p><p class="qr-kpi-value" x-text="fmt(payload.kpis?.total_secondary)"></p><p class="qr-kpi-hint">Escalated to clinician</p></div>
-            <div class="qr-kpi" :class="(payload.kpis?.escalation_rate ?? 0) >= 5 && 'qr-kpi-warn'"><p class="qr-kpi-label">Escalation rate</p><p class="qr-kpi-value" x-text="payload.kpis?.escalation_rate != null ? payload.kpis.escalation_rate + '%' : '—'"></p><p class="qr-kpi-hint">Secondary ÷ primary</p></div>
+            <div class="qr-kpi" :class="(payload.kpis?.escalation_rate ?? 0) >= 5 && 'qr-kpi-warn'"><p class="qr-kpi-label">Review rate</p><p class="qr-kpi-value" x-text="payload.kpis?.escalation_rate != null ? payload.kpis.escalation_rate + '%' : '—'"></p><p class="qr-kpi-hint">Share sent to secondary review</p></div>
             <div class="qr-kpi"><p class="qr-kpi-label">Most common gender</p><p class="qr-kpi-value" x-text="payload.kpis?.top_gender || '—'"></p><p class="qr-kpi-hint">From primary screenings</p></div>
             <div class="qr-kpi"><p class="qr-kpi-label">Biggest age band</p><p class="qr-kpi-value" x-text="payload.kpis?.top_age_band || '—'"></p><p class="qr-kpi-hint">From secondary screenings</p></div>
             <div class="qr-kpi"><p class="qr-kpi-label">In last 24 h</p><p class="qr-kpi-value" x-text="fmt(payload.kpis?.last_24h_primary)"></p><p class="qr-kpi-hint">Primary captures</p></div>
@@ -84,7 +84,7 @@
         </div>
         <div class="qr-table-wrap">
             <table class="qr-table">
-                <thead><tr><th>Point of entry</th><th class="text-right pr-3">Primary</th><th class="text-right pr-3">Secondary</th><th>Escalation</th><th>Gender mix</th><th class="text-right pr-3">Median age</th><th>Last screening</th></tr></thead>
+                <thead><tr><th>Point of entry</th><th class="text-right pr-3">Primary</th><th class="text-right pr-3">Secondary</th><th>Review rate</th><th>Gender mix</th><th class="text-right pr-3">Median age</th><th>Last screening</th></tr></thead>
                 <tbody>
                     <template x-if="!ready"><template x-for="i in 6" :key="i"><tr><td colspan="7"><div class="h-5 my-1 rounded bg-muted/30 animate-pulse"></div></td></tr></template></template>
 
@@ -116,9 +116,9 @@
                 <div class="qr-modal" role="dialog" aria-modal="true">
                     <div class="qr-modal-head"><div class="min-w-0"><p class="eyebrow">About this chart</p><h3 class="text-[15px] font-semibold mt-0.5 truncate" x-text="payload.chart?.title || 'Screening volume'"></h3></div><button type="button" class="qr-icon-btn" @click="closeExplain()"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
                     <div class="qr-modal-body space-y-5">
-                        <div class="qr-modal-section"><p>What this measures</p><p>Throughput and mix for the window: primary captures, secondary escalations, gender split, age bands, and per-POE distribution. Chart adapts to whichever lens has signal.</p></div>
+                        <div class="qr-modal-section"><p>What this measures</p><p>Daily activity and mix for the window: primary screenings done, secondary reviews opened, gender split, age bands, and per-POE distribution. The chart adapts to whichever view has data.</p></div>
                         <div class="qr-modal-section"><p>How to read it</p><p>When both primary and secondary have data, the bar pair compares them directly. Otherwise the chart falls back to gender, age, or per-POE views.</p></div>
-                        <div class="qr-modal-section"><p>What to do next</p><p>A widening escalation rate warrants a clinical-load review at the busiest POE. A skewed age band can indicate a sampling gap; cross-check with arrival manifests.</p></div>
+                        <div class="qr-modal-section"><p>What to do next</p><p>A rising review rate means more cases are getting flagged for a second look &mdash; check staffing at the busiest POE. An odd age mix can mean a sampling gap; cross-check with arrival manifests.</p></div>
                         <div class="qr-modal-section">
                             <p>Source data</p>
                             <div class="qr-table-wrap mt-2 max-h-[280px]"><table class="qr-table"><thead><tr><th>Bucket</th><th class="text-right pr-3">Count</th><th class="text-right pr-3">% share</th></tr></thead><tbody>
@@ -191,7 +191,7 @@
             fmt(n) { return (n ?? 0).toLocaleString(); },
             ratePill(p) { const b = 'qr-pill'; if (p == null) return b + ' qr-pill-muted'; if (p >= 50) return b + ' qr-pill-crit'; if (p >= 20) return b + ' qr-pill-high'; if (p >= 5)  return b + ' qr-pill-med'; return b + ' qr-pill-low'; },
             genderChips(g) { if (!g) return '—'; const parts = []; if (g.M) parts.push('M:' + g.M); if (g.F) parts.push('F:' + g.F); if (g.O) parts.push('O:' + g.O); if (g.U) parts.push('U:' + g.U); return parts.length ? parts.join(' · ') : '—'; },
-            headline() { if (!this.ready) return 'Measuring throughput…'; const p = this.payload.kpis?.total_primary ?? 0; const s = this.payload.kpis?.total_secondary ?? 0; const r = this.payload.kpis?.escalation_rate; const scope = this.payload.scope?.label || ''; return `${p.toLocaleString()} primary · ${s.toLocaleString()} secondary${r != null ? ' · ' + r + '% escalation' : ''}${scope ? ' · ' + scope : ''}`; },
+            headline() { if (!this.ready) return 'Loading activity…'; const p = this.payload.kpis?.total_primary ?? 0; const s = this.payload.kpis?.total_secondary ?? 0; const r = this.payload.kpis?.escalation_rate; const scope = this.payload.scope?.label || ''; return `${p.toLocaleString()} primary · ${s.toLocaleString()} secondary${r != null ? ' · ' + r + '% review rate' : ''}${scope ? ' · ' + scope : ''}`; },
             tableSub() { if (!this.ready) return ''; const t = this.payload.total_rows ?? 0, s = this.payload.shown_rows ?? 0; if (t === 0) return 'No POEs in scope.'; if (s >= t) return `All ${t.toLocaleString()} POEs shown.`; return `${s} of ${t.toLocaleString()} POEs · Export full CSV.`; },
             filtersSummary() { const f = this.filters; const bits = []; if (f.days) bits.push(`past ${f.days} d`); if (f.poe) bits.push(`POE ${f.poe}`); if (f.gender) bits.push(`gender ${f.gender}`); if (f.age_band) bits.push(`age ${f.age_band}`); if (f.q) bits.push(`q "${f.q}"`); return bits.length ? '· ' + bits.join(' · ') : '· defaults'; },
             lastLoadedLabel() { if (!this.lastLoadedAt) return '—'; const p = n => String(n).padStart(2,'0'); return `${p(this.lastLoadedAt.getHours())}:${p(this.lastLoadedAt.getMinutes())}`; },

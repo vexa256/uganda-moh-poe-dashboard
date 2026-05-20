@@ -29,8 +29,16 @@ use Throwable;
  */
 final class UsersController extends Controller
 {
+    // 2026-05-20: extended to include every active role in role_registry so a
+    // user created via the unified Workforce wizard (which mirrors
+    // account_type from role_key) can be PATCHed via this legacy endpoint
+    // without 422-ing on account_type. PHEOC_OFFICER / DISTRICT_SUPERVISOR /
+    // POE_DATA_OFFICER are the 3 role_keys that were missing.
     private const ACCOUNT_TYPES = [
-        'NATIONAL_ADMIN', 'PHEOC_ADMIN', 'DISTRICT_ADMIN', 'POE_ADMIN', 'POE_OFFICER', 'OBSERVER', 'SERVICE',
+        'NATIONAL_ADMIN', 'PHEOC_ADMIN', 'PHEOC_OFFICER',
+        'DISTRICT_ADMIN', 'DISTRICT_SUPERVISOR',
+        'POE_ADMIN', 'POE_OFFICER', 'POE_DATA_OFFICER',
+        'OBSERVER', 'SERVICE',
     ];
     /** Default tenant country (full name; matches ref_poes.country_code). */
     private static function defaultCountry(): string

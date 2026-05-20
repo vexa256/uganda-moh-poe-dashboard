@@ -55,7 +55,7 @@
             <div class="qr-kpi"><p class="qr-kpi-label">Yesterday</p><p class="qr-kpi-value" x-text="fmt(payload.kpis?.yesterday)"></p><p class="qr-kpi-hint">Same scope · same POE filter</p></div>
             <div class="qr-kpi"><p class="qr-kpi-label">7-day daily avg</p><p class="qr-kpi-value" x-text="fmt(payload.kpis?.avg_7d)"></p><p class="qr-kpi-hint">Total ÷ 7 (empty days count)</p></div>
             <div class="qr-kpi"><p class="qr-kpi-label">Busiest day</p><p class="qr-kpi-value" x-text="payload.kpis?.busiest?.value != null ? fmt(payload.kpis.busiest.value) : '—'"></p><p class="qr-kpi-hint" x-text="payload.kpis?.busiest?.label || 'No data'"></p></div>
-            <div class="qr-kpi" :class="(payload.kpis?.escalation_rate ?? 0) >= 5 && 'qr-kpi-warn'"><p class="qr-kpi-label">Escalation rate</p><p class="qr-kpi-value" x-text="payload.kpis?.escalation_rate != null ? payload.kpis.escalation_rate + '%' : '—'"></p><p class="qr-kpi-hint">Secondary ÷ primary</p></div>
+            <div class="qr-kpi" :class="(payload.kpis?.escalation_rate ?? 0) >= 5 && 'qr-kpi-warn'"><p class="qr-kpi-label">Review rate</p><p class="qr-kpi-value" x-text="payload.kpis?.escalation_rate != null ? payload.kpis.escalation_rate + '%' : '—'"></p><p class="qr-kpi-hint">Share sent to secondary review</p></div>
             <div class="qr-kpi"><p class="qr-kpi-label">Today's busiest POE</p><p class="qr-kpi-value" x-text="payload.kpis?.today_busiest_poe?.value != null ? fmt(payload.kpis.today_busiest_poe.value) : '—'"></p><p class="qr-kpi-hint" x-text="payload.kpis?.today_busiest_poe?.label || 'No screenings today'"></p></div>
         </div>
     </section>
@@ -79,7 +79,7 @@
         </div>
         <div class="qr-table-wrap">
             <table class="qr-table">
-                <thead><tr><th>Day</th><th class="text-right pr-3">Primary</th><th class="text-right pr-3">Secondary</th><th class="text-right pr-3">Alerts</th><th>Top POE</th><th>Gender mix</th><th>Escalation</th></tr></thead>
+                <thead><tr><th>Day</th><th class="text-right pr-3">Primary</th><th class="text-right pr-3">Secondary</th><th class="text-right pr-3">Alerts</th><th>Top POE</th><th>Gender mix</th><th>Review rate</th></tr></thead>
                 <tbody>
                     <template x-if="!ready"><template x-for="i in 6" :key="i"><tr><td colspan="7"><div class="h-5 my-1 rounded bg-muted/30 animate-pulse"></div></td></tr></template></template>
 
