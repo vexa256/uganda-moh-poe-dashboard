@@ -28,6 +28,24 @@ set -uo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
+# ---- PATH bootstrap for non-interactive shells (cron, ssh) ----------------
+# Sourcing the user's nvm (most common node install on these servers).
+# If a project-local .nvmrc exists, nvm picks the matching version; otherwise
+# the default node is used. Falls through quietly if nvm isn't installed.
+if [ -z "${_PATH_BOOTSTRAPPED:-}" ]; then
+  export _PATH_BOOTSTRAPPED=1
+  for nvm_dir in "$HOME/.nvm" "/home/ubuntu/.nvm" "/root/.nvm"; do
+    if [ -s "$nvm_dir/nvm.sh" ]; then
+      export NVM_DIR="$nvm_dir"
+      # shellcheck source=/dev/null
+      . "$nvm_dir/nvm.sh" >/dev/null 2>&1 || true
+      break
+    fi
+  done
+  # Common system locations as a last resort
+  export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+fi
+
 FORCE=0
 DRY_RUN=0
 for arg in "$@"; do
