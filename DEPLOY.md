@@ -185,3 +185,5 @@ deployed anything recently.
 For continuous monitoring, the `/up` Laravel health endpoint reports the
 current commit SHA via response headers (set in `bootstrap/app.php` if
 you extend it). Pair with your existing uptime monitor.
+
+<!-- deploy-pipeline acceptance test: 2026-05-30T23:53:07+00:00 -->
