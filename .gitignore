@@ -143,3 +143,20 @@ api/docs/
 # stray prod dump — never commit
 ug_poe_prod_*.sql
 *-prod-*.sql
+
+# Ruflo / claude-flow session artifacts — never commit
+.claude-flow/
+.claude/.local/
+.claude-flow.session.json
+
+# Local DB dumps — never commit large SQL files
+ug_poe.sql
+app.sql
+*.sql.gz
+
+# Stray controllers landed during exploratory work — never commit unreviewed
+api/app/Http/Controllers/TestController.php
+
+# Deploy logs (auto-created by deploy-pull.sh)
+storage/logs/poe-deploy.log
+storage/logs/poe-auto-pull.log

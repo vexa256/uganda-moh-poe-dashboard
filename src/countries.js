@@ -14612,7 +14612,7 @@ window.COUNTRIES = [
   {
     "code2": "RW",
     "code3": "RWA",
-    "name": "Uganda",
+    "name": "Rwanda",
     "capital": "Kigali",
     "region": "Africa",
     "subregion": "Eastern Africa",

@@ -25,6 +25,7 @@
     "@capacitor/share": "^8.0.1",
     "@capacitor/splash-screen": "^8.0.1",
     "@capacitor/status-bar": "8.0.1",
+    "@capgo/capacitor-updater": "^8.47.5",
     "@ionic/vue": "^8.0.0",
     "@ionic/vue-router": "^8.0.0",
     "apexcharts": "^5.10.6",

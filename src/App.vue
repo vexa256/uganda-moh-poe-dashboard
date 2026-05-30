@@ -1,5 +1,10 @@
 <template>
   <IonApp>
+    <!-- Self-hosted Capgo OTA status banner (composables/useAppUpdates).
+         Hidden on web/PWA, only shows in the native APK when an update
+         is downloaded, failed, or freshly available. -->
+    <UpdateBanner />
+
     <!-- 2026-05-06 v5: Google Translate is hardcoded in index.html OUTSIDE
          the Vue mount root. Vue's reactivity therefore cannot re-render
          the widget's <font>-wrapped text nodes (which is what kept
@@ -364,6 +369,7 @@ import {
   IonPage, IonInput,
   menuController, alertController, toastController,
 } from '@ionic/vue'
+import UpdateBanner from '@/components/UpdateBanner.vue'
 import {
   gridOutline,
   addCircleOutline,

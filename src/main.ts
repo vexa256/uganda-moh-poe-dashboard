@@ -2,6 +2,13 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import { IonicVue } from '@ionic/vue'
+import { Capacitor } from '@capacitor/core'
+import { CapacitorUpdater } from '@capgo/capacitor-updater'
+// Import the composable here so its plugin event listeners (download,
+// downloadComplete, updateAvailable, updateFailed, appReady) are wired
+// at boot — surfaces like UpdateBanner + AppSettings then just read the
+// reactive state without re-attaching listeners.
+import '@/composables/useAppUpdates'
 // Global HTTP interceptor — must be imported before any fetch call is made
 import '@/services/httpInterceptor'
 
@@ -85,6 +92,21 @@ const app = createApp(App)
 
 router.isReady().then(() => {
   app.mount('#app')
+  // Tell the Capgo plugin the current OTA bundle booted cleanly. If this
+  // call never fires within appReadyTimeout (10s, see capacitor.config.ts),
+  // the plugin rolls back to the previous bundle automatically. Calling it
+  // right after mount() means rollback fires for any failure that prevents
+  // Vue from ever rendering its first view.
+  //
+  // Hard-guard with Capacitor.isNativePlatform() — on web preview / PWA the
+  // plugin's native bridge throws, and we'd rather not catch a stack trace
+  // on every load. The try/catch is a second line of defence for the case
+  // where the plugin loaded but its method is unavailable (older versions).
+  if (Capacitor?.isNativePlatform?.()) {
+    try { CapacitorUpdater.notifyAppReady() } catch (e: any) {
+      console.debug('[capgo] notifyAppReady failed:', e?.message)
+    }
+  }
   // Unified sync engine — single source of truth for outbound sync.
   // Replaces the old per-feature workers. Drains every syncable IDB store
   // (primary screenings → notifications → secondary screenings phase 1 →

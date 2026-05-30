@@ -93,6 +93,85 @@
           <div class="st-row"><span class="st-k">Local Records</span><span class="st-v">{{ idbCounts.total }} cached</span></div>
         </div>
 
+        <!-- SOFTWARE UPDATES (OTA) — self-hosted Capgo at updates.ecsahc.com.
+             Visible on every platform, but the action buttons are no-ops on
+             web/PWA (handled by the composable). On native, this is the
+             single place where users can see what bundle they're on, what
+             channel they're tracking, and trigger a manual check. -->
+        <div class="st-card">
+          <div class="st-card-h">
+            <span class="st-card-t">Software updates</span>
+            <span v-if="ota.updateAvailable.value || ota.downloaded.value" class="st-card-sub st-card-sub--accent">
+              {{ ota.downloaded.value ? 'Update ready' : 'Update available' }}
+            </span>
+          </div>
+
+          <div class="st-row">
+            <span class="st-k">Active bundle</span>
+            <span class="st-v st-v--mono">{{ ota.currentBundle.value?.version || 'builtin' }}</span>
+          </div>
+          <div class="st-row">
+            <span class="st-k">Channel</span>
+            <span class="st-v">{{ ota.channel.value || (isTrainingBuild ? 'training' : 'production') }}</span>
+          </div>
+          <div v-if="ota.latestKnown.value?.version" class="st-row">
+            <span class="st-k">Server latest</span>
+            <span class="st-v st-v--mono">{{ ota.latestKnown.value.version }}</span>
+          </div>
+          <div class="st-row">
+            <span class="st-k">Last check</span>
+            <span class="st-v">{{ otaLastCheckHuman }}</span>
+          </div>
+          <div class="st-row">
+            <span class="st-k">Status</span>
+            <span :class="['st-v', otaStatusClass]">{{ otaStatusHuman }}</span>
+          </div>
+          <div v-if="ota.isDownloading.value" class="st-row">
+            <span class="st-k">Downloading</span>
+            <span class="st-v">{{ ota.downloadPct.value }}%</span>
+          </div>
+          <div v-if="ota.lastError.value" class="st-row">
+            <span class="st-k">Last error</span>
+            <span class="st-v st-v--r">{{ ota.lastError.value }}</span>
+          </div>
+          <div class="st-row">
+            <span class="st-k">Plugin version</span>
+            <span class="st-v st-v--mono">{{ ota.pluginVersion.value || '—' }}</span>
+          </div>
+          <div class="st-row">
+            <span class="st-k">Server</span>
+            <span class="st-v st-v--mono">updates.ecsahc.com</span>
+          </div>
+
+          <!-- Manual check -->
+          <button class="st-action-btn" type="button"
+                  :disabled="ota.isChecking.value || !ota.isNative.value"
+                  @click="onOtaCheck">
+            <span class="st-action-ico" aria-hidden="true">🔄</span>
+            <div class="st-action-body">
+              <span class="st-action-t">{{ ota.isChecking.value ? 'Checking…' : 'Check for updates now' }}</span>
+              <span class="st-action-d">
+                {{ ota.isNative.value
+                    ? 'Polls updates.ecsahc.com for a newer bundle on the current channel.'
+                    : 'OTA only runs in the native APK (not the web preview).' }}
+              </span>
+            </div>
+            <span class="st-action-chev" aria-hidden="true">›</span>
+          </button>
+
+          <!-- Apply downloaded bundle -->
+          <button v-if="ota.downloaded.value" class="st-action-btn" type="button"
+                  :disabled="ota.isApplying.value"
+                  @click="onOtaApply">
+            <span class="st-action-ico" aria-hidden="true">⬆️</span>
+            <div class="st-action-body">
+              <span class="st-action-t">{{ ota.isApplying.value ? 'Applying…' : 'Apply downloaded update' }}</span>
+              <span class="st-action-d">Reload the app onto the new bundle. Takes ~1s.</span>
+            </div>
+            <span class="st-action-chev" aria-hidden="true">›</span>
+          </button>
+        </div>
+
         <!-- PREFERENCES -->
         <div class="st-card">
           <div class="st-card-h"><span class="st-card-t">Preferences</span></div>
@@ -318,8 +397,80 @@ import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { APP, dbGetCount, STORE } from '@/services/poeDB'
 import { hapticsEnabled, setHapticsEnabled, hapticLight } from '@/services/haptics'
+import { useAppUpdates } from '@/composables/useAppUpdates'
 import { useI18n } from '@/i18n'
 const { t } = useI18n()
+
+// ---- OTA (Capgo self-hosted) status + actions ----------------------------
+const ota = useAppUpdates()
+
+// Training APK fallback label when the plugin hasn't reported a channel yet
+// (the cap_app_id naming convention is "...training" for the training build).
+const isTrainingBuild = computed(() => {
+  try {
+    const w = window || {}
+    const id = (w.Capacitor && (w.Capacitor.appConfig?.appId || w.Capacitor.appId)) || ''
+    return /\.training$/.test(String(id))
+  } catch { return false }
+})
+
+const otaLastCheckHuman = computed(() => {
+  const ts = ota.lastCheckAt.value
+  if (!ts) return 'Never'
+  const d = new Date(ts)
+  if (Number.isNaN(d.getTime())) return ts
+  const delta = (Date.now() - d.getTime()) / 1000
+  if (delta < 60)   return 'Just now'
+  if (delta < 3600) return Math.floor(delta / 60)   + ' min ago'
+  if (delta < 86400) return Math.floor(delta / 3600) + ' h ago'
+  return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+})
+const otaStatusHuman = computed(() => {
+  if (!ota.isNative.value) return 'Not native (web preview)'
+  if (ota.isApplying.value)    return 'Applying…'
+  if (ota.isDownloading.value) return 'Downloading…'
+  if (ota.isChecking.value)    return 'Checking…'
+  switch (ota.lastResult.value) {
+    case 'available':    return 'New version available'
+    case 'downloaded':   return 'Downloaded, ready to apply'
+    case 'no_new':       return 'Up to date'
+    case 'failed':       return 'Last attempt failed'
+    case 'applied':      return 'Up to date'
+    case 'blocked':      return 'Blocked by server'
+    case 'breaking':     return 'Native app upgrade required'
+    case 'unsupported':  return 'Not supported on this platform'
+    default:             return 'Idle'
+  }
+})
+const otaStatusClass = computed(() => {
+  if (ota.lastResult.value === 'failed' || ota.lastResult.value === 'breaking') return 'st-v--r'
+  if (ota.lastResult.value === 'available' || ota.lastResult.value === 'downloaded') return 'st-v--g'
+  return ''
+})
+async function onOtaCheck() {
+  const r = await ota.checkNow()
+  if (!r.ok) {
+    toast.msg = ota.lastError.value || 'Update check failed'
+    toast.color = 'warning'
+    toast.show = true
+  } else if (ota.lastResult.value === 'no_new') {
+    toast.msg = 'You are on the latest version'
+    toast.color = 'success'
+    toast.show = true
+  } else if (ota.updateAvailable.value) {
+    toast.msg = 'New version available — downloading in background'
+    toast.color = 'success'
+    toast.show = true
+  }
+}
+async function onOtaApply() {
+  const r = await ota.applyDownloadedNow()
+  if (!r.ok) {
+    toast.msg = ota.lastError.value || 'Apply failed'
+    toast.color = 'danger'
+    toast.show = true
+  }
+}
 import {
   CAPABILITY_KEYS,
   isEnabled as isCapEnabled,

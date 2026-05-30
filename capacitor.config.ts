@@ -22,6 +22,29 @@ const config: CapacitorConfig = {
   },
 
   plugins: {
+    // Self-hosted Capgo OTA — every JS/HTML/CSS-only change ships via
+    // `capgo publish` instead of rebuilding the APK. Native code changes
+    // (capacitor plugins, gradle deps) still need a fresh APK build.
+    //
+    // The backend at updates.ecsahc.com is keyed on cap_app_id from this
+    // config, so Training (ug.moh.poesentinel.training) and Production
+    // (ug.moh.poesentinel) get separately-versioned bundle streams
+    // automatically — no extra config needed here.
+    //
+    // notifyAppReady() MUST fire inside appReadyTimeout (10 s) or the
+    // plugin rolls back to the previous bundle. main.ts calls it right
+    // after app.mount() in router.isReady().then(...).
+    CapacitorUpdater: {
+      autoUpdate:         true,
+      autoDeleteFailed:   true,
+      autoDeletePrevious: true,
+      resetWhenUpdate:    true,
+      appReadyTimeout:    10000,
+      responseTimeout:    20,
+      updateUrl:          'https://updates.ecsahc.com/api/v1/updates',
+      statsUrl:           'https://updates.ecsahc.com/api/v1/stats',
+      channelUrl:         'https://updates.ecsahc.com/api/v1/channel',
+    },
     SplashScreen: {
       // Android 12+ system splash is always shown by the OS; this config
       // tunes the short post-launch splash screen Capacitor displays while
