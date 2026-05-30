@@ -206,12 +206,22 @@ reload_php
 
 # ---- 6. capacitor sync (mobile native bindings) ---------------------------
 # Only meaningful when running ON the build machine, not the API server.
-# Skipped silently if @capacitor/cli isn't installed.
+# We detect this via the presence of an Android SDK env var or a workable
+# Android dir. On the gov/staging servers there's no Android toolchain so
+# we skip this step silently — APK rebuilds happen on the dev workstation.
+SHOULD_CAP_SYNC=0
 if [ "$HAS_FRONTEND" -eq 1 ] && [ -f "$REPO_ROOT/node_modules/.bin/cap" ] && [ -d "$REPO_ROOT/android" ]; then
+  if [ -n "${ANDROID_HOME:-}" ] || [ -n "${ANDROID_SDK_ROOT:-}" ] || [ -d "$HOME/Android/Sdk" ]; then
+    SHOULD_CAP_SYNC=1
+  fi
+fi
+if [ "$SHOULD_CAP_SYNC" -eq 1 ]; then
   if [ "$FORCE" -eq 1 ] || git diff --name-only "$RANGE" -- 'capacitor.config.ts' 'package-lock.json' 2>/dev/null | grep -q .; then
     log INFO "capacitor config / native deps changed → npx cap sync android"
     run npx cap sync android || log WARN "cap sync failed — APK rebuild needed"
   fi
+else
+  log INFO "cap sync skipped (no Android SDK on this host — server, not build machine)"
 fi
 
 END=$(date +%s)
